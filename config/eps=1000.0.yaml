@@ -1,0 +1,8 @@
+---
+priv_PUMA_YEAR:
+  total_eps: 10
+  attributes:
+    - 'PUMA'
+    - 'YEAR'
+priv_all_two_way:
+  total_eps: 990

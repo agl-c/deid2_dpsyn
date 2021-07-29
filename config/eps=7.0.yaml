@@ -1,0 +1,25 @@
+---
+# pub sampling
+#priv_PUMA_YEAR:
+#  total_eps: 7.0
+#  attributes:
+#    - 'PUMA'
+#    - 'YEAR'
+#
+#### 1-way
+#priv_PUMA_YEAR:
+#  total_eps: 0.2
+#  attributes:
+#    - 'PUMA'
+#    - 'YEAR'
+#priv_all_one_way:
+#  total_eps: 6.8
+
+#### 2-way
+priv_PUMA_YEAR:
+  total_eps: 0.2
+  attributes:
+    - 'PUMA'
+    - 'YEAR'
+priv_all_two_way:
+  total_eps: 6.8

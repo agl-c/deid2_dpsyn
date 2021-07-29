@@ -1,0 +1,6 @@
+---
+priv_PUMA_YEAR:
+  total_eps: 0.01
+  attributes:
+    - 'PUMA'
+    - 'YEAR'
