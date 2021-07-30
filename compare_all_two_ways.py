@@ -12,7 +12,7 @@ from data.RecordPostprocessor import RecordPostprocessor
 
 
 import argparse
-
+# this file serves to compare two metric designs
 COLS = {
     "PUMA": "str",
     "YEAR": "uint32",
