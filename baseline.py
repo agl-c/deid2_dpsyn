@@ -9,13 +9,22 @@ from tqdm import trange
 
 
 def simulate_row(parameters, epsilon=None, sim_individual_id=None):
-    """
-    Naively create a valid row by picking random but valid values using the parameters file.
+    """Naively create a valid row by picking random but valid values using the parameters file.
+    
+    Note that this function specifically serves for the certain dataset structure,  
+    refer to parameters.json to get a general understanding of the description,
+    which includes all the coloums'names and the descriptions of the corresponding valid value,
+    like possible values given in array, minimum and maximum valus, as well as value type
+
+    Args:
+        parameters: the json file describing the structure of a valid row 
+        epsilon: usual dp def
+    TODO: sim_individual_id: specifically for the sprint2 dataset
     """
     row = {}
     if epsilon is not None:
         row["epsilon"] = epsilon
-    for col, d in parameters["schema"].items():
+    for col, d in parameters["schema"].items(): #d means the detailed description of the valid value
         value = 0
         if "values" in d:
             value = np.random.choice(d["values"])
@@ -37,8 +46,12 @@ def simulate_row(parameters, epsilon=None, sim_individual_id=None):
 def main(
         parameters_file: Path, per_epsilon: int = 20_000, seed: int = 42,
 ):
-    """
-    Create synthetic data appropriate to be submitted to the Sprint 2 competition.
+    """Create synthetic data naively for the Sprint 2 competition.
+        
+    Args:
+        parameters_file: path of the json file
+    TODO: per_epsilon: here is hard coded
+          seed: here is har coded 
     """
     np.random.seed(seed)
 

@@ -1,3 +1,6 @@
+# pylint: disable = W0614, W0401, C0411
+# the above errcodes correspond to unused wildcard import, wildcard import, wrong-import-order
+# In fact, we can run pylint in cmd and set options like: pylint --disable=Cxxxx,Wxxxx yyyy.py zzzz.py
 import argparse
 import copy
 
@@ -63,7 +66,8 @@ def run_method(config, dataloader, n, bias_penalty_cutoff):
         else:
             syn_data = syn_data.append(tmp, ignore_index=True)
 
-    # post-processing generated data, map records with grouped/binned attribute back to original attributes
+    # post-processing generated data
+    # map records with grouped/binned attribute back to original attributes
     postprocessor = RecordPostprocessor()
     syn_data = postprocessor.post_process(syn_data, args.config, dataloader.decode_mapping)
     logger.info("post-processed synthetic data")
