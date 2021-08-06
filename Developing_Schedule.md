@@ -15,6 +15,7 @@
 2. **datasets to fit/ experiment/ generalize** 
 
 ### Done Background Knowledge:
+0.python style guide by Google/official
 1.python *logger*
 2.*pylint* ( give it a shot ) to check code standard things 
 Q：logger.()直接调用的话日志会去哪里，是不是跑该.py会输出呢，还是说存到了某个log文件
@@ -23,13 +24,12 @@ A：查资料发现默认是在运行时输出到终端，可以对basic setting
 Q:  为什么我在注释里面加option都能识别有用呢
 A：可能和pylint运行时候的编译有关，总之这样可以对该module作出测试的option管理输出信息
 
-
+3.yaml language: 
 
 ## Before meet 
 
 1. ***read , understand,  add docstring / comments*** 
 2. maybe take care of naming: ( module name: OK class name: Cap )
-
 3. note for abbreviation
 
 ## Next phase work:

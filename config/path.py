@@ -1,3 +1,4 @@
+# this file includes the paths of several important files
 from pathlib import Path
 
 ROOT_DIRECTORY = Path("./")

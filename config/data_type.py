@@ -1,4 +1,6 @@
+"""this file describes the coloumn attributes' data type
 
+"""
 COLS = {
     "PUMA": "str",
     "YEAR": "uint32",
