@@ -32,11 +32,12 @@ class DataLoader:
 
     def load_data(self, pub_only=False):
         # load public data and get grouping mapping and filter values
-
+        # CONFIG_DATA means data.yaml, which include some paths and value bins
         with open(CONFIG_DATA, 'r') as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
         self.config = config
-
+        
+        # config['parameter_spec'] means parameters.json, which include parameters for several runs and data schema
         with open(config['parameter_spec']) as f:
             parameter_spec = json.load(f)
             self.general_schema = parameter_spec['schema']
