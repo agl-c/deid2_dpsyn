@@ -1,5 +1,6 @@
 # Developing Schedule
-
+Link:
+https://teams.microsoft.com/l/meetup-join/19%3ameeting_NzFjNmI1YWItYzMxOC00ZTYxLWExOGUtNzZkOGM4ZjI4NmJh%40thread.v2/0?context=%7b%22Tid%22%3a%222ab5d82f-d8fa-4797-a93e-054655c61dec%22%2c%22Oid%22%3a%221e8e3294-bdc8-4b0b-a61d-697689c9ea2a%22%7d
 ### received (have generally taken a look)
 *general open-source repos on github*
 
