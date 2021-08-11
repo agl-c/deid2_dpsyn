@@ -12,6 +12,9 @@ from config.data_type import COLS
 
 
 class DataLoader:
+    """Load data, attributes' processing, marginal generation funtions
+    
+    """
     def __init__(self):
         self.public_data = None
         self.private_data = None
