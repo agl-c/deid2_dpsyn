@@ -1,7 +1,7 @@
 """this file describes the coloumn attributes' data type
 
-specifically, it is the instantiation to the dataset used in the competition, 
-namely Public Use Microdata Sample (PUMS) of the 1940 USA Census Data. 
+specifically, it is the instantiation to the dataset used in the competition,
+namely Public Use Microdata Sample (PUMS) of the 1940 USA Census Data.
 """
 COLS = {
     "PUMA": "str",
