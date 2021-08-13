@@ -13,6 +13,8 @@ We present DPSyn, an algorithm for synthesizing microdata for data analysis whil
 ## Install DPsyn (fill this part after packaging, easy)
 ## How to config?
 FYI, you should firstly do a preprocessing of the datasets to find the schema of the datasets before utilizing the package's implemented tools. 
+** wait a minute, I guess can we offer these preprocessing tool in the package considering user-friendly configration? ** 
+
 ### General configrations in ./config directory
 1. in config/data.yaml, write the paths as claimed in the file's content, as well as define the bin values of attributes which also depends on pre analysis of the dataset
 2. in config/data_type.py, write the value types of the attributes
@@ -25,7 +27,15 @@ attributes:
     - 'YEAR'
 means we want to generate a privatized 2-way marginal on those 2 attributes,
 and to solve your confusion about how we generate a complete row with all the attributes, 
-please refer to the paper
+please refer to the paper 《PrivSyn: Differentially Private Data Synthesis》, https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun
+
+
+#### Interesting，as to the paper, I found myself memory-lost...
+(1) what does it mean by constructing a graph with all the 2-way marginals?
+(2) as to selecting marginals, check whether it means choose from all the possible pairs to a selected set until the calculated error can not be decreased? (noting it is greedy algorithm)
+as to the project here:
+(3)  besides, tianhao mentioned that in this project, we skip the part of choosing marginals by programes, but instead, do this job manually by ourselves?
+(4) 
 
 ### More configrations to fit our tool to your dataset
 
