@@ -1,5 +1,5 @@
 # Developing Schedule
-Link:
+weekly sync Link:
 https://teams.microsoft.com/l/meetup-join/19%3ameeting_NzFjNmI1YWItYzMxOC00ZTYxLWExOGUtNzZkOGM4ZjI4NmJh%40thread.v2/0?context=%7b%22Tid%22%3a%222ab5d82f-d8fa-4797-a93e-054655c61dec%22%2c%22Oid%22%3a%221e8e3294-bdc8-4b0b-a61d-697689c9ea2a%22%7d
 ### received (have generally taken a look)
 *general open-source repos on github*
@@ -47,3 +47,14 @@ refer to overleaf link
 
 
 
+https://aws.amazon.com/s3/?did=ft_card&trk=ft_card
+https://aws.amazon.com/sdk-for-python/
+https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-examples.html
+
+08/11 meet notes
+1. maybe on Nov.8th(date to sync via email spread sheet) they'll hold a virtual workshop where we 3 teams are required to present how our package works and the output of the challenges
+2. they've provided more public safety datasets to test on certain point (despite the fact that some of them might have to be cleaned to test on)
+3. as to dataset storage, they suggest use free-tier aws3, for which tool related tutorials are offered, too
+4. next week they want us to discuss more on how we think about configration and perhaps show user experience on how it works
+5. a metric related package is also offered to help measure the synthesized dataset, which link is also provided (seeming that some fellows we can ask for help if in need)
+6. they mention that after we supply the final work, they might ask NIST for help to allocate a permanent space to store our repositories for contributing to open-source work

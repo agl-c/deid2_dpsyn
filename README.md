@@ -10,7 +10,26 @@ We present DPSyn, an algorithm for synthesizing microdata for data analysis whil
 ### As to measure the quality of generated datasets:
 * we present 2 metric programes which you can run to test the quality of generated datasets: one is provided by the competition organizer and the other is drafted by ourselves.
 
-## Install DPsyn
+## Install DPsyn (fill this part after packaging, easy)
+## How to config?
+FYI, you should firstly do a preprocessing of the datasets to find the schema of the datasets before utilizing the package's implemented tools. 
+### General configrations in ./config directory
+1. in config/data.yaml, write the paths as claimed in the file's content, as well as define the bin values of attributes which also depends on pre analysis of the dataset
+2. in config/data_type.py, write the value types of the attributes
+3. in config/path.py,  write the paths of input dataset, the possible existing input public dataset, the parameters(attribute name,  value type, valid values, etc), etc
+4. add in config 'eps=xxx.yaml' where xxx means the epsilon value(privacy budget) you want to set and write more details in the yaml file which describes what you want to do in this run.
+<font color=red>
+For instance, 
+attributes:
+    - 'PUMA'
+    - 'YEAR'
+means we want to generate a privatized 2-way marginal on those 2 attributes,
+and to solve your confusion about how we generate a complete row with all the attributes, 
+please refer to the paper
+
+### More configrations to fit our tool to your dataset
+
+
 
 
 
