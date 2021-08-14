@@ -18,6 +18,8 @@ Q: what the difference between data.yaml & data_no_encode.yaml?
 3. and I worry about generalization to some extent, maybe for I should consider the general performance later and do things step by step...
 4. I want to run the code once to test dataset generation (even just on our groundtruth.csv and state-15-data.csv) 
 
+5. As to promote the research, more related work on histogram publishing is required I think
+
 
 
 

@@ -27,7 +27,7 @@ attributes:
     - 'YEAR'
 means we want to generate a privatized 2-way marginal on those 2 attributes,
 and to solve your confusion about how we generate a complete row with all the attributes, 
-please refer to the paper 《PrivSyn: Differentially Private Data Synthesis》, https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun
+please refer to the paper *PrivSyn: Differentially Private Data Synthesis*, https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun
 
 
 #### Interesting，as to the paper, I found myself memory-lost...
@@ -37,6 +37,9 @@ as to the project here:
 (3)  besides, tianhao mentioned that in this project, we skip the part of choosing marginals by programes, but instead, do this job manually by ourselves?
 (4) 
 
+1.what is the formal definition of the graphical model? refer to paper: *Graphical-model based estimation and inference for differential privacy*
+
+3.
 ### More configrations to fit our tool to your dataset
 
 
