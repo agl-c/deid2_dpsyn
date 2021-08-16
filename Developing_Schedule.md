@@ -1,5 +1,5 @@
 # Developing Schedule
-
+Note that git seetings to check about password login
 ## we're in week-5 (coding-style should be handled and Configration may be tackled)
 1. PS: despite that I reviewed the backbone of PrivSyn, as to specific coding logic,
 still hard work is needed to check 
