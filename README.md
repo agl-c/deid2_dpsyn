@@ -1,7 +1,9 @@
 # DPSyn: a quick start tutorial 
 ## What is DPsyn?
 We present DPSyn, an algorithm for synthesizing microdata for data analysis while satisfying differential privacy. Besides, inspired by the access to a public dataset in the 20deID2 competition, in some cases (which is decided by specific method_decision algorithm), we turn to the public dataset instead of the dp-tackled private one to generate the query answer. 
-### For your convenience, with a dataset (which you want to protect privacy), you can:
+
+TODO: the following might be too detailed.
+### For your convenience, with a dataset (whose privacy you want to protect), you can:
 * directly choose to use the DPsyn algorithm to generate a private dataset;
 ### Further, with another public dataset for reference, you can:
 * utilize our code to decide whether to use the public dataset or the DPSyned private one to answer queries;
@@ -13,9 +15,7 @@ We present DPSyn, an algorithm for synthesizing microdata for data analysis whil
 ## Install DPsyn (fill this part after packaging, easy)
 ## How to config?
 ### Preparation work to generate supporting files for specific dataset
-FYI, you should firstly do a preprocession of the dataset to find the schema of the dataset before utilizing the package's implemented tools. 
-
-For simplification, we require you to provide dataset in format of filename.csv(comma-separated file), which is a file format in general use for data storage, and we offer you tools to generate the parameters.json and read_csv_kwargs.json.
+You should first preprocess the dataset. We require you to provide dataset in format of filename.csv(comma-separated file), and we offer you tools to generate the parameters.json and read_csv_kwargs.json.
 
 Q: how we get the data types of all the colums of the csv file? (to get read_csv_kwargs.json)
 A: Refer to https://stackoverflow.com/questions/52369572/python-how-to-get-data-types-for-all-columns-in-csv-file,
@@ -45,7 +45,7 @@ Or should we better implement the attribute selection and combination part of DP
 2. in config/data_type.py, write the value types of the attributes (which should be easy since we must get read_csv_kwargs.json)
 3. in config/path.py,  write the paths of input dataset, the possible existing input public dataset, the parameters(attribute name,  value type, valid values, etc), etc
 4. add in config 'eps=xxx.yaml' where xxx means the epsilon value(privacy budget) you want to set and write more details in the yaml file which describes what you want to do in this run.
-(TODO: what does it mean? why all those xxxx.yaml cares about 'PUMA' and 'YEAR'?😅)
+(TODO: what does it mean? why all those xxxx.yaml cares about 'PUMA' and 'YEAR'?😅) - puma is an area code. puma-year is the evaluation metric; maybe it is more interesting to some analytics in census
 <font color=red>
 For instance, 
 attributes:
@@ -57,7 +57,7 @@ please refer to the paper *PrivSyn: Differentially Private Data Synthesis*, http
 
 
 #### Interesting，as to the paper, I found myself memory-lost...
-(1) what does it mean by constructing a graph with all the 2-way marginals? (even though I konw it's not our method in DPSyn)
+(1) what does it mean by constructing a graph with all the 2-way marginals? (even though I konw it's not our method in DPSyn) - that's our choice
 (2) as to selecting marginals, check whether it means choose from all the possible pairs to a selected set until the calculated error can not be decreased? (noting it is greedy algorithm)
 as to the project here:
 (3)  besides, tianhao mentioned that in this project, we skip the part of choosing marginals by programes, but instead, do this job manually by ourselves? (sorry, )
@@ -105,21 +105,14 @@ as to the project here:
 
 ## Team Members & Affiliation(s):
 
+Anqi Chen (Peking University)
 Ninghui Li (Purdue University)
 Zitao Li (Purdue University)
 Tianhao Wang (Purdue University)
 
 ## GitHub User(s) Serving as POC:
 
-@vvv214
-
-## How to Cite:
-
-- Author: Ninghui Li, Zitao Li, Tianhao Wang
-- Date: May 30, 2021
-- Title: DPSyn
-- Type: source code
-
+@vvv214, @agl-c
 
 
 
