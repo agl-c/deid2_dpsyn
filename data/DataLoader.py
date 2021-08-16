@@ -55,6 +55,10 @@ class DataLoader:
                 for attr, encode_mapping in self.encode_mapping.items():
                     self.decode_mapping[attr] = sorted(encode_mapping, key=encode_mapping.get)
         else:
+            # COLS is claimed to be config.data_type, meaning we should read the csv with restricted datatypes
+            # pd.read_csv returns a 2-dimensional DataFrame
+            # note that the basic silent setting is that the first row is the table header, so no need to config
+
             self.public_data = pd.read_csv(DATA_DIRECTORY / f"{config['pub_dataset_path']}.csv", dtype=COLS)
             self.public_data = self.binning_attributes(config['numerical_binning'], self.public_data)
             self.public_data = self.grouping_attributes(config['grouping_attributes'], self.public_data)
@@ -82,6 +86,7 @@ class DataLoader:
         if not self.all_attrs:
             all_attrs = list(self.public_data.columns)
             try:
+            # why we remove this?
                 all_attrs.remove("sim_individual_id")
             except:
                 pass
@@ -89,16 +94,23 @@ class DataLoader:
         return self.all_attrs
 
     def binning_attributes(self, binning_info, data):
-        """
-            Numerical attributes can be binned
+        """Numerical attributes can be binned,
+        as data.yaml only claims the min, max, step value for an attribute,
+        we write this function to materially bin the detailed values for each attribute
         """
         for attr, spec_list in binning_info.items():
             if attr == "DEPARTS" or attr == "ARRIVES":
+                # why we hard code it like this? why h times 100? it should be *60?
+                # here we use np.r_ to connect the 1-dim arrays in row display
                 bins = np.r_[-np.inf, [h * 100 + m for h in range(24) for m in spec_list], np.inf]
             else:
                 [s, t, step] = spec_list
+                # we use np.arrange(s,t,step) to generate 1-dim array
                 bins = np.r_[-np.inf, np.arange(s, t, step), np.inf]
+            # we translate attribute original value to bin codes 
             data[attr] = pd.cut(data[attr], bins).cat.codes
+            # sry, why we record in this simple way about the mapping, will it suffice?
+            # actually, the following 2 rows are based on agreed convention and serve not hard use?
             self.encode_mapping[attr] = {(bins[i], bins[i + 1]): i for i in range(len(bins) - 1)}
             self.decode_mapping[attr] = [i for i in range(len(bins) - 1)]
         return data
@@ -118,6 +130,7 @@ class DataLoader:
             encoding = {v: i for i, v in enumerate(grouping['combinations'])}
             data[new_attr] = data[attributes].apply(tuple, axis=1)
             data[new_attr] = data[new_attr].map(encoding)
+            # here we map using the same logic like dealing with above single attribute
             self.encode_mapping[new_attr] = encoding
             self.decode_mapping[new_attr] = grouping['combinations']
 
@@ -127,22 +140,26 @@ class DataLoader:
             #     data = data[~data[new_attr].isin(self.filter_values[new_attr])]
 
             # drop grouped columns
+            # we drop those included in grouping attributes to ensure the data schema
+            # and we print the detailed information to help understanding
             data = data.drop(attributes, axis=1)
             print("new attr:", new_attr, "<-", attributes)
             print("new uniques", sorted(data[new_attr].unique()))
 
         print("columns after grouping:", data.columns)
+        # here is mapped and grouped data on display 
         return data
 
     @staticmethod
     def remove_determined_attributes(determined_info, data):
-        """
-            Some dataset are determined by other attributes
+        """Some  attributes are determined by other attributes so why not first desert them
+
         """
         for determined_attr in determined_info.keys():
             data = data.drop(determined_attr, axis=1)
             print("remove", determined_attr)
-        data = data.drop('sim_individual_id', axis=1)
+        data = data.drop('sim_individual_id', axis=1) 
+        # note that here rely on specific data setting claiming about determined attributes
         return data
 
     # recode the remaining single attributes to save storage
