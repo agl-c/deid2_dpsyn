@@ -49,7 +49,8 @@ A：可能和pylint运行时候的编译有关，总之这样可以对该module�
 
 3.yaml language specifications read
 4.quick note about Package module to install by pip
-5.learn pandas in dealing with data
+5.learn the python package pandas in dealing with data
+6.leran .csv file format
    
 ## for future possible use: 
 0. sample/direct_sample/plain_pub(which use deepcopy, any polishing?)
