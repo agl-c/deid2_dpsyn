@@ -29,14 +29,19 @@ I guess that with the DataFrame, we get to know some features of the colums and 
 Confused: why YEAR and sim_individual_id are not included in parameters.json?😅
 Why we restrict the maximum records per individual?　Concerned for too heavy data procession?
 
+TODO: ask them for existing tools
+
 
 As to data.yaml, where we specify:
-(1) specified parameters of an experiment run
-(2) the lowest-boundary-value, highest-boundary-value and step-value of some attributes, 
-(3) some hard coded grouped attributes. 😅
-TODO: how we generate it(data.yaml)?
-Should we ask users to set appropriate bin value parameters and grouping settings themselves? 
-Or should we better implement the attribute selection and combination part of DPSyn paper?
+(1) specified parameters of an experiment run (depend on specific design)
+(2) the lowest-boundary-value, highest-boundary-value and step-value of some attributes, (depend on granuarity metric settings)
+(3) some hard coded grouped attributes. (depend on analysis on possible existing public datasets and we may give you some tips about choosing to group what attributes)
+Tips: 
+* group those with small domains;
+* group those with embedded correlation
+* group those essitially the same attributes (for instance, one attribute differs with another only in naming or can be fully determined by the other)
+In summary, in data.yaml we ask users to set appropriate bin value parameters, grouping settings, and value-determined attributes which are detected by users themselves.
+(TODO: Or should we better implement the attribute selection and combination part of DPSyn paper?)
 
 
 
@@ -45,60 +50,37 @@ Or should we better implement the attribute selection and combination part of DP
 2. in config/data_type.py, write the value types of the attributes (which should be easy since we must get read_csv_kwargs.json)
 3. in config/path.py,  write the paths of input dataset, the possible existing input public dataset, the parameters(attribute name,  value type, valid values, etc), etc
 4. add in config 'eps=xxx.yaml' where xxx means the epsilon value(privacy budget) you want to set and write more details in the yaml file which describes what you want to do in this run.
-(TODO: what does it mean? why all those xxxx.yaml cares about 'PUMA' and 'YEAR'?😅)
+(Q: what does it mean? why all those xxxx.yaml cares about 'PUMA' and 'YEAR'?😅
+A: it is because the metric is on how the synthesized dataset are close to the original one in a "PUMA YEAR" setting. 
+)
 <font color=red>
 For instance, 
 attributes:
     - 'PUMA'
     - 'YEAR'
-means we want to generate a privatized 2-way marginal on those 2 attributes,
-and to solve your confusion about how we generate a complete row with all the attributes, 
-please refer to the paper *PrivSyn: Differentially Private Data Synthesis*, https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun
+
+To solve your confusion about how we generate a complete row with all the attributes, please refer to the paper *PrivSyn: Differentially Private Data Synthesis*, https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun
 
 
 #### Interesting，as to the paper, I found myself memory-lost...
-(1) what does it mean by constructing a graph with all the 2-way marginals? (even though I konw it's not our method in DPSyn)
-(2) as to selecting marginals, check whether it means choose from all the possible pairs to a selected set until the calculated error can not be decreased? (noting it is greedy algorithm)
-as to the project here:
-(3)  besides, tianhao mentioned that in this project, we skip the part of choosing marginals by programes, but instead, do this job manually by ourselves? (sorry, )
-(4) 
+(1) what does it mean by constructing a graph with all the 2-way marginals? 
+A：Each attribute is a node and the edge between them is a distribution describing the correlation between attributes. 
+(2) In DPSyn paper, as to selecting marginals, it means choosing from all possible pairs to a selected set until the calculated error can not be decreased? (it is greedy algorithm, please refer to paper link for more details)
+As to the project here, we skip the step of choosing marginals and simply do that manually by ourselves? 
+TODO: You can start from using all the pairs or require people to designate what pairs to care about? 
+TODO：Maybe we can include the greedy algorithm code on pair selection later.
 
 1.what is the formal definition of the graphical model? refer to paper: *Graphical-model based estimation and inference for differential privacy*
+TODO：I have not totally understand the example of 3-way marginal?
+Why it means a triangle which just takes care of correlation between 2 attributes?
+I supposed the "3-way marginal" implies a correlationship between all the 3 which however seems to be in paradox with the 3-edge-representation?
+
+
+
 
 ### More configrations to fit our tool to your dataset
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+I guess more tip documentation are needed..... Since some hard code exist.
+Or I need more experience or intelligence in tackling a general case. 😭
 
 
 
