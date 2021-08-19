@@ -1,8 +1,7 @@
 # DPSyn: a quick start tutorial 
 ## What is DPsyn?
-We present DPSyn, an algorithm for synthesizing microdata for data analysis while satisfying differential privacy. Besides, inspired by the access to a public dataset in the 20deID2 competition, in some cases (which is decided by specific method_decision algorithm), we turn to the public dataset instead of the dp-tackled private one to generate the query answer. 
+We present DPSyn, an algorithm for synthesizing microdata for data analysis while satisfying differential privacy. Besides, inspired by the access to a public dataset in the 20deID2 competition, in some cases (which is decided by specific method_decision algorithm), we turn to the public dataset instead of the privatized one to generate the query answer. 
 
-TODO: the following might be too detailed.
 ### For your convenience, with a dataset (whose privacy you want to protect), you can:
 * directly choose to use the DPsyn algorithm to generate a private dataset;
 ### Further, with another public dataset for reference, you can:
@@ -11,39 +10,34 @@ TODO: the following might be too detailed.
 * you can also use the method_decision algorithm to decide whether turn to the public dataset or the private one for answering queires.
 ### As to measure the quality of generated datasets:
 * we present 2 metric programes which you can run to test the quality of generated datasets: one is provided by the competition organizer and the other is drafted by ourselves.
+* generally, for convincing performance measure, we also test on how the generated dataset is close to the original one using the well-known packet 
 
 ## Install DPsyn (fill this part after packaging, easy)
 ## How to config?
 ### Preparation work to generate supporting files for specific dataset
-You should first preprocess the dataset. We require you to provide dataset in format of filename.csv(comma-separated file), and we offer you tools to generate the parameters.json and read_csv_kwargs.json.
+You should first preprocess the dataset. We require you to provide dataset in format of filename.csv(comma-separated file, and you can find ground_truth.csv as an example), and we offer you tools to generate the parameters.json and read_csv_kwargs.json(both we include example files in the repository).
 
-Q: how we get the data types of all the colums of the csv file? (to get read_csv_kwargs.json)
-A: Refer to https://stackoverflow.com/questions/52369572/python-how-to-get-data-types-for-all-columns-in-csv-file,
-it seems that we can get to extrapolate the value types by proprocession of DataFrame, like using:
-for name, dtype in df.dtypes.iteritems():
-    # note that we should store in json format, detailed coding needed 
-    # besides, I worry about whether the deduction is correct about value types.
 
-Q: how we set run parameters and get the all possible valid values of parameters? (parameters.json)
-I guess that with the DataFrame, we get to know some features of the colums and set them in json file which is not that hard?
-Confused: why YEAR and sim_individual_id are not included in parameters.json?😅
+Q: how we set run parameters like epsilon? (parameters.json)
+It is dependent on users' design? Or shall we instruct them to set sensible eps parameters?
+Confused: 
+why YEAR and sim_individual_id are not included in parameters.json?😅
 Why we restrict the maximum records per individual?　Concerned for too heavy data procession?
 
-TODO: ask them for existing tools
 
 
 As to data.yaml, where we specify:
 (1) specified parameters of an experiment run (depend on specific design)
-(2) the lowest-boundary-value, highest-boundary-value and step-value of some attributes, (depend on granuarity metric settings)
-(3) some hard coded grouped attributes. (depend on analysis on possible existing public datasets and we may give you some tips about choosing to group what attributes)
+(2) the lowest-boundary-value, highest-boundary-value and step-value of some attributes, (depend on granuarity metric settings, which we leave for users' flexible design)
+(3) hard coded grouped attributes. (depend on analysis on possible existing public datasets and we may give you some tips on choosing to group what attributes)
 Tips: 
 * group those with small domains;
 * group those with embedded correlation
 * group those essitially the same attributes (for instance, one attribute differs with another only in naming or can be fully determined by the other)
 In summary, in data.yaml we ask users to set appropriate bin value parameters, grouping settings, and value-determined attributes which are detected by users themselves.
 (TODO: Or should we better implement the attribute selection and combination part of DPSyn paper?)
-
-
+TODO: As to combination, King seemed to mention one combination package which might help in instructing combining? 
+But I can not figure out how it works as we even cannot know the inner features of the to-protect dataset.
 
 ### General configrations in ./config directory
 1. in config/data.yaml, write the paths as claimed in the file's content, as well as define the bin values of attributes which also depends on pre analysis of the dataset
@@ -74,14 +68,9 @@ Why it means a triangle which just takes care of correlation between 2 attribute
 I supposed the "3-way marginal" implies a correlationship between all the 3 which however seems to be in paradox with the 3-edge-representation?
 
 
-
-
 ### More configrations to fit our tool to your dataset
 I guess more tip documentation are needed..... Since some hard code exist.
 Or I need more experience or intelligence in tackling a general case. 😭
-
-
-
 
 ## Team Members & Affiliation(s):
 
