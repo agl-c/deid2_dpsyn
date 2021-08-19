@@ -10,7 +10,7 @@ We present DPSyn, an algorithm for synthesizing microdata for data analysis whil
 * you can also use the method_decision algorithm to decide whether turn to the public dataset or the private one for answering queires.
 ### As to measure the quality of generated datasets:
 * we present 2 metric programes which you can run to test the quality of generated datasets: one is provided by the competition organizer and the other is drafted by ourselves.
-* generally, for convincing performance measure, we also test on how the generated dataset is close to the original one using the well-known packet 
+* generally, for convincing performance measure, we also evaluate the synthesized datasets using the well-known packet synthpop.
 
 ## Install DPsyn (fill this part after packaging, easy)
 ## How to config?
