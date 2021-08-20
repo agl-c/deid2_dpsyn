@@ -1,6 +1,6 @@
 # Developing Schedule
 Note that git seetings to check about password login
-## we're in week-5 (coding-style should be handled and Configration may be tackled)
+## we're in week-6 (coding-style should be handled and Configration may be tackled)
 1. review the backbone of PrivSyn, as to specific coding logic
 2. I'm thinking about how to set command line interface for configration  ( learn and ask) 
 
@@ -33,6 +33,8 @@ A：可能和pylint运行时候的编译有关，总之这样可以对该module�
 4.quick note about Package module to install by pip
 5.learn the python package pandas in dealing with data
 6.leran .csv file format
+7.install R, Rstudio and learn the quick start of Synthpop R package
+TODO: however, I encountered bugs when compare 2 datasets running the command line using the package's functions
 
 
 ### To learn
