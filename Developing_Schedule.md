@@ -37,10 +37,22 @@ A：可能和pylint运行时候的编译有关，总之这样可以对该module�
 TODO: however, I encountered bugs when compare 2 datasets running the command line using the package's functions
 
 
-### To learn
-1. aws s3 use
-2. the measurment package use
-   
+### Done 
+1. upload the recommended datasets to s3 for possible use, but till now the local storage should suffice
+2. already tried the measurment package use (input 2 csv files but take care for debug I guess)
+
+
+### Method Core work
+1. how to set eps, delta, sensitivity? shall we ask users to specify these parameters? (suppose you want to privatize a dataset and have some detailed needs)
+how to design the sensitive function? 
+2. 
+
+
+
+
+
+
+
 ## for future possible use: 
 0. sample/direct_sample/plain_pub(which use deepcopy, any polishing?)
 1. <font color=red>generalization take care of fixed values:</font>>

@@ -14,8 +14,11 @@ from method.synthesizer import Synthesizer
 
 
 class DPSyn(Synthesizer):
+    """Note that it just inheritats the functions in class Synthesizer
+    
+    """
     synthesized_df = None
-    update_iterations = 60
+    update_iterations = 60  # guess it the iteration setting 
 
     attrs_view_dict = {}
     onehot_view_dict = {}
@@ -32,13 +35,20 @@ class DPSyn(Synthesizer):
     d = None
 
     def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method):
-        # marginals are specified by a dict from attribute tuples to frequency (pandas) tables
+       
+        """marginals are specified by a dict from attribute tuples to frequency (pandas) tables
+        however, consistency should mean post processing, right?
+        why here seems to be an active obtain?
+
+
+
+        """
         pub_marginals = self.data.generate_all_pub_marginals()
         noisy_marginals = self.get_noisy_marginals(priv_marginal_config, priv_split_method)
 
         num_synthesize_records = np.mean([np.sum(x.values) for _, x in noisy_marginals.items()]).round().astype(np.int)
-        noisy_puma_year = noisy_marginals[frozenset(['PUMA', 'YEAR'])]
-        del noisy_marginals[frozenset(['PUMA', 'YEAR'])]
+        noisy_puma_year = noisy_marginals[frozenset(['PUMA', 'YEAR'])] # store anyway
+        del noisy_marginals[frozenset(['PUMA', 'YEAR'])] #why we delete them, even I know the metric classifies...
 
         self.attr_list = self.data.obtain_attrs()
         self.domain_list = np.array([len(self.data.encode_schema[att]) for att in self.attr_list])
@@ -49,6 +59,7 @@ class DPSyn(Synthesizer):
         noisy_onehot_view_dict, noisy_attr_view_dict = self.construct_views(noisy_marginals)
 
         # all_views is one-hot to view dict, views_dict is attribute to view dict
+        # where is all_views then? one-hot here means what?
         # they have different format to satisfy the needs of consistenter and synthesiser
         self.onehot_view_dict, self.attrs_view_dict = self.normalize_views(
             pub_onehot_view_dict,
@@ -60,7 +71,8 @@ class DPSyn(Synthesizer):
         consistenter = Consistenter(self.onehot_view_dict, self.domain_list)
         consistenter.consist_views()
 
-        # consistenter uses unnormalized counts; after consistency, synthesizer uses normalized counts
+        # consistenter uses unnormalized counts;
+        # after consistency, synthesizer uses normalized counts
         for _, view in self.onehot_view_dict.items():
             view.count /= sum(view.count)
 
@@ -69,7 +81,7 @@ class DPSyn(Synthesizer):
     def synthesize(self, fixed_n=0) -> pd.DataFrame:
         noisy_puma_year = self.obtain_consistent_marginals()
 
-        # find clusters for synthesize; a cluster is a set of marginals closely connected
+        # if in need, we can find clusters for synthesize; a cluster is a set of marginals closely connected
         # here we do not cluster and use all marginals as a single cluster
         clusters = self.cluster(self.attrs_view_dict)
 

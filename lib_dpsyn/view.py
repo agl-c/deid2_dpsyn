@@ -2,6 +2,7 @@ import numpy as np
 
 
 class View:
+    # wanna a more detailed explanation on View
     def __init__(self, attr_one_hot: np.array, domain_size_list: np.array):
         self.attr_one_hot = attr_one_hot
         self.domain_size_list = domain_size_list

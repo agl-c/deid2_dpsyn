@@ -35,6 +35,7 @@ class RecordSynthesizer:
         self.num_records = num_records
 
     def update_alpha(self, iteration):
+        # interstingly, how to design this? any intuition design or just case by case?
         self.alpha = 1.0 * 0.84 ** (iteration // 20)
 
     def update_order(self, iteration, views, iterate_keys):
@@ -194,6 +195,7 @@ class RecordSynthesizer:
         current_num = 0.0
         iteration = 0
         
+        # interesting again, how we design beta?
         while abs(num_add_total - current_num) >= 1.0:
             beta = (upper_bound + lower_bound) / 2.0
             current_num = np.sum(

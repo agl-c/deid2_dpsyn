@@ -43,6 +43,11 @@ def run_method(config, dataloader, n, bias_penalty_cutoff):
     parameters = json.loads(Path(config['parameter_spec']).read_text())
     syn_data = None
 
+    # as to which method to use, users can specify in runs
+    # but should we instruct what method works better?
+    # I guess they can just choose as they like since the motivation might be just generate a dataset for use 
+    # or when in case of answering things...? I still hold it relies on them to choose dpsyn or others?
+
     for r in parameters["runs"]:
         eps, delta, sensitivity = r['epsilon'], r['delta'], r['max_records_per_individual']
         logger.info(f'working on eps={eps}, delta={delta}, and sensitivity={sensitivity}')

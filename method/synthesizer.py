@@ -10,6 +10,12 @@ from typing import Dict, Tuple
 
 
 class Synthesizer(object):
+    """
+    
+    
+    """
+    # every class can inherit the base claa object;
+    # abc means Abstract Base Class
     __metaclass__ = abc.ABCMeta
     Marginals = Dict[Tuple[str], np.array]
 
@@ -31,11 +37,15 @@ class Synthesizer(object):
         return submit_data
 
     def anonymize(self, priv_marginal_sets: Dict, epss: Dict, priv_split_method: Dict) -> Marginals:
+        """the function name means just adding noises?
+        interestingly, it just returns the noisy marginals
+        """
         noisy_marginals = {}
         for set_key, marginals in priv_marginal_sets.items():
             eps = epss[set_key]
             # noise_type, noise_param = advanced_composition.get_noise(eps, self.delta, self.sensitivity, len(marginals))
             noise_type = priv_split_method[set_key]
+            # we use laplace or guass noise?
             if noise_type == 'lap':
                 noise_param = 1 / advanced_composition.lap_comp(eps, self.delta, self.sensitivity, len(marginals))
                 for marginal_att, marginal in marginals.items():
@@ -52,7 +62,8 @@ class Synthesizer(object):
 
     def get_noisy_marginals(self, priv_marginal_config, priv_split_method):
         priv_marginal_sets, epss = self.data.generate_marginal_by_config(self.data.private_data, priv_marginal_config)
-        # todo: fix noise calculation method for each
+        # todo: fix noise calculation method for each?
+        # means what?
         noisy_marginals = self.anonymize(priv_marginal_sets, epss, priv_split_method)
         del priv_marginal_sets
         return noisy_marginals
