@@ -2,58 +2,92 @@
 ## What is DPsyn?
 We present DPSyn, an algorithm for synthesizing microdata for data analysis while satisfying differential privacy. Besides, inspired by the access to a public dataset in the 20deID2 competition, in some cases (which is decided by specific method_decision algorithm), we turn to the public dataset instead of the privatized one to generate the query answer. 
 
+To facilitate your understanding, please refer to the paper *PrivSyn: Differentially Private Data Synthesis*, https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun
+
+
 ### For your convenience, with a dataset (whose privacy you want to protect), you can:
-* directly choose to use the DPsyn algorithm to generate a private dataset;
-### Further, with another public dataset for reference, you can:
-* utilize our code to decide whether to use the public dataset or the DPSyned private one to answer queries;
-### Moreover, with a private dataset generated not by DPSyn:
-* you can also use the method_decision algorithm to decide whether turn to the public dataset or the private one for answering queires.
-### As to measure the quality of generated datasets:
-* we present 2 metric programes which you can run to test the quality of generated datasets: one is provided by the competition organizer and the other is drafted by ourselves.
-* generally, for convincing performance measure, we also evaluate the synthesized datasets using the well-known packet synthpop.
+* directly use DPsyn algorithm to generate a private dataset;
+### (*for research*)Further, with another public dataset for reference, you can:
+* decide whether to use the public one or the DPSyned dataset to answer queries, as to which problem we place some default intuitional settings (in practice, they could be researched deeper) and users can change as they want.
+### As to measure the generated dataset:
+*(In the competition's setting, we present 2 metric programes which you can run to test the quality of generated datasets: one is provided by the competition organizer and the other is drafted by ourselves.)
+* generally, you can refer to Synthpop(a R package) as a tool to compare the synthesized dataset against the original one.
+
 
 ## Install DPsyn (fill this part after packaging, easy)
+
+
+
+
+
+
+
+
 ## How to config?
 ### Preparation work to generate supporting files for specific dataset
-You should first preprocess the dataset. We require you to provide dataset in format of filename.csv(comma-separated file, and you can find ground_truth.csv as an example), and we offer you tools to generate the parameters.json and read_csv_kwargs.json(both we include example files in the repository).
+You should first preprocess the dataset. We require you to provide dataset in format of filename.csv(comma-separated file, and you can find ground_truth.csv as an example), and we offer you tools to generate the parameters.json and read_csv_kwargs.json(both we include example files in the repository) which include some schema of the dataset to help our algorithm run well.
 
+### As to dp parameters(eps, delta, sensitivity)
+Users should set runs' parameters  in parameters.json according to their specific differential privacy needs.
 
-Q: how we set run parameters like epsilon? (parameters.json)
-It is dependent on users' design? Or shall we instruct them to set sensible eps parameters?
-Confused: 
-why YEAR and sim_individual_id are not included in parameters.json?😅
-Why we restrict the maximum records per individual?　Concerned for too heavy data procession?
+TODO Confused: 
+1. why YEAR and sim_individual_id are not included in parameters.json?😅
+2. Why we restrict the maximum records per individual?　Concerned for too heavy data procession?
 
-
-
-As to data.yaml, where we specify:
-(1) specified parameters of an experiment run (depend on specific design)
-(2) the lowest-boundary-value, highest-boundary-value and step-value of some attributes, (depend on granuarity metric settings, which we leave for users' flexible design)
-(3) hard coded grouped attributes. (depend on analysis on possible existing public datasets and we may give you some tips on choosing to group what attributes)
-Tips: 
-* group those with small domains;
-* group those with embedded correlation
-* group those essitially the same attributes (for instance, one attribute differs with another only in naming or can be fully determined by the other)
+### In data.yaml, we specify:
 In summary, in data.yaml we ask users to set appropriate bin value parameters, grouping settings, and value-determined attributes which are detected by users themselves.
-(TODO: Or should we better implement the attribute selection and combination part of DPSyn paper?)
-TODO: As to combination, King seemed to mention one combination package which might help in instructing combining? 
-But I can not figure out how it works as we even cannot know the inner features of the to-protect dataset.
+1. parameters of an experiment run (users' design)
+2. the lowest-boundary-value, highest-boundary-value and step-value of some attributes, (depend on granuarity metric settings, which we leave for users' flexible design)
+3. hard coded grouped attributes (based on analysis in possible existing public datasets and we may give you some tips on choosing to group which attributes)
+*Basically, you can refer to some intuitional tips:* 
+* group those with small domains;
+* group those with embedded correlation;
+* group those essitially the same attributes (for instance, one attribute differs with another only in naming or can be fully determined by the other);
+
+TODO:
+1. Later we consider including the code of  attribute selection and combination part in DPSyn paper.
+2. King seemed to mention one combination package which might help in instructing combining? (But I can not figure out how it works as we even cannot know the inner features of the to-protect dataset.)
+
 
 ### General configrations in ./config directory
 1. in config/data.yaml, write the paths as claimed in the file's content, as well as define the bin values of attributes which also depends on pre analysis of the dataset
 2. in config/data_type.py, write the value types of the attributes (which should be easy since we must get read_csv_kwargs.json)
 3. in config/path.py,  write the paths of input dataset, the possible existing input public dataset, the parameters(attribute name,  value type, valid values, etc), etc
+
+(
+### Below is related to generate a dataset with certain attributes fiexd 
 4. add in config 'eps=xxx.yaml' where xxx means the epsilon value(privacy budget) you want to set and write more details in the yaml file which describes what you want to do in this run.
-(TODO: what does it mean? why all those xxxx.yaml cares about 'PUMA' and 'YEAR'?😅) - puma is an area code. puma-year is the evaluation metric; maybe it is more interesting to some analytics in census
+(For instance, to generate a dataset for each pair of  "PUMA" and "YEAR", which is motivated by the specific metric here, you can set in yaml things like below)
 <font color=red>
-For instance, 
 attributes:
     - 'PUMA'
     - 'YEAR'
+)
 
-To solve your confusion about how we generate a complete row with all the attributes, please refer to the paper *PrivSyn: Differentially Private Data Synthesis*, https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun
+### More configrations to fit our algorithm to your dataset
+Below we list several places in our code where you can set some magic values (instead of our rude default settings) when using the package to generate specific dataset.
+Tips on how to design those values will be obtained in related places in code files. 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*Below is simply draft to help thinking:*
 #### Interesting，as to the paper, I found myself memory-lost...
 (1) what does it mean by constructing a graph with all the 2-way marginals? 
 A：Each attribute is a node and the edge between them is a distribution describing the correlation between attributes. 
@@ -67,10 +101,6 @@ TODO：I have not totally understand the example of 3-way marginal?
 Why it means a triangle which just takes care of correlation between 2 attributes?
 I supposed the "3-way marginal" implies a correlationship between all the 3 which however seems to be in paradox with the 3-edge-representation?
 
-
-### More configrations to fit our tool to your dataset
-I guess more tip documentation are needed..... Since some hard code exist.
-Or I need more experience or intelligence in tackling a general case. 😭
 
 ## Team Members & Affiliation(s):
 

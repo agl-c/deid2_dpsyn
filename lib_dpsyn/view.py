@@ -219,4 +219,10 @@ class View:
 
 
 if __name__ == "__main__":
-    view = View([1, 1, 0, 0], [3, 3, 0, 0])
+    view = View([1, 1, 0, 0], [3, 3, 0, 0]) 
+    # flatten 2-way array ---> one way, the latter is table content?  
+    #   a b c d
+    # a 
+    # b
+    # c
+    # d

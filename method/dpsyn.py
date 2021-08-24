@@ -14,7 +14,7 @@ from method.synthesizer import Synthesizer
 
 
 class DPSyn(Synthesizer):
-    """Note that it just inheritats the functions in class Synthesizer
+    """Note that it just inherits the functions in class Synthesizer
     
     """
     synthesized_df = None
@@ -48,7 +48,8 @@ class DPSyn(Synthesizer):
 
         num_synthesize_records = np.mean([np.sum(x.values) for _, x in noisy_marginals.items()]).round().astype(np.int)
         noisy_puma_year = noisy_marginals[frozenset(['PUMA', 'YEAR'])] # store anyway
-        del noisy_marginals[frozenset(['PUMA', 'YEAR'])] #why we delete them, even I know the metric classifies...
+        del noisy_marginals[frozenset(['PUMA', 'YEAR'])] 
+        # why we delete them, even I know the metric classifies...
 
         self.attr_list = self.data.obtain_attrs()
         self.domain_list = np.array([len(self.data.encode_schema[att]) for att in self.attr_list])

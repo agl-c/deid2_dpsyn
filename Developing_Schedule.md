@@ -39,7 +39,7 @@ TODO: however, I encountered bugs when compare 2 datasets running the command li
 
 ### Done 
 1. upload the recommended datasets to s3 for possible use, but till now the local storage should suffice
-2. already tried the measurment package use (input 2 csv files but take care for debug I guess)
+2. already tried the measurment package synthpop (input 2 csv files but take care for debug I guess)
 
 
 ### Method Core work
