@@ -27,17 +27,33 @@ To facilitate your understanding, please refer to the paper *PrivSyn: Differenti
 ### Preparation work to generate supporting files for specific dataset
 You should first preprocess the dataset. We require you to provide dataset in format of filename.csv(comma-separated file, and you can find ground_truth.csv as an example), and we offer you tools to generate the parameters.json and read_csv_kwargs.json(both we include example files in the repository) which include some schema of the dataset to help our algorithm run well.
 
+More details:
+1. You can specify bin values like [min, max, step] in numerical_binning in data.yaml 
+2. Moreover, you can change more detailed bin generation in the function binning_attributes() in DataLoader.py
+3. You can define attributes to be grouped in data.yaml
+4. If your dataset include some attributes that can be determined by other attributes, you can specify them in data.yaml
+5. If you have a public dataset to refer to, set pub_ref=True in load_data() in DataLoader.py
+
+
 ### As to dp parameters(eps, delta, sensitivity)
-Users should set runs' parameters  in parameters.json according to their specific differential privacy needs.
+Users should set the eps, delta, sensitivity value in several runs in parameters.json to satisfy specific differential privacy needs.
+Here we display an example where the sensitivity value equals to max_records_per_individual, which essentially means the global sensitivity value of a specified function f.
+    {
+      "epsilon": 2.0,
+      "delta": 3.4498908254380166e-11,
+      "max_records": 1350000,
+      "max_records_per_individual": 7
+    }
+Meanwhile, as the above example shows, you can specify the max_records parameter to bound the number of rows in the synthesized dataset.
 
-TODO Confused: 
+TODO: 
 1. why YEAR and sim_individual_id are not included in parameters.json?😅
-2. Why we restrict the maximum records per individual?　Concerned for too heavy data procession?
 
-### In data.yaml, we specify:
-In summary, in data.yaml we ask users to set appropriate bin value parameters, grouping settings, and value-determined attributes which are detected by users themselves.
+
+### Summary of data.yaml FYI
+In data.yaml we ask users to set appropriate bin value parameters, grouping settings, and value-determined attributes which are detected by users themselves.
 1. parameters of an experiment run (users' design)
-2. the lowest-boundary-value, highest-boundary-value and step-value of some attributes, (depend on granuarity metric settings, which we leave for users' flexible design)
+2. the lowest-boundary-value, highest-boundary-value and step-value of some attributes (depend on granuarity metric settings, which we leave for users' design)
 3. hard coded grouped attributes (based on analysis in possible existing public datasets and we may give you some tips on choosing to group which attributes)
 *Basically, you can refer to some intuitional tips:* 
 * group those with small domains;
@@ -51,7 +67,7 @@ TODO:
 
 ### General configrations in ./config directory
 1. in config/data.yaml, write the paths as claimed in the file's content, as well as define the bin values of attributes which also depends on pre analysis of the dataset
-2. in config/data_type.py, write the value types of the attributes (which should be easy since we must get read_csv_kwargs.json)
+2. in config/data_type.py, write the value types of the attributes (easy with read_csv_kwargs.json obtained)
 3. in config/path.py,  write the paths of input dataset, the possible existing input public dataset, the parameters(attribute name,  value type, valid values, etc), etc
 
 (
@@ -68,18 +84,8 @@ attributes:
 Below we list several places in our code where you can set some magic values (instead of our rude default settings) when using the package to generate specific dataset.
 Tips on how to design those values will be obtained in related places in code files. 
 
-
-
-
-
-
-
-
-
-
-
-
-
+1. 
+2. 
 
 
 

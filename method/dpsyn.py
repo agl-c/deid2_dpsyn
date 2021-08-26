@@ -40,7 +40,7 @@ class DPSyn(Synthesizer):
         however, consistency should mean post processing, right?
         why here seems to be an active obtain?
 
-
+        automatic method of finding the optimal marginals to care about
 
         """
         pub_marginals = self.data.generate_all_pub_marginals()

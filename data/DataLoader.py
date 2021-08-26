@@ -33,7 +33,8 @@ class DataLoader:
 
         self.config = None
 
-    def load_data(self, pub_only=False):
+    def load_data(self, pub_only=False, pub_ref=False):
+        # we set pub_ref=False since the default case is not owning a public dataset to refer to
         # load public data and get grouping mapping and filter values
         # CONFIG_DATA means data.yaml, which include some paths and value bins
         with open(CONFIG_DATA, 'r') as f:
@@ -49,22 +50,23 @@ class DataLoader:
         priv_pickle_path = PICKLE_DIRECTORY / f"preprocessed_priv_{config['priv_dataset_path']}.pkl"
 
         # load public data
-        if os.path.isfile(public_pickle_path):
-            [self.public_data, self.encode_mapping] = pickle.load(open(public_pickle_path, 'rb'))
-            if pub_only:
-                for attr, encode_mapping in self.encode_mapping.items():
-                    self.decode_mapping[attr] = sorted(encode_mapping, key=encode_mapping.get)
-        else:
-            # COLS is claimed to be config.data_type, meaning we should read the csv with restricted datatypes
-            # pd.read_csv returns a 2-dimensional DataFrame
-            # note that the basic silent setting is that the first row is the table header, so no need to config
+        if pub_ref:
+            if os.path.isfile(public_pickle_path):
+                [self.public_data, self.encode_mapping] = pickle.load(open(public_pickle_path, 'rb'))
+                if pub_only:
+                    for attr, encode_mapping in self.encode_mapping.items():
+                        self.decode_mapping[attr] = sorted(encode_mapping, key=encode_mapping.get)
+            else:
+                # COLS is claimed to be config.data_type, meaning we should read the csv with restricted datatypes
+                # pd.read_csv returns a 2-dimensional DataFrame
+                # note that the basic silent setting is that the first row is the table header, so no need to config
 
-            self.public_data = pd.read_csv(DATA_DIRECTORY / f"{config['pub_dataset_path']}.csv", dtype=COLS)
-            self.public_data = self.binning_attributes(config['numerical_binning'], self.public_data)
-            self.public_data = self.grouping_attributes(config['grouping_attributes'], self.public_data)
-            self.public_data = self.remove_determined_attributes(config['determined_attributes'], self.public_data)
-            self.public_data = self.recode_remain(self.general_schema, config, self.public_data)
-            pickle.dump([self.public_data, self.encode_mapping], open(public_pickle_path, 'wb'))
+                self.public_data = pd.read_csv(DATA_DIRECTORY / f"{config['pub_dataset_path']}.csv", dtype=COLS)
+                self.public_data = self.binning_attributes(config['numerical_binning'], self.public_data)
+                self.public_data = self.grouping_attributes(config['grouping_attributes'], self.public_data)
+                self.public_data = self.remove_determined_attributes(config['determined_attributes'], self.public_data)
+                self.public_data = self.recode_remain(self.general_schema, config, self.public_data)
+                pickle.dump([self.public_data, self.encode_mapping], open(public_pickle_path, 'wb'))
 
         # load private data
         if os.path.isfile(priv_pickle_path) and not pub_only:
@@ -95,22 +97,23 @@ class DataLoader:
 
     def binning_attributes(self, binning_info, data):
         """Numerical attributes can be binned,
-        as data.yaml only claims the min, max, step value for an attribute,
-        we write this function to materially bin the detailed values for each attribute
+        As data.yaml only claims the min, max, step value for an attribute,
+        we write this function to materially bin the detailed values for each attribute.
+        You can change details according to your specific needs.
+
+
+
         """
         for attr, spec_list in binning_info.items():
-            if attr == "DEPARTS" or attr == "ARRIVES":
-                # why we hard code it like this? why h times 100? it should be *60?
-                # here we use np.r_ to connect the 1-dim arrays in row display
-                bins = np.r_[-np.inf, [h * 100 + m for h in range(24) for m in spec_list], np.inf]
-            else:
-                [s, t, step] = spec_list
-                # we use np.arrange(s,t,step) to generate 1-dim array
-                bins = np.r_[-np.inf, np.arange(s, t, step), np.inf]
-            # we translate attribute original value to bin codes 
-            data[attr] = pd.cut(data[attr], bins).cat.codes
-            # sry, why we record in this simple way about the mapping, will it suffice?
-            # actually, the following 2 rows are based on agreed convention and serve not hard use?
+            # if attr == "DEPARTS" or attr == "ARRIVES":
+            # why we hard code it like this? why h times 100? it should be *60?
+            # here we use np.r_ to connect the 1-dim arrays in row display
+            #    bins = np.r_[-np.inf, [h * 100 + m for h in range(24) for m in spec_list], np.inf]
+            # else:
+            [s, t, step] = spec_list
+            bins = np.r_[-np.inf, np.arange(s, t, step), np.inf]    # use np.arrange(s,t,step) to generate 1-dim array
+            data[attr] = pd.cut(data[attr], bins).cat.codes    # translate attribute original value to bin codes 
+            # actually, the following 2 rows are based on agreed convention and serve not hard use
             self.encode_mapping[attr] = {(bins[i], bins[i + 1]): i for i in range(len(bins) - 1)}
             self.decode_mapping[attr] = [i for i in range(len(bins) - 1)]
         return data
