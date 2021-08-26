@@ -27,8 +27,13 @@ class DPSyn(Synthesizer):
     domain_list = []
     attr_index_map = {}
 
+    # despite phthon variables can be used without claiming its type, we import typing to ensure robustness
     Attrs = List[str]
     Domains = np.ndarray
+    # Tuple[str] means 
+    #    (i) a tuple type which has a single element which is str?
+    # or (ii) a tuple type which has a undetermined length of str elements?
+    # I guess it should be (ii)?
     Marginals = Dict[Tuple[str], np.array]
     Clusters = Dict[Tuple[str], List[Tuple[str]]]
 
@@ -43,16 +48,22 @@ class DPSyn(Synthesizer):
         automatic method of finding the optimal marginals to care about
 
         """
+
+        # note whether the below sentence is supported with a public dataset 
         pub_marginals = self.data.generate_all_pub_marginals()
         noisy_marginals = self.get_noisy_marginals(priv_marginal_config, priv_split_method)
 
+        # a little surprising: for each marginal the sum of frequency may not be the same?
         num_synthesize_records = np.mean([np.sum(x.values) for _, x in noisy_marginals.items()]).round().astype(np.int)
-        noisy_puma_year = noisy_marginals[frozenset(['PUMA', 'YEAR'])] # store anyway
-        del noisy_marginals[frozenset(['PUMA', 'YEAR'])] 
+        # interestingly, frozenset() means the elements are frozened, i.e., neither adding nor deleting is permitted 
+        # noisy_puma_year = noisy_marginals[frozenset(['PUMA', 'YEAR'])] # store anyway
+        # del noisy_marginals[frozenset(['PUMA', 'YEAR'])] 
         # why we delete them, even I know the metric classifies...
 
+        # I want to figure out their types
         self.attr_list = self.data.obtain_attrs()
         self.domain_list = np.array([len(self.data.encode_schema[att]) for att in self.attr_list])
+        # use enumerate in for to return index, element pair for simplifying code
         self.attr_index_map = {att: att_i for att_i, att in enumerate(self.attr_list)}
 
         # views are wrappers of marginals with additional functions for consistency

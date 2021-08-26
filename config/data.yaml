@@ -1,6 +1,7 @@
 ---
 # this file is written by yaml(yet-another-markup-language), "---" denotes the start of a piece of content
 # it describes the specific data serialization of the dataset being tackled
+# if you have a public dataset to refer to, please set the path in the below line
 pub_dataset_path: ground_truth
 priv_dataset_path: state-15-data
 #priv_dataset_path: ground_truth

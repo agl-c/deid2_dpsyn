@@ -23,56 +23,54 @@ To facilitate your understanding, please refer to the paper *PrivSyn: Differenti
 
 
 
-## How to config?
+## How to configure to synthesize a dataset by DPsyn?
 ### Preparation work to generate supporting files for specific dataset
-You should first preprocess the dataset. We require you to provide dataset in format of filename.csv(comma-separated file, and you can find ground_truth.csv as an example), and we offer you tools to generate the parameters.json and read_csv_kwargs.json(both we include example files in the repository) which include some schema of the dataset to help our algorithm run well.
+You should first preprocess the dataset. 
+We require you to provide dataset in format of filename.csv(comma-separated file, and you can find ground_truth.csv as an example), and we offer you tools to generate the parameters.json and read_csv_kwargs.json(both we include example files in the repository) which include some schema of the dataset to help our algorithm run.
+In data.yaml we ask users to set file paths, bin value parameters, grouping settings, and value-determined attributes which are detected by users themselves.
 
 More details:
-1. You can specify bin values like [min, max, step] in numerical_binning in data.yaml 
-2. Moreover, you can change more detailed bin generation in the function binning_attributes() in DataLoader.py
-3. You can define attributes to be grouped in data.yaml
-4. If your dataset include some attributes that can be determined by other attributes, you can specify them in data.yaml
+1. You can specify bin values like [min, max, step] in numerical_binning in data.yaml (based on your granuarity likes)
+2. Moreover, you can change more details in bin generation in binning_attributes() in DataLoader.py
+3. You can define attributes to be grouped in data.yaml ()
+ (based on analysis in possible existing public datasets and we may give you some tips on choosing to group which attributes)
+*Basically, you can refer to some intuitional tips:* 
+   * group those with small domains;
+   * group those with embedded correlation;
+   * group those essitially the same attributes (for instance, one attribute differs with another only in naming or can be fully determined by the other);
+TODO:
+1. consider including the code of  attribute selection and combination part in DPSyn paper. 😋
+2. King seemed to mention one combination package which might help in instructing combining? (But I can not figure out how it works as we even cannot know the inner features of the to-protect dataset.)
+
+
+4. If your dataset include some attributes that can be determined by other attributes, you can specify them in data.yaml 🤔
 5. If you have a public dataset to refer to, set pub_ref=True in load_data() in DataLoader.py
+TODO:  🤣
+there is a parameter called pub_only in load_data and I guess whether it is when we only input the public dataset?
 
 
 ### As to dp parameters(eps, delta, sensitivity)
-Users should set the eps, delta, sensitivity value in several runs in parameters.json to satisfy specific differential privacy needs.
-Here we display an example where the sensitivity value equals to max_records_per_individual, which essentially means the global sensitivity value of a specified function f.
+Users should set the eps, delta, sensitivity value in 'runs' in parameters.json according to their specific differential privacy requirements.
+Here we display an example where the sensitivity value equals to 'max_records_per_individual', which essentially means the global sensitivity value of a specified function f(here is the count).
     {
       "epsilon": 2.0,
       "delta": 3.4498908254380166e-11,
       "max_records": 1350000,
       "max_records_per_individual": 7
     }
-Meanwhile, as the above example shows, you can specify the max_records parameter to bound the number of rows in the synthesized dataset.
-
-TODO: 
-1. why YEAR and sim_individual_id are not included in parameters.json?😅
-
-
-### Summary of data.yaml FYI
-In data.yaml we ask users to set appropriate bin value parameters, grouping settings, and value-determined attributes which are detected by users themselves.
-1. parameters of an experiment run (users' design)
-2. the lowest-boundary-value, highest-boundary-value and step-value of some attributes (depend on granuarity metric settings, which we leave for users' design)
-3. hard coded grouped attributes (based on analysis in possible existing public datasets and we may give you some tips on choosing to group which attributes)
-*Basically, you can refer to some intuitional tips:* 
-* group those with small domains;
-* group those with embedded correlation;
-* group those essitially the same attributes (for instance, one attribute differs with another only in naming or can be fully determined by the other);
-
-TODO:
-1. Later we consider including the code of  attribute selection and combination part in DPSyn paper.
-2. King seemed to mention one combination package which might help in instructing combining? (But I can not figure out how it works as we even cannot know the inner features of the to-protect dataset.)
-
+Meanwhile, as the above example shows, you can specify the 'max_records' parameter to bound the number of rows in the synthesized dataset.
+🤔
 
 ### General configrations in ./config directory
-1. in config/data.yaml, write the paths as claimed in the file's content, as well as define the bin values of attributes which also depends on pre analysis of the dataset
+1. in config/data.yaml, write the paths as claimed in the file's content
 2. in config/data_type.py, write the value types of the attributes (easy with read_csv_kwargs.json obtained)
-3. in config/path.py,  write the paths of input dataset, the possible existing input public dataset, the parameters(attribute name,  value type, valid values, etc), etc
+TODO: find its use in the whole folder? 😅
+3. in config/path.py,  write the paths of input original dataset file, the public dataset file(if there exists one to refer to), the parameters file (attribute name,  value type, valid values, etc), etc
+
 
 (
-### Below is related to generate a dataset with certain attributes fiexd 
-4. add in config 'eps=xxx.yaml' where xxx means the epsilon value(privacy budget) you want to set and write more details in the yaml file which describes what you want to do in this run.
+### Below is related to generate a dataset with certain attributes fiexd (I think we'd better desert the part)
+4. add in config 'eps=xxx.yaml' where xxx means the epsilon value(privacy budget) you want to set and include more details in the yaml file which describes what you want to do in this run.
 (For instance, to generate a dataset for each pair of  "PUMA" and "YEAR", which is motivated by the specific metric here, you can set in yaml things like below)
 <font color=red>
 attributes:
@@ -84,9 +82,19 @@ attributes:
 Below we list several places in our code where you can set some magic values (instead of our rude default settings) when using the package to generate specific dataset.
 Tips on how to design those values will be obtained in related places in code files. 
 
-1. 
-2. 
+| variable          | file                 | class/function) | value |  
+| update_iterations | dpsyn.py             | DPSyn           | 60    |
+| n                 | experiment.py        | main()          | 0 ??? |
+| d                 | dpsyn.py             | DPSyn           | 0??   |
+| 
 
+
+
+
+ 😅:
+  pub_marginals = self.data.generate_all_pub_marginals()
+  noise_type = priv_split_method[set_key]
+  def lap_adv_comp(epsilon, delta, sensitivity, k):
 
 
 
