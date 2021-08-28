@@ -30,9 +30,10 @@ We require you to provide dataset in format of filename.csv(comma-separated file
 In data.yaml we ask users to set file paths, bin value parameters, grouping settings, and value-determined attributes which are detected by users themselves.
 
 More details:
-1. You can specify bin values like [min, max, step] in numerical_binning in data.yaml (based on your granuarity likes)
-2. Moreover, you can change more details in bin generation in binning_attributes() in DataLoader.py
-3. You can define attributes to be grouped in data.yaml ()
+1. You can specify the identifier attribute's name in data.yaml (we assume your dataset has the identifer attribute by default and obviously, in synthetic dataset the column should be removed to protect privacy)
+2. You can specify bin values like [min, max, step] in numerical_binning in data.yaml (based on your granuarity likes)
+3. Moreover, you can change more details in bin generation in binning_attributes() in DataLoader.py
+4. You can define attributes to be grouped in data.yaml ()
  (based on analysis in possible existing public datasets and we may give you some tips on choosing to group which attributes)
 *Basically, you can refer to some intuitional tips:* 
    * group those with small domains;
@@ -95,9 +96,10 @@ Tips on how to design those values will be obtained in related places in code fi
   pub_marginals = self.data.generate_all_pub_marginals()
   noise_type = priv_split_method[set_key]
   def lap_adv_comp(epsilon, delta, sensitivity, k):
-
-
-
+  zcdp and zcdp2 and rdp perform the same
+  with open(args.config, 'r') as f:
+  if pub_only:
+  def reload_priv(self, new_data_path):
 
 
 

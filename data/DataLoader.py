@@ -12,7 +12,12 @@ from config.data_type import COLS
 
 
 class DataLoader:
-    """Load data, attributes' processing, marginal generation funtions
+    """Load data, bin some attributes, group some attributes, during which encode the attributes' values to categorical indexes,
+    encode the remained single attributes likewise,
+    remove the identifier attribute,
+    (if existing) remove those attributes whose values can be determined by others.
+
+    several marginal generation funtions are also included in this class for use.
     
     """
     def __init__(self):
@@ -41,11 +46,13 @@ class DataLoader:
             config = yaml.load(f, Loader=yaml.FullLoader)
         self.config = config
         
-        # config['parameter_spec'] means parameters.json, which include parameters for several runs and data schema
+        # config['parameter_spec'] means parameters.json
+        # which include parameters for several runs and data schema
         with open(config['parameter_spec']) as f:
             parameter_spec = json.load(f)
             self.general_schema = parameter_spec['schema']
-
+        
+        # we use pickle to store the objects in files as binary flow
         public_pickle_path = PICKLE_DIRECTORY / f"preprocessed_pub_{config['pub_dataset_path']}.pkl"
         priv_pickle_path = PICKLE_DIRECTORY / f"preprocessed_priv_{config['priv_dataset_path']}.pkl"
 
@@ -53,19 +60,32 @@ class DataLoader:
         if pub_ref:
             if os.path.isfile(public_pickle_path):
                 [self.public_data, self.encode_mapping] = pickle.load(open(public_pickle_path, 'rb'))
+                # want to check pub_only means what?
                 if pub_only:
+                    # want to know the dictionary's value is it 
+                    # use the same variable name should introduce problems....
                     for attr, encode_mapping in self.encode_mapping.items():
+                    # note that sorted() returns a new list
                         self.decode_mapping[attr] = sorted(encode_mapping, key=encode_mapping.get)
             else:
-                # COLS is claimed to be config.data_type, meaning we should read the csv with restricted datatypes
+                # COLS is config.data_type, so read_csv with restricted datatypes
                 # pd.read_csv returns a 2-dimensional DataFrame
-                # note that the basic silent setting is that the first row is the table header, so no need to config
+                # note that the default setting is that the first row is the table header
+                # below line use the str-formatting grammar in python which is a little confusing 
+                # and basically the f "" means a formatted string, {} decorates inside a string, and .csv is just string
+                # they are connected to form the file name by method of formatted string
+                # e.g., 
+                # return f'hello {text}, hello {name}'
+                # return 'hello '+text+', hello '+name
 
                 self.public_data = pd.read_csv(DATA_DIRECTORY / f"{config['pub_dataset_path']}.csv", dtype=COLS)
                 self.public_data = self.binning_attributes(config['numerical_binning'], self.public_data)
                 self.public_data = self.grouping_attributes(config['grouping_attributes'], self.public_data)
+                # remove the identifier
+                self.public_data = self.remove_identifier(self.public_data)
+                # note if there exist determined attributes to tackle
                 self.public_data = self.remove_determined_attributes(config['determined_attributes'], self.public_data)
-                self.public_data = self.recode_remain(self.general_schema, config, self.public_data)
+                self.public_data = self.encode_remain(self.general_schema, config, self.public_data)
                 pickle.dump([self.public_data, self.encode_mapping], open(public_pickle_path, 'wb'))
 
         # load private data
@@ -77,19 +97,21 @@ class DataLoader:
             self.private_data = pd.read_csv(DATA_DIRECTORY / f"{config['priv_dataset_path']}.csv", dtype=COLS)
             self.private_data = self.binning_attributes(config['numerical_binning'], self.private_data)
             self.private_data = self.grouping_attributes(config['grouping_attributes'], self.private_data)
+            self.private_data = self.remove_identifier(self.private_data)
             self.private_data = self.remove_determined_attributes(config['determined_attributes'], self.private_data)
-            self.private_data = self.recode_remain(self.general_schema, config, self.private_data, is_private=True)
+            self.private_data = self.encode_remain(self.general_schema, config, self.private_data, is_private=True)
             pickle.dump([self.private_data, self.encode_mapping], open(priv_pickle_path, 'wb'))
 
         for attr, encode_mapping in self.encode_mapping.items():
+        # note that here schema means all the valid values of encoded ones
             self.encode_schema[attr] = sorted(encode_mapping.values())
 
     def obtain_attrs(self):
         if not self.all_attrs:
             all_attrs = list(self.public_data.columns)
             try:
-            # why we remove this?
-                all_attrs.remove("sim_individual_id")
+            # we remove the column since it is the identifier
+                all_attrs.remove(self.config['identifier'])
             except:
                 pass
             self.all_attrs = all_attrs
@@ -102,7 +124,6 @@ class DataLoader:
         You can change details according to your specific needs.
 
 
-
         """
         for attr, spec_list in binning_info.items():
             # if attr == "DEPARTS" or attr == "ARRIVES":
@@ -111,16 +132,20 @@ class DataLoader:
             #    bins = np.r_[-np.inf, [h * 100 + m for h in range(24) for m in spec_list], np.inf]
             # else:
             [s, t, step] = spec_list
+            # generate the bins
             bins = np.r_[-np.inf, np.arange(s, t, step), np.inf]    # use np.arrange(s,t,step) to generate 1-dim array
-            data[attr] = pd.cut(data[attr], bins).cat.codes    # translate attribute original value to bin codes 
+            # translate attribute original value to intervals and further translate to interval codes 
+            data[attr] = pd.cut(data[attr], bins).cat.codes    
             # actually, the following 2 rows are based on agreed convention and serve not hard use
+            # range(n) return [0,..,n-1]
             self.encode_mapping[attr] = {(bins[i], bins[i + 1]): i for i in range(len(bins) - 1)}
+            # actually, the decode_maping is naive? just record the index array should suffice? I doubt...
             self.decode_mapping[attr] = [i for i in range(len(bins) - 1)]
         return data
 
     def grouping_attributes(self, grouping_info, data):
-        """
-            Some attributes can be grouped
+        """Some attributes can be grouped  under settings in grouping_info
+
         """
         for grouping in grouping_info:
             attributes = grouping['attributes']
@@ -131,10 +156,12 @@ class DataLoader:
 
             # map tuples to new values in new columns
             encoding = {v: i for i, v in enumerate(grouping['combinations'])}
-            data[new_attr] = data[attributes].apply(tuple, axis=1)
+            # this row is verbous, data[new_attr] = data[attributes].apply(tuple, axis=1)
+            # here we map them to codes again like we map intervals to interval indexes
             data[new_attr] = data[new_attr].map(encoding)
-            # here we map using the same logic like dealing with above single attribute
+           
             self.encode_mapping[new_attr] = encoding
+            # look at this, here decode_mapping is a dict which maps index to real tuple
             self.decode_mapping[new_attr] = grouping['combinations']
 
             # todo: do we still need filter?
@@ -142,42 +169,60 @@ class DataLoader:
             # if "filter" in grouping:
             #     data = data[~data[new_attr].isin(self.filter_values[new_attr])]
 
-            # drop grouped columns
-            # we drop those included in grouping attributes to ensure the data schema
+            # drop those already included in new_attr
             # and we print the detailed information to help understanding
             data = data.drop(attributes, axis=1)
             print("new attr:", new_attr, "<-", attributes)
             print("new uniques", sorted(data[new_attr].unique()))
-
+        # display after grouping
         print("columns after grouping:", data.columns)
-        # here is mapped and grouped data on display 
+    
         return data
 
+    def remove_identifier(self, data):
+        """remove the identifier attribute column
+        
+        """
+        data = data.drop(self.config['identifier'], axis=1)
+        print("remove identifier column", self.config['identifier'])
+        return data
+    
+    # we declare the function as @staticmethod so that you can use it without instantiating an object
     @staticmethod
     def remove_determined_attributes(determined_info, data):
-        """Some  attributes are determined by other attributes so why not first desert them
+        """Some  attributes are determined by other attributes
+        so why not first desert them and finally recover them 
 
         """
         for determined_attr in determined_info.keys():
             data = data.drop(determined_attr, axis=1)
+        # desert the determined attributes and print the info
             print("remove", determined_attr)
-        data = data.drop('sim_individual_id', axis=1) 
+        # desert the identifiers, but wait(why it seems to have appeared otherwhere?)
+        # data = data.drop(self.config[identifier], axis=1) 
         # note that here rely on specific data setting claiming about determined attributes
         return data
 
-    # recode the remaining single attributes to save storage
-    def recode_remain(self, schema, config, data, is_private=False):
+    # encode the remaining single attributes to save storage
+    #　in　other　words, all the attributes are encoded to save now
+    def encode_remain(self, schema, config, data, is_private=False):
         encoded_attr = list(config['numerical_binning'].keys()) + [grouping['grouped_name'] for grouping in config['grouping_attributes']]
         for attr in data.columns:
-            if attr in ['sim_individual_id'] or attr in encoded_attr:
+            # note that there are so many config[identifier] throughout the codes, 
+            # I guess why not set a global variable in config which is the str 
+
+            if attr in [self.config['identifier']] or attr in encoded_attr:
                 continue
             print("encode remain:", attr)
             assert attr in schema and 'values' in schema[attr]
-            if is_private and attr == 'PUMA':
-                mapping = data[attr].unique()
-            else:
-                mapping = schema[attr]['values']
+            # below line serves for syhthesizing a dataset when fixing PUMA,YEAR 
+            # data[].unique() returns an array which includes all the unique values in the column
+            #if is_private and attr == 'PUMA':
+            #    mapping = data[attr].unique()
+            #else:
+            mapping = schema[attr]['values']
             encoding = {v: i for i, v in enumerate(mapping)}
+            # we encode the remaining single attributes' original values to the categorical indexes
             data[attr] = data[attr].map(encoding)
             self.encode_mapping[attr] = encoding
             self.decode_mapping[attr] = mapping
@@ -186,29 +231,34 @@ class DataLoader:
     def generate_all_pub_marginals(self):
         with open(CONFIG_DATA, 'r') as f:
             config = yaml.load(f, Loader=yaml.BaseLoader)
-        pub_marginal_pickle = PICKLE_DIRECTORY / f"pub_all_marginals_{config['pub_dataset_path']}.pkl"
 
+        # we in first place utilize the storage in pickle files
+        pub_marginal_pickle = PICKLE_DIRECTORY / f"pub_all_marginals_{config['pub_dataset_path']}.pkl"
+        # we check the file name is not NULL in case of there exists not public dataset?
+        # i.e., config['pub_dataset_path'] is not NULL?
         if pub_marginal_pickle is not None and os.path.isfile(pub_marginal_pickle):
             self.pub_marginals = pickle.load(open(pub_marginal_pickle, 'rb'))
             return self.pub_marginals
 
         all_attrs = list(self.public_data.columns)
-        # all_attrs.remove("sim_individual_id")
+        all_attrs.remove(config['identifier'])
         # one-way marginals except PUMA and YEAR
         for attr in all_attrs:
-            if attr == 'PUMA' or attr == 'YEAR':
-                continue
+            #if attr == 'PUMA' or attr == 'YEAR':
+            #    continue
             self.pub_marginals[frozenset([attr])] = self.generate_one_way_marginal(self.public_data, attr)
-        # two_way marginals except PUMA and YEAR
+        # two_way marginals except PUMA and YEAR, enumerate return tuple(index,value) and the default starting index=0
         for i, attr in enumerate(all_attrs):
-            if attr == 'PUMA' or attr == 'YEAR':
-                continue
+            #if attr == 'PUMA' or attr == 'YEAR':
+            #    continue
+            # default step is 1, and range(s,t) return [s,s+1,....,t-1];
             for j in range(i + 1, len(all_attrs)):
-                if all_attrs[j] == 'PUMA' or all_attrs[j] == 'YEAR':
-                    continue
+                #if all_attrs[j] == 'PUMA' or all_attrs[j] == 'YEAR':
+                #    continue
                 self.pub_marginals[frozenset([all_attrs[i], all_attrs[j]])] = self.generate_two_way_marginal(
                     self.public_data, all_attrs[i], all_attrs[j])
 
+        # we check the file name is not NULL in case of there exists not public dataset?
         if pub_marginal_pickle is not None:
             pickle.dump(self.pub_marginals, open(pub_marginal_pickle, 'wb'))
 
@@ -250,6 +300,8 @@ class DataLoader:
         return marginals
 
     def generate_marginal_by_config(self, records: pd.DataFrame, config: dict) -> Tuple[Dict, Dict]:
+        """config means those marginals_xxxxx.yaml where define 
+        """
         marginal_sets = {}
         epss = {}
         for marginal_key, marginal_dict in config.items():
@@ -272,22 +324,29 @@ class DataLoader:
             marginal_sets[marginal_key] = marginals
         return marginal_sets, epss
 
-    '''
-    '''
+    
     def reload_priv(self, new_data_path):
+        """I don't know why we write the reload_priv function and new_data_path means what? 😅
+
+        """
         with open(CONFIG_DATA, 'r') as f:
             config = yaml.load(f)
 
         self.private_data = pd.read_csv(new_data_path)
         self.private_data = self.binning_attributes(config['numerical_binning'], self.private_data)
         self.private_data = self.grouping_attributes(config['grouping_attributes'], self.private_data)
+        self.private_data = self.remove_identifier(self.private_data)
         self.private_data = self.remove_determined_attributes(config['determined_attributes'], self.private_data)
-        self.private_data = self.recode_remain(self.general_schema, config, self.private_data, is_private=True)
+        self.private_data = self.encode_remain(self.general_schema, config, self.private_data, is_private=True)
         for attr, encode_mapping in self.encode_mapping.items():
             self.encode_schema[attr] = sorted(encode_mapping.values())
         print(f"reload private {new_data_path} done...")
 
     def get_marginal_grouping_info(self, cur_attrs):
+        """return a dictionary which map attr to a list of attr:
+        if it's a single attribute, the list include itself,
+        otherwise the list includes the attributes being grouped.
+        """
         info = {}
         grouping_info = self.config['grouping_attributes']
         for attr in cur_attrs:

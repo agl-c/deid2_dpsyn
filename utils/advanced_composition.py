@@ -8,6 +8,10 @@ def lap_comp(epsilon, delta, sensitivity, k):
     return epsilon * 1.0 / k / sensitivity
 
 
+# it seems that we only use below two functions in synthesizer.py
+# (1) lap_comp()
+# (2) gauss_zcdp()
+# I don't know what the other functions actually mean
 def lap_adv_comp(epsilon, delta, sensitivity, k):
     def func(x_0):
         eps_0 = x_0[0]

@@ -9,8 +9,8 @@ from data.RecordPostprocessor import RecordPostprocessor
 from method.dpsyn import DPSyn
 from method.sample_parallel import Sample
 from method.direct_sample import DirectSample
-from metric import *
-from detailed_metric import *
+# from metric import *
+# from detailed_metric import *
 import numpy as np
 
 
@@ -25,13 +25,14 @@ def main():
     dataloader = DataLoader()
     dataloader.load_data()
 
+    # the default chosen method is dpsyn, which you can change as you want actually
     args.method = 'dpsyn'
     # args.method = 'direct_sample'
     # args.method = 'sample'
     # args.method = 'plain_pub'
     n = 0
-    # n = 1000
-    bias_penalty_cutoff = 2500000
+    # TODO: what do n and bias_penalty means 
+    # bias_penalty_cutoff = 2500000
     # bias_penalty_cutoff = 250
 
     syn_data = run_method(config, dataloader, n, bias_penalty_cutoff)
@@ -49,6 +50,8 @@ def run_method(config, dataloader, n, bias_penalty_cutoff):
     # or when in case of answering things...? I still hold it relies on them to choose dpsyn or others?
 
     for r in parameters["runs"]:
+        # replace the below 'max_records_per_individual' with your own design
+        # i.e., the corresponding semantic name of the sensitivity value
         eps, delta, sensitivity = r['epsilon'], r['delta'], r['max_records_per_individual']
         logger.info(f'working on eps={eps}, delta={delta}, and sensitivity={sensitivity}')
         if args.method == 'plain_pub':

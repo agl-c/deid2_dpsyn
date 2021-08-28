@@ -60,7 +60,7 @@ class DPSyn(Synthesizer):
         # del noisy_marginals[frozenset(['PUMA', 'YEAR'])] 
         # why we delete them, even I know the metric classifies...
 
-        # I want to figure out their types
+        # I want to figure out their types, data: DataLoader
         self.attr_list = self.data.obtain_attrs()
         self.domain_list = np.array([len(self.data.encode_schema[att]) for att in self.attr_list])
         # use enumerate in for to return index, element pair for simplifying code
