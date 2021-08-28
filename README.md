@@ -2,8 +2,16 @@
 ## What is DPsyn?
 We present DPSyn, an algorithm for synthesizing microdata for data analysis while satisfying differential privacy. Besides, inspired by the access to a public dataset in the 20deID2 competition, in some cases (which is decided by specific method_decision algorithm), we turn to the public dataset instead of the privatized one to generate the query answer. 
 
-To facilitate your understanding, please refer to the paper *PrivSyn: Differentially Private Data Synthesis*, https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun
+To facilitate your understanding, please refer to the paper *PrivSyn: Differentially Private Data Synthesis* [link](https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun).
 
+### Comparison with related work
+There are two similar and highly-related papers (both from competitors in the competition) . They are:
+[PrivMRF](http://www.vldb.org/pvldb/vol14/p2190-cai.pdf), and
+[PGM](https://arxiv.org/pdf/1901.09136.pdf).
+
+The difference is that PrivSyn includes the whole data synthesize pipeline: (1) finding marginals and (2) synthesize dataset from the marginals. PGM only handles the second part, and PrivMRF only handles the first part (and uses PGM as the second part).  Since the PrivSyn and PrivMRF appear concurrently, there is no direct comparison between the two. Compared to PGM, PrivSyn shows its synthesizing method can handle *dense* graph.
+
+In this repository, we only include the second part for now.
 
 ### For your convenience, with a dataset (whose privacy you want to protect), you can:
 * directly use DPsyn algorithm to generate a private dataset;
