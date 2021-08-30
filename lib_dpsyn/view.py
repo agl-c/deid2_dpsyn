@@ -2,6 +2,7 @@ import numpy as np
 
 
 class View:
+    # wanna a more detailed explanation on View
     def __init__(self, attr_one_hot: np.array, domain_size_list: np.array):
         self.attr_one_hot = attr_one_hot
         self.domain_size_list = domain_size_list
@@ -218,4 +219,11 @@ class View:
 
 
 if __name__ == "__main__":
-    view = View([1, 1, 0, 0], [3, 3, 0, 0])
+    view = View([1, 1, 0, 0], [3, 3, 0, 0]) 
+    # it just posts an example of View
+    # flatten 2-way array ---> one way, the latter is table content 
+    #   a b c d
+    # a 
+    # b
+    # c
+    # d

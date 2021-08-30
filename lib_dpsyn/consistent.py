@@ -6,6 +6,7 @@ from lib_dpsyn.view import View
 
 
 class Consistenter:
+    # sorry, but dependency means what I've forgot
     class SubsetWithDependency:
         def __init__(self, attributes_set):
             self.attributes_set = attributes_set

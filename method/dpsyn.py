@@ -14,8 +14,12 @@ from method.synthesizer import Synthesizer
 
 
 class DPSyn(Synthesizer):
+    """Note that it just inherits the functions in class Synthesizer
+    
+    """
     synthesized_df = None
-    update_iterations = 60
+    # the magic value is set empirically and users may change as they like
+    update_iterations = 60  
 
     attrs_view_dict = {}
     onehot_view_dict = {}
@@ -24,24 +28,43 @@ class DPSyn(Synthesizer):
     domain_list = []
     attr_index_map = {}
 
+    # despite phthon variables can be used without claiming its type, we import typing to ensure robustness
     Attrs = List[str]
     Domains = np.ndarray
+    # Tuple[str] means 
+    #    (i) a tuple type which has a single element which is str?
+    # or (ii) a tuple type which has a undetermined length of str elements?
+    # I guess it should be (ii)?
     Marginals = Dict[Tuple[str], np.array]
     Clusters = Dict[Tuple[str], List[Tuple[str]]]
 
     d = None
 
     def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method):
-        # marginals are specified by a dict from attribute tuples to frequency (pandas) tables
+       
+        """marginals are specified by a dict from attribute tuples to frequency (pandas) tables
+        however, consistency should mean post processing, right?
+        why here seems to be an active obtain?
+
+        automatic method of finding the optimal marginals to care about
+
+        """
+
+        # note whether the below sentence is supported with a public dataset 
         pub_marginals = self.data.generate_all_pub_marginals()
         noisy_marginals = self.get_noisy_marginals(priv_marginal_config, priv_split_method)
 
+        # a little surprising: for each marginal the sum of frequency may not be the same?
         num_synthesize_records = np.mean([np.sum(x.values) for _, x in noisy_marginals.items()]).round().astype(np.int)
-        noisy_puma_year = noisy_marginals[frozenset(['PUMA', 'YEAR'])]
-        del noisy_marginals[frozenset(['PUMA', 'YEAR'])]
+        # interestingly, frozenset() means the elements are frozened, i.e., neither adding nor deleting is permitted 
+        # noisy_puma_year = noisy_marginals[frozenset(['PUMA', 'YEAR'])] # store anyway
+        # del noisy_marginals[frozenset(['PUMA', 'YEAR'])] 
+        # why we delete them, even I know the metric classifies...
 
+        # I want to figure out their types, data: DataLoader
         self.attr_list = self.data.obtain_attrs()
         self.domain_list = np.array([len(self.data.encode_schema[att]) for att in self.attr_list])
+        # use enumerate in for to return index, element pair for simplifying code
         self.attr_index_map = {att: att_i for att_i, att in enumerate(self.attr_list)}
 
         # views are wrappers of marginals with additional functions for consistency
@@ -49,6 +72,7 @@ class DPSyn(Synthesizer):
         noisy_onehot_view_dict, noisy_attr_view_dict = self.construct_views(noisy_marginals)
 
         # all_views is one-hot to view dict, views_dict is attribute to view dict
+        # where is all_views then? one-hot here means what?
         # they have different format to satisfy the needs of consistenter and synthesiser
         self.onehot_view_dict, self.attrs_view_dict = self.normalize_views(
             pub_onehot_view_dict,
@@ -60,7 +84,8 @@ class DPSyn(Synthesizer):
         consistenter = Consistenter(self.onehot_view_dict, self.domain_list)
         consistenter.consist_views()
 
-        # consistenter uses unnormalized counts; after consistency, synthesizer uses normalized counts
+        # consistenter uses unnormalized counts;
+        # after consistency, synthesizer uses normalized counts
         for _, view in self.onehot_view_dict.items():
             view.count /= sum(view.count)
 
@@ -69,7 +94,7 @@ class DPSyn(Synthesizer):
     def synthesize(self, fixed_n=0) -> pd.DataFrame:
         noisy_puma_year = self.obtain_consistent_marginals()
 
-        # find clusters for synthesize; a cluster is a set of marginals closely connected
+        # if in need, we can find clusters for synthesize; a cluster is a set of marginals closely connected
         # here we do not cluster and use all marginals as a single cluster
         clusters = self.cluster(self.attrs_view_dict)
 
