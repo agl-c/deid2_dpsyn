@@ -18,7 +18,8 @@ class DPSyn(Synthesizer):
     
     """
     synthesized_df = None
-    update_iterations = 60  # guess it the iteration setting 
+    # the magic value is set empirically and users may change as they like
+    update_iterations = 60  
 
     attrs_view_dict = {}
     onehot_view_dict = {}

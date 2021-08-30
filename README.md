@@ -41,7 +41,7 @@ More details:
 1. You can specify the identifier attribute's name in data.yaml (we assume your dataset has the identifer attribute by default and obviously, in synthetic dataset the column should be removed to protect privacy)
 2. You can specify bin values like [min, max, step] in numerical_binning in data.yaml (based on your granuarity likes)
 3. Moreover, you can change more details in bin generation in binning_attributes() in DataLoader.py
-4. You can define attributes to be grouped in data.yaml ()
+4. You can define attributes to be grouped in data.yaml
  (based on analysis in possible existing public datasets and we may give you some tips on choosing to group which attributes)
 *Basically, you can refer to some intuitional tips:* 
    * group those with small domains;
@@ -52,7 +52,7 @@ TODO:
 2. King seemed to mention one combination package which might help in instructing combining? (But I can not figure out how it works as we even cannot know the inner features of the to-protect dataset.)
 
 
-4. If your dataset include some attributes that can be determined by other attributes, you can specify them in data.yaml 🤔
+4. If your dataset includes some attributes that can be determined by other attributes, you can specify them in data.yaml, but by default we exclude the part and you can find related code in comment
 5. If you have a public dataset to refer to, set pub_ref=True in load_data() in DataLoader.py
 TODO:  🤣
 there is a parameter called pub_only in load_data and I guess whether it is when we only input the public dataset?

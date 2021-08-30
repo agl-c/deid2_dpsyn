@@ -84,7 +84,7 @@ class DataLoader:
                 # remove the identifier
                 self.public_data = self.remove_identifier(self.public_data)
                 # note if there exist determined attributes to tackle
-                self.public_data = self.remove_determined_attributes(config['determined_attributes'], self.public_data)
+                # self.public_data = self.remove_determined_attributes(config['determined_attributes'], self.public_data)
                 self.public_data = self.encode_remain(self.general_schema, config, self.public_data)
                 pickle.dump([self.public_data, self.encode_mapping], open(public_pickle_path, 'wb'))
 
@@ -98,7 +98,7 @@ class DataLoader:
             self.private_data = self.binning_attributes(config['numerical_binning'], self.private_data)
             self.private_data = self.grouping_attributes(config['grouping_attributes'], self.private_data)
             self.private_data = self.remove_identifier(self.private_data)
-            self.private_data = self.remove_determined_attributes(config['determined_attributes'], self.private_data)
+            # self.private_data = self.remove_determined_attributes(config['determined_attributes'], self.private_data)
             self.private_data = self.encode_remain(self.general_schema, config, self.private_data, is_private=True)
             pickle.dump([self.private_data, self.encode_mapping], open(priv_pickle_path, 'wb'))
 
@@ -107,10 +107,13 @@ class DataLoader:
             self.encode_schema[attr] = sorted(encode_mapping.values())
 
     def obtain_attrs(self):
+        """return the list of all attributes' name  except the identifier attribute
+        
+        """
         if not self.all_attrs:
             all_attrs = list(self.public_data.columns)
+            # here we use try: except: and all exceptions are caught in one ways
             try:
-            # we remove the column since it is the identifier
                 all_attrs.remove(self.config['identifier'])
             except:
                 pass
@@ -188,6 +191,7 @@ class DataLoader:
         return data
     
     # we declare the function as @staticmethod so that you can use it without instantiating an object
+    # however, maybe determined_attributes are not so easy to be detected with a general dataset, so we mute the part
     @staticmethod
     def remove_determined_attributes(determined_info, data):
         """Some  attributes are determined by other attributes
@@ -241,7 +245,12 @@ class DataLoader:
             return self.pub_marginals
 
         all_attrs = list(self.public_data.columns)
-        all_attrs.remove(config['identifier'])
+        
+        # we already removed it during load_data() so public_data.columns should not include the identifier
+        try:
+            all_attrs.remove(config['identifier'])
+        except:
+            pass
         # one-way marginals except PUMA and YEAR
         for attr in all_attrs:
             #if attr == 'PUMA' or attr == 'YEAR':
@@ -264,20 +273,37 @@ class DataLoader:
 
         return self.pub_marginals
 
+    # I guess the recommended arg should be in type of str? nvm?
     def generate_one_way_marginal(self, records: pd.DataFrame, index_attribute: list):
+        """
+        we first assign a new column 'n' and assign them as 1 for each record in orignal DataFrame
+        note that aggfunc means aggrigation function 
+        and we get counts for each candidate value for the specific index_attribute
+        we set fill_value=0 for NaN
+        
+        """
         marginal = records.assign(n=1).pivot_table(values='n', index=index_attribute, aggfunc=np.sum, fill_value=0)
+        # we create new indices which is in ascending order to help create a user-friendly pivot table
         indices = sorted([i for i in self.encode_mapping[index_attribute].values()])
+        # and we reindex then fillna(0) means we will fill NaN with 0
         marginal = marginal.reindex(index=indices).fillna(0).astype(np.int32)
         return marginal
 
     def generate_two_way_marginal(self, records: pd.DataFrame, index_attribute: list, column_attribute: list):
+        """
+        index_attribute corresponds to row index
+        column_attribute corresponds to column index 
+        
+        """
         marginal = records.assign(n=1).pivot_table(values='n', index=index_attribute, columns=column_attribute,
                                                    aggfunc=np.sum, fill_value=0)
+        # create a new ordered indices for row and column, just serving for a new display order
         indices = sorted([i for i in self.encode_mapping[index_attribute].values()])
         columns = sorted([i for i in self.encode_mapping[column_attribute].values()])
         marginal = marginal.reindex(index=indices, columns=columns).fillna(0).astype(np.int32)
         return marginal
 
+    """
     def generate_all_one_way_marginals_except_PUMA_YEAR(self, records: pd.DataFrame):
         all_attrs = self.obtain_attrs()
         marginals = {}
@@ -286,7 +312,9 @@ class DataLoader:
                 continue
             marginals[frozenset([attr])] = self.generate_one_way_marginal(records, attr)
         return marginals
+    """
 
+    """
     def generate_all_two_way_marginals_except_PUMA_YEAR(self, records: pd.DataFrame):
         all_attrs = self.obtain_attrs()
         marginals = {}
@@ -298,9 +326,37 @@ class DataLoader:
                     continue
                 marginals[frozenset([attr, all_attrs[j]])] = self.generate_two_way_marginal(records, attr, all_attrs[j])
         return marginals
+    """
 
     def generate_marginal_by_config(self, records: pd.DataFrame, config: dict) -> Tuple[Dict, Dict]:
-        """config means those marginals_xxxxx.yaml where define 
+        """config means those marginals_xxxxx.yaml where define generation details
+
+        let's check their meanings (lol)
+        e.g.1.
+        priv_all_two_way: 
+          total_eps: 990
+        # use generate_...except_PUMA_YEAR, so meaning generating for result?
+
+        e.g.2.
+        priv_PUMA_YEAR: 
+          total_eps: 0.1
+          attributes:
+            - 'PUMA'
+            - 'YEAR'
+        # use generate_....., so meaning middle-way procession for possible use?
+
+        In summary, as to our synthesis task, how to set marginal_key?
+        Do our program need config file like eps=xxxx.yaml to work?
+        Actually, note that I mute the functions like generate_....except....., then we just allow config in format pf 
+
+
+        e.g.3.
+        priv_all_one_way: (or priv_all_two_way)
+          total_eps: xxxxx
+
+        So let's check where we use the generate_marginal_by_config,
+        btw, I even guess there is no need to use the function since in this case, we only define one/two way? eps?
+
         """
         marginal_sets = {}
         epss = {}
@@ -336,7 +392,8 @@ class DataLoader:
         self.private_data = self.binning_attributes(config['numerical_binning'], self.private_data)
         self.private_data = self.grouping_attributes(config['grouping_attributes'], self.private_data)
         self.private_data = self.remove_identifier(self.private_data)
-        self.private_data = self.remove_determined_attributes(config['determined_attributes'], self.private_data)
+        # we also ignore the utility of removing determined attributes in the below line
+        #self.private_data = self.remove_determined_attributes(config['determined_attributes'], self.private_data)
         self.private_data = self.encode_remain(self.general_schema, config, self.private_data, is_private=True)
         for attr, encode_mapping in self.encode_mapping.items():
             self.encode_schema[attr] = sorted(encode_mapping.values())
