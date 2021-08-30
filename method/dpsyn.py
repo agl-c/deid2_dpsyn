@@ -14,7 +14,8 @@ from method.synthesizer import Synthesizer
 
 
 class DPSyn(Synthesizer):
-    """Note that it just inherits the functions in class Synthesizer
+    """Note that it just inherits the class Synthesizer,
+    which has the attributes: data: DataLoader, eps, delta, sensitivity 
     
     """
     synthesized_df = None
@@ -51,23 +52,34 @@ class DPSyn(Synthesizer):
         """
 
         # note whether the below sentence is supported with a public dataset 
+        # generate_all_pub_marginals() means generating all the one-way and two-way marginals of the public set
         pub_marginals = self.data.generate_all_pub_marginals()
+        # what's this then?
+        # oh I understand, priv_split_method serves for ,let's fix anyway
+        # get_noisy_marginals() is in synthesizer.py
+        # which first calls generate_..._by_config(), 
+        # where 'marginal_key' could be priv_all_one_way / priv_all_two_way
+        # later it calls anonymize() which add noises to marginals
+        # what decides noises is 'priv_split_method', priv_split_method[set_key]='lap' or....
         noisy_marginals = self.get_noisy_marginals(priv_marginal_config, priv_split_method)
 
-        # a little surprising: for each marginal the sum of frequency may not be the same?
+        # since calculated on noisy marginals, we use mean function to estimate the number of synthesized records
         num_synthesize_records = np.mean([np.sum(x.values) for _, x in noisy_marginals.items()]).round().astype(np.int)
         # interestingly, frozenset() means the elements are frozened, i.e., neither adding nor deleting is permitted 
         # noisy_puma_year = noisy_marginals[frozenset(['PUMA', 'YEAR'])] # store anyway
         # del noisy_marginals[frozenset(['PUMA', 'YEAR'])] 
-        # why we delete them, even I know the metric classifies...
 
-        # I want to figure out their types, data: DataLoader
+        # obtain_attrs(self) return the list of all attributes' name(str)  except the identifier attribute
         self.attr_list = self.data.obtain_attrs()
+        # domain_list is an array recording the count of each attribute's candidate values
         self.domain_list = np.array([len(self.data.encode_schema[att]) for att in self.attr_list])
-        # use enumerate in for to return index, element pair for simplifying code
+        # use enumerate to return Tuple(index, element) 
+        # map the attribute str to its index in attr_list, maybe for possible use
         self.attr_index_map = {att: att_i for att_i, att in enumerate(self.attr_list)}
 
         # views are wrappers of marginals with additional functions for consistency
+        # you may understand them as created by another collaborator and we fix interfaces
+        # perhaps, views are kind of like marginals
         pub_onehot_view_dict, pub_attr_view_dict = self.construct_views(pub_marginals)
         noisy_onehot_view_dict, noisy_attr_view_dict = self.construct_views(noisy_marginals)
 

@@ -40,7 +40,7 @@ class Synthesizer(object):
     def anonymize(self, priv_marginal_sets: Dict, epss: Dict, priv_split_method: Dict) -> Marginals:
         """the function serves for adding noises
         priv_marginal_sets: Dict[set_key,marginals] where set_key is an key for eps and noise_type
-        priv_split_method serves for mapping set_key to noise_type
+        priv_split_method serves for mapping 'set_key' to 'noise_type'
 
         """
         noisy_marginals = {}
@@ -70,11 +70,45 @@ class Synthesizer(object):
             logger.info(f"marginal {set_key} use eps={eps}, noise type:{noise_type}, noise parameter={noise_param}, sensitivity:{self.sensitivity}")
         return noisy_marginals
 
-    # below function currently is not filled or used
-    def get_noisy_marginals(self, priv_marginal_config, priv_split_method):
+    # below function currently is not filled or used??????
+    # but you call it in dpsyn.py????
+    def get_noisy_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
+        """
+        
+        generally, priv_marginal_config only includes one/two way and eps,
+        e.g.
+        priv_all_two_way: 
+          total_eps: 990
+
+        what intrigues me is the total_eps, is it scaled on conventional epsilon value in dp definition?
+      
+        look at the essential 'epsilon' set in parameters.json:
+        "runs": [
+        {
+            "epsilon": 0.1,
+            "delta": 3.4498908254380166e-11,
+            "max_records": 1350000,
+            "max_records_per_individual": 7
+        },...
+        ]
+        I guess there is some relation between 'total_eps' and 'epsilon'?
+        further, if we ask users to set the 'epsilon', then what about the 'total_eps'?
+        I guess some calculation logic is hidden in translating the 'epsilon' to 'total_eps' which has something to with our algorithm?
+        like the part in dpsyn paper where we introduced zero-concentrated dp?
+    
+        btw, I also doubt whether it relates to allocating the privacy budget during several stages of the algorithm.
+
+
+        """
+        # FYI,  generate_marginal_by_config return Tuple[Dict,Dict]     
+        # epss[marginal_key] = marginal_dict['total_eps']
+        # marginal_sets[marginal_key] = marginals
+        # return marginal_sets, epss
+        # we firstly generate punctual marginals
         priv_marginal_sets, epss = self.data.generate_marginal_by_config(self.data.private_data, priv_marginal_config)
-        # todo: fix noise calculation method for each?
-        # means what?
+        # todo: consider fine-tuned noise-adding methods for one-way and two-way respectively?
+        # and now we add noises to get noisy marginals
         noisy_marginals = self.anonymize(priv_marginal_sets, epss, priv_split_method)
+        # we delete the original marginals 
         del priv_marginal_sets
         return noisy_marginals

@@ -1,7 +1,4 @@
 ---
-# for the following files named like "eps=xxx.yaml", I cannot understand well about:
-# (1)why we simply define priv_PUMA_YEAR:....?
-# (2)why we only care about 2 attributes?
 ##### pub sampling
 priv_PUMA_YEAR:
   total_eps: 0.1

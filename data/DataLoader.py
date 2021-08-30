@@ -273,9 +273,11 @@ class DataLoader:
 
         return self.pub_marginals
 
-    # I guess the recommended arg should be in type of str? nvm?
+   
     def generate_one_way_marginal(self, records: pd.DataFrame, index_attribute: list):
-        """
+        """ generate marginal for one attribute
+        (I guess the recommended arg should be in type of str)
+
         we first assign a new column 'n' and assign them as 1 for each record in orignal DataFrame
         note that aggfunc means aggrigation function 
         and we get counts for each candidate value for the specific index_attribute
@@ -290,7 +292,8 @@ class DataLoader:
         return marginal
 
     def generate_two_way_marginal(self, records: pd.DataFrame, index_attribute: list, column_attribute: list):
-        """
+        """generate marginal for a pair of attributes
+
         index_attribute corresponds to row index
         column_attribute corresponds to column index 
         
@@ -303,30 +306,36 @@ class DataLoader:
         marginal = marginal.reindex(index=indices, columns=columns).fillna(0).astype(np.int32)
         return marginal
 
-    """
-    def generate_all_one_way_marginals_except_PUMA_YEAR(self, records: pd.DataFrame):
+    
+    def generate_all_one_way_marginals(self, records: pd.DataFrame):
+        """generate all the one-way marginals,
+        which simply calls generate_one_way_marginal in every cycle round
+        
+        """
         all_attrs = self.obtain_attrs()
         marginals = {}
         for attr in all_attrs:
-            if attr == 'PUMA' or attr == 'YEAR':
-                continue
+            #if attr == 'PUMA' or attr == 'YEAR':
+            #    continue
             marginals[frozenset([attr])] = self.generate_one_way_marginal(records, attr)
         return marginals
-    """
-
-    """
-    def generate_all_two_way_marginals_except_PUMA_YEAR(self, records: pd.DataFrame):
+    
+    def generate_all_two_way_marginals(self, records: pd.DataFrame):
+        """generate all the two-way marginals,
+        which simply builds a loop and calls generate_two_way_marginal in every cycle round
+        
+        """
         all_attrs = self.obtain_attrs()
         marginals = {}
         for i, attr in enumerate(all_attrs):
-            if attr == 'PUMA' or attr == 'YEAR':
-                continue
+            #if attr == 'PUMA' or attr == 'YEAR':
+            #    continue
             for j in range(i + 1, len(all_attrs)):
-                if all_attrs[j] == 'PUMA' or all_attrs[j] == 'YEAR':
-                    continue
+                #if all_attrs[j] == 'PUMA' or all_attrs[j] == 'YEAR':
+                #    continue
                 marginals[frozenset([attr, all_attrs[j]])] = self.generate_two_way_marginal(records, attr, all_attrs[j])
         return marginals
-    """
+    
 
     def generate_marginal_by_config(self, records: pd.DataFrame, config: dict) -> Tuple[Dict, Dict]:
         """config means those marginals_xxxxx.yaml where define generation details
@@ -337,7 +346,7 @@ class DataLoader:
           total_eps: 990
         # use generate_...except_PUMA_YEAR, so meaning generating for result?
 
-        e.g.2.
+        e.g.2.when privatizing only PUMA YEAR attributes
         priv_PUMA_YEAR: 
           total_eps: 0.1
           attributes:
@@ -347,28 +356,27 @@ class DataLoader:
 
         In summary, as to our synthesis task, how to set marginal_key?
         Do our program need config file like eps=xxxx.yaml to work?
-        Actually, note that I mute the functions like generate_....except....., then we just allow config in format pf 
 
 
         e.g.3.
         priv_all_one_way: (or priv_all_two_way)
           total_eps: xxxxx
 
-        So let's check where we use the generate_marginal_by_config,
-        btw, I even guess there is no need to use the function since in this case, we only define one/two way? eps?
-
         """
         marginal_sets = {}
         epss = {}
         for marginal_key, marginal_dict in config.items():
             marginals = {}
+            # genrally, marginal_key should
             if marginal_key == 'priv_all_one_way':
                 # merge the returned marginal dictionary
-                marginals.update(self.generate_all_one_way_marginals_except_PUMA_YEAR(records))
+                marginals.update(self.generate_all_one_way_marginals(records))
             elif marginal_key == 'priv_all_two_way':
                 # merge the returned marginal dictionary
-                marginals.update(self.generate_all_two_way_marginals_except_PUMA_YEAR(records))
+                marginals.update(self.generate_all_two_way_marginals(records))
             else:
+                # interestingly, the case 'else' only serves for privatizing for PUMA,YEAR attributes
+                # i.e., return marginal for PUMA, YEAR, no use in general case
                 attrs = marginal_dict['attributes']
                 if len(attrs) == 1:
                     marginals[frozenset(attrs)] = self.generate_one_way_marginal(records, attrs[0])
