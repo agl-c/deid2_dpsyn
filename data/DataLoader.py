@@ -37,9 +37,11 @@ class DataLoader:
         self.filter_values = {}
 
         self.config = None
-
-    def load_data(self, pub_only=False, pub_ref=False):
         # we set pub_ref=False since the default case is not owning a public dataset to refer to
+        self.pub_ref = False
+
+    def load_data(self, pub_only=False):
+    
         # load public data and get grouping mapping and filter values
         # CONFIG_DATA means data.yaml, which include some paths and value bins
         with open(CONFIG_DATA, 'r') as f:
@@ -57,7 +59,7 @@ class DataLoader:
         priv_pickle_path = PICKLE_DIRECTORY / f"preprocessed_priv_{config['priv_dataset_path']}.pkl"
 
         # load public data
-        if pub_ref:
+        if self.pub_ref:
             if os.path.isfile(public_pickle_path):
                 [self.public_data, self.encode_mapping] = pickle.load(open(public_pickle_path, 'rb'))
                 # want to check pub_only means what?

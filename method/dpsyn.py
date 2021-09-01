@@ -14,12 +14,14 @@ from method.synthesizer import Synthesizer
 
 
 class DPSyn(Synthesizer):
-    """Note that it just inherits the class Synthesizer,
-    which has the attributes: data: DataLoader, eps, delta, sensitivity 
+    """Note that it inherits the class Synthesizer,
+    which already has the following attributes :
+    (data: DataLoader, eps, delta, sensitivity) initialized
     
     """
     synthesized_df = None
     # the magic value is set empirically and users may change as they like
+    #　TODO: I think we can set outer interface to change the update_iterations
     update_iterations = 60  
 
     attrs_view_dict = {}
@@ -35,13 +37,14 @@ class DPSyn(Synthesizer):
     # Tuple[str] means 
     #    (i) a tuple type which has a single element which is str?
     # or (ii) a tuple type which has a undetermined length of str elements?
-    # I guess it should be (ii)?
+    # I guess it should be (ii)
+    # actually, here the Tuple[str] is just str I think
     Marginals = Dict[Tuple[str], np.array]
     Clusters = Dict[Tuple[str], List[Tuple[str]]]
 
     d = None
 
-    def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method):
+    def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
        
         """marginals are specified by a dict from attribute tuples to frequency (pandas) tables
         however, consistency should mean post processing, right?
@@ -52,37 +55,46 @@ class DPSyn(Synthesizer):
         """
 
         # note whether the below sentence is supported with a public dataset 
-        # generate_all_pub_marginals() means generating all the one-way and two-way marginals of the public set
-        pub_marginals = self.data.generate_all_pub_marginals()
-        # what's this then?
-        # oh I understand, priv_split_method serves for ,let's fix anyway
+        # generate_all_pub_marginals() generates all the one-way and two-way marginals of the public set
+        # which is implemented in DataLoader.py
+        if self.data.pub_ref:
+            pub_marginals = self.data.generate_all_pub_marginals()
+      
         # get_noisy_marginals() is in synthesizer.py
-        # which first calls generate_..._by_config(), 
-        # where 'marginal_key' could be priv_all_one_way / priv_all_two_way
+        # which first calls generate_..._by_config(), and computes on priv_data to return marginal_sets, epss
+        # (note that 'marginal_key' could be 'priv_all_one_way' or 'priv_all_two_way')
         # later it calls anonymize() which add noises to marginals
-        # what decides noises is 'priv_split_method', priv_split_method[set_key]='lap' or....
+        # (what decides noises is 'priv_split_method') 
+        # priv_split_method[set_key]='lap' or....
         noisy_marginals = self.get_noisy_marginals(priv_marginal_config, priv_split_method)
 
-        # since calculated on noisy marginals, we use mean function to estimate the number of synthesized records
+        # since calculated on noisy marginals
+        # we use mean function to estimate the number of synthesized records
         num_synthesize_records = np.mean([np.sum(x.values) for _, x in noisy_marginals.items()]).round().astype(np.int)
-        # interestingly, frozenset() means the elements are frozened, i.e., neither adding nor deleting is permitted 
+        # interestingly, frozenset() means the elements are frozened, 
+        # i.e., neither adding nor deleting is permitted 
         # noisy_puma_year = noisy_marginals[frozenset(['PUMA', 'YEAR'])] # store anyway
         # del noisy_marginals[frozenset(['PUMA', 'YEAR'])] 
 
-        # obtain_attrs(self) return the list of all attributes' name(str)  except the identifier attribute
+        # the list of all attributes' name(str)  except the identifier attribute
         self.attr_list = self.data.obtain_attrs()
         # domain_list is an array recording the count of each attribute's candidate values
         self.domain_list = np.array([len(self.data.encode_schema[att]) for att in self.attr_list])
-        # use enumerate to return Tuple(index, element) 
+        
         # map the attribute str to its index in attr_list, maybe for possible use
+        # use enumerate to return Tuple(index, element) 
         self.attr_index_map = {att: att_i for att_i, att in enumerate(self.attr_list)}
+
 
         # views are wrappers of marginals with additional functions for consistency
         # you may understand them as created by another collaborator and we fix interfaces
-        # perhaps, views are kind of like marginals
-        pub_onehot_view_dict, pub_attr_view_dict = self.construct_views(pub_marginals)
+        # perhaps, views are kind of like marginals, now I guess views work on marginals, let's check it
+        # if there exist public dataset to refer to
+        if self.data.pub_ref:
+            pub_onehot_view_dict, pub_attr_view_dict = self.construct_views(pub_marginals)
         noisy_onehot_view_dict, noisy_attr_view_dict = self.construct_views(noisy_marginals)
 
+        
         # all_views is one-hot to view dict, views_dict is attribute to view dict
         # where is all_views then? one-hot here means what?
         # they have different format to satisfy the needs of consistenter and synthesiser
@@ -93,6 +105,7 @@ class DPSyn(Synthesizer):
             self.attr_index_map,
             num_synthesize_records)
 
+        # TODO: take care of how the consistency works
         consistenter = Consistenter(self.onehot_view_dict, self.domain_list)
         consistenter.consist_views()
 
@@ -101,10 +114,11 @@ class DPSyn(Synthesizer):
         for _, view in self.onehot_view_dict.items():
             view.count /= sum(view.count)
 
-        return noisy_puma_year, noisy_marginals
+        return noisy_marginals
+
 
     def synthesize(self, fixed_n=0) -> pd.DataFrame:
-        noisy_puma_year = self.obtain_consistent_marginals()
+        noisy_marginals = self.obtain_consistent_marginals()
 
         # if in need, we can find clusters for synthesize; a cluster is a set of marginals closely connected
         # here we do not cluster and use all marginals as a single cluster
@@ -114,10 +128,12 @@ class DPSyn(Synthesizer):
         # pub_marginals = self.data.generate_all_pub_marginals()
         # self.calculate_l1_errors_v2(pub_marginals, self.attrs_view_dict, target_marginals, self.data.private_data)
 
-        self.synthesize_records_PUMA_YEAR(noisy_puma_year, clusters, fixed_n)
+        self.synthesize_records(noisy_marginals, clusters, fixed_n)
         # self.synthesize_records_numbers(noisy_puma_year, clusters, fixed_n)
 
         return self.synthesized_df
+
+
 
     # synthesize for each possible number
     # then for each puma-year, we just duplicate the appropriate synthesized data
@@ -196,6 +212,7 @@ class DPSyn(Synthesizer):
                 self.synthesized_df = pd.concat(self.d, ignore_index=True)
                 logger.info(f'finished with a list of {len(self.d)} dataframes')
             logger.info(f'the final dataframe size is {self.synthesized_df.shape}')
+
 
     def syn_puma_year(self, puma, year, cell_count, attrs_index_map, singleton_views, list_marginal_attrs, details):
         cur_syn_df = None
@@ -305,21 +322,34 @@ class DPSyn(Synthesizer):
         return singleton_views
 
     def construct_views(self, marginals: Marginals) -> Tuple[Dict, Dict]:
+        """construct views for each marginal item,
+        return 2 dictionaries, onehot2view and attr2view
+        """
         onehot_view_dict = {}
         attr_view_dict = {}
 
         for marginal_att, marginal_value in marginals.items():
+            # since one_hot is @staticmethod, we can call it by DPSyn.one_hot
+            # return value is an array marked 
             view_onehot = DPSyn.one_hot(marginal_att, self.attr_index_map)
+
+            # View() is in lib_dpsyn\view.py 
+            # domain_list is an array recording the count of each attribute's candidate values
             view = View(view_onehot, self.domain_list)
+
+            # we use flatten to create a one-dimension array which serves for when the marginal is two-way
             view.count = marginal_value.values.flatten()
 
+            # we create two dictionaries to map ... to view
             onehot_view_dict[tuple(view_onehot)] = view
             attr_view_dict[marginal_att] = view
 
+            # obviously if things go well, it should match
             if not len(view.count) == view.domain_size:
                 raise Exception('no match')
 
         return onehot_view_dict, attr_view_dict
+
 
     def log_result(self, result):
         self.d.append(result)
@@ -345,6 +375,8 @@ class DPSyn(Synthesizer):
 
     @staticmethod
     def one_hot(cur_att, attr_index_map):
+        # it marks the attributes included in cur_attr by one-hot way in a len=attr_index_map array
+        # return value is an array marked 
         cur_view_key = [0] * len(attr_index_map)
         for attr in cur_att:
             cur_view_key[attr_index_map[attr]] = 1

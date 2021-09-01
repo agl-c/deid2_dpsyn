@@ -17,6 +17,7 @@ import numpy as np
 def main():
     np.random.seed(0)
     np.random.RandomState(0)
+    # why can we directly use args.config here?
     with open(args.config, 'r') as f:
         config = yaml.load(f, Loader=yaml.BaseLoader)
     print("------> load config, priv data", config['priv_dataset_path'])
@@ -25,7 +26,7 @@ def main():
     dataloader = DataLoader()
     dataloader.load_data()
 
-    # the default chosen method is dpsyn, which you can change as you want actually
+    # the default chosen method is dpsyn, which you can change as you want actually 
     args.method = 'dpsyn'
     # args.method = 'direct_sample'
     # args.method = 'sample'
