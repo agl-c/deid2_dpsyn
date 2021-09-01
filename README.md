@@ -73,6 +73,7 @@ Below we list several places in our code where you can set some magic values (in
 Tips on how to design those values will be obtained in related places in code files. 
 
 | variable          | file                 | class/function) | value |  semantics |
+| :---------------: | :------------------: | :------------:  | :----:| :--------: |
 | update_iterations | dpsyn.py             | DPSyn           | 60    |            |
 | n                 | experiment.py        | main()          | 0 ??? |            |
 | d                 | dpsyn.py             | DPSyn           | 0??   |            |
