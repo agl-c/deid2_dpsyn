@@ -29,19 +29,18 @@ In this repository, we only include the second part for now.
 ## How to configure to synthesize a dataset by DPsyn?
 ### Preparation work to generate supporting files for specific dataset
 You should first preprocess the dataset. 
-We require you to provide dataset in format of filename.csv(comma-separated file, and you can find ground_truth.csv as an example), and we offer you tools to generate the parameters.json and read_csv_kwargs.json(both we include example files in the repository) which include some schema of the dataset to help our algorithm run.
-In data.yaml we ask users to set file paths, bin value parameters, grouping settings, and value-determined attributes which are detected by users themselves.
+We require you to provide dataset in format of filename.csv(comma-separated file, and you can find ground_truth.csv as an example), and we offer you tools(https://github.com/hd23408/nist-schemagen) to generate the parameters.json and read_csv_kwargs.json(both we include example files in the repository) which include some schema of the dataset to help our algorithm run.
+**In summary, the cofig file is data.yaml**, where users should set file paths, identifier attribute, bin value parameters, grouping settings, and possibly value-determined attributes which are detected by users themselves.
 
 More details:
 1. You can specify the identifier attribute's name in data.yaml (we assume your dataset has the identifer attribute by default and obviously, in synthetic dataset the column should be removed to protect privacy)
-2. You can specify bin values like [min, max, step] in numerical_binning in data.yaml (based on your granuarity likes)
-3. Moreover, you can change more details in bin generation in binning_attributes() in DataLoader.py
-4. You can define attributes to be grouped in data.yaml
- (based on analysis in possible existing public datasets and we may give you some tips on choosing to group which attributes)
-*Basically, you can refer to some intuitional tips:* 
+2. You can specify bin values like [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. Moreover, you can change more details in bin generation in binning_attributes() in DataLoader.py
+3. You can define attributes to be grouped in data.yaml based on analysis in possible existing public datasets and we may give you some tips on choosing to group which attributes
+*some intuitional grouping tips:* 
    * group those with small domains;
    * group those with embedded correlation;
    * group those essitially the same attributes (for instance, one attribute differs with another only in naming or can be fully determined by the other);
+
 TODO:
 1. consider including the code of  attribute selection and combination part in DPSyn paper. 😋
 2. King seemed to mention one combination package which might help in instructing combining? (But I can not figure out how it works as we even cannot know the inner features of the to-protect dataset.)
@@ -58,14 +57,6 @@ Here we display an example where the sensitivity value equals to 'max_records_pe
       "max_records_per_individual": 7
     }
 Meanwhile, as the above example shows, you can specify the 'max_records' parameter to bound the number of rows in the synthesized dataset.
-🤔
-
-### General configrations in ./config directory
-1. in config/data.yaml, write the paths as claimed in the file's content
-2. in config/data_type.py, write the value types of the attributes (easy with read_csv_kwargs.json obtained)
-TODO: find its use in the whole folder? 😅
-3. in config/path.py,  write the paths of input original dataset file, the public dataset file(if there exists one to refer to), the parameters file (attribute name,  value type, valid values, etc), etc
-
 
 (
 ### Below is related to generate a dataset with certain attributes fiexd (I think we'd better desert the part)
@@ -77,31 +68,18 @@ attributes:
     - 'YEAR'
 )
 
-### More configrations to fit our algorithm to your dataset
+### More manual configrations to fit our algorithm to your dataset
 Below we list several places in our code where you can set some magic values (instead of our rude default settings) when using the package to generate specific dataset.
 Tips on how to design those values will be obtained in related places in code files. 
 
-| variable          | file                 | class/function) | value |  
-| update_iterations | dpsyn.py             | DPSyn           | 60    |
-| n                 | experiment.py        | main()          | 0 ??? |
-| d                 | dpsyn.py             | DPSyn           | 0??   |
+| variable          | file                 | class/function) | value |  semantics |
+| update_iterations | dpsyn.py             | DPSyn           | 60    |            |
+| n                 | experiment.py        | main()          | 0 ??? |            |
+| d                 | dpsyn.py             | DPSyn           | 0??   |            |
 | 
 
+TODO: I guess more tip documentation are needed..... 
 
-
-
- 😅:
-  noise_type = priv_split_method[set_key]
-  def lap_adv_comp(epsilon, delta, sensitivity, k):
-  zcdp and zcdp2 and rdp perform the same
-  with open(args.config, 'r') as f:
-  if pub_only:
-  def reload_priv(self, new_data_path):
-
-
-### More configrations to fit our tool to your dataset
-I guess more tip documentation are needed..... Since some hard code exist.
-Or I need more experience or intelligence in tackling a general case. 😭
 
 *Below is simply draft to help thinking:*
 #### Interesting，as to the paper, I found myself memory-lost...
@@ -109,11 +87,12 @@ Or I need more experience or intelligence in tackling a general case. 😭
 A：Each attribute is a node and the edge between them is a distribution describing the correlation between attributes. 
 (2) In DPSyn paper, as to selecting marginals, it means choosing from all possible pairs to a selected set until the calculated error can not be decreased? (it is greedy algorithm, please refer to paper link for more details)
 As to the project here, we skip the step of choosing marginals and simply do that manually by ourselves? 
-TODO: You can start from using all the pairs or require people to designate what pairs to care about? 
-TODO：Maybe we can include the greedy algorithm code on pair selection later.
+(I haven't found where we choose marginals)
+Q: You can start from using all the pairs or require people to designate what pairs to care about? 
+Q：Maybe we can include the greedy algorithm code on pair selection later.
 
 1.what is the formal definition of the graphical model? refer to paper: *Graphical-model based estimation and inference for differential privacy*
-TODO：I have not totally understand the example of 3-way marginal?
+Q：I have not totally understand the example of 3-way marginal?
 Why it means a triangle which just takes care of correlation between 2 attributes?
 I supposed the "3-way marginal" implies a correlationship between all the 3 which however seems to be in paradox with the 3-edge-representation?
 

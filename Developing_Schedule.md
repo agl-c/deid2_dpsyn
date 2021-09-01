@@ -13,13 +13,16 @@
 def update_alpha(self, iteration):
    self.alpha = 1.0 * 0.84 ** (iteration // 20)
 4.tmp = synthesizer.synthesize(fixed_n=n) n=0 means what?
+ "max_records": 1350000 (looks like this one?)
+
 5.it seems that the coding logic already uses only general functions without relation with PUMA, YEAR things?
     #　we call it in experiment.py by 
     #  tmp = synthesizer.synthesize(fixed_n=n)
     # in below function, we call synthesize_records()
     # it further utilize the lib function in record_synthesizer.py
     # def synthesize(self, fixed_n=0) -> pd.DataFrame:
-
+6.As to the project here, we skip the step of choosing marginals and simply do that manually...
+(I haven't found where we choose marginals)
 
 ------------------------------------------------
 #### not very import problems 
@@ -42,6 +45,13 @@ def update_alpha(self, iteration):
       # and I'm not sure whether it will import synthesizer.py too
 ```
 4.there is a parameter called pub_only in load_data and I guess whether it is when we only input the public dataset?
+5.earlier confusions:  
+  noise_type = priv_split_method[set_key]
+  def lap_adv_comp(epsilon, delta, sensitivity, k):
+  zcdp and zcdp2 and rdp perform the same
+  with open(args.config, 'r') as f:
+  if pub_only:
+  def reload_priv(self, new_data_path):
 
 
 ### received (have generally taken a look)
@@ -93,6 +103,15 @@ A：可能和pylint运行时候的编译有关，总之这样可以对该module�
    e.g.
     post_processing (......)
     cases like puma_year_detailed......
+2.### General configrations in ./config directory
+1. in config/data.yaml, write the paths as claimed in the file's content
+2. in config/data_type.py, write the value types of the attributes (easy with read_csv_kwargs.json obtained)
+3. in config/path.py,  write the paths of input original dataset file, the public dataset file(if there exists one to refer to), the parameters file (attribute name,  value type, valid values, etc), etc
+A: it seems that we set in data.yaml the path of parameters.json which is the schema, as well as the pub and priv data's paths that should suffice
+
+
+
+
 ## research thinking
  Besides, inspired by the access to a public dataset in the 20deID2 competition, in some cases (which is decided by specific method_decision algorithm), we turn to the public dataset instead of the privatized one to generate the query answer. 
 
