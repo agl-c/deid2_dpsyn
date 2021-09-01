@@ -1,13 +1,47 @@
 # Developing Schedule
-Note that git seetings to check about password login
-## we're in week-6 (coding-style should be handled and Configration may be tackled)
+(tip: Note that git seetings to check about password login)
+## we're in week-7 (Configration should be tackled)
 1. review the backbone of PrivSyn, as to specific coding logic
-2. I'm thinking about how to set command line interface for configration  ( learn and ask) 
+2. run the code once to test dataset generation (even just on our groundtruth.csv and state-15-data.csv) 
+3. As to the research, more related work to read (on histogram publishing, etc.) 
 
-Q: what the difference between data.yaml & data_no_encode.yaml?
 
-4. I want to run the code once to test dataset generation (even just on our groundtruth.csv and state-15-data.csv) 
-5. As to the research, more related work to read (on histogram publishing, etc.) 
+#### code essential problems
+1.RecordPostprocessor()
+2.Consistenter(self.onehot_view_dict, self.domain_list)
+3.maybe need manully set: 
+def update_alpha(self, iteration):
+   self.alpha = 1.0 * 0.84 ** (iteration // 20)
+4.tmp = synthesizer.synthesize(fixed_n=n) n=0 means what?
+5.it seems that the coding logic already uses only general functions without relation with PUMA, YEAR things?
+    #　we call it in experiment.py by 
+    #  tmp = synthesizer.synthesize(fixed_n=n)
+    # in below function, we call synthesize_records()
+    # it further utilize the lib function in record_synthesizer.py
+    # def synthesize(self, fixed_n=0) -> pd.DataFrame:
+
+
+------------------------------------------------
+#### not very import problems 
+1.what the difference between data.yaml & data_no_encode.yaml?
+2.what's the scoring functions in original experiment.py file?
+```
+    # if n == 0:
+    #     # here we encounter the use of bias_penalty_cutoff, but what does it mean?
+    #     score_online(ground_truth_csv=DATA_DIRECTORY / f"{config['priv_dataset_path']}.csv", submission_df=syn_data, parameters_json=Path(config['parameter_spec']), bias_penalty_cutoff=bias_penalty_cutoff)
+    # else:
+    #     if args.method == 'sample' or 'direct_sample':
+    #         puma_year_detailed_score(ground_truth_csv=DATA_DIRECTORY / f"{config['priv_dataset_path']}.csv", submission_df=syn_data)
+    #     else:
+    #         iteration_detailed_score(ground_truth_csv=DATA_DIRECTORY / f"{config['priv_dataset_path']}.csv", submission_df=syn_data)
+```
+3.in experiment.py:
+```
+      # we import logger in synthesizer.py
+      # we import DPSyn which inderitats synthesizer 
+      # and I'm not sure whether it will import synthesizer.py too
+```
+4.there is a parameter called pub_only in load_data and I guess whether it is when we only input the public dataset?
 
 
 ### received (have generally taken a look)
@@ -15,8 +49,6 @@ Q: what the difference between data.yaml & data_no_encode.yaml?
 *datasets to fit/ experiment/ generalize*
 **(little)possible similar dp open-source repos **  
    e.g. https://github.com/opendp/smartnoise-core-python (have taken a look, it actually is a package in python while inner program is in Rust language)
-### on-coming:
-*schema generation tool will be available by the end of next week*
 
 
 ### Done Background Knowledge:
@@ -28,13 +60,12 @@ A：查资料发现默认是在运行时输出到终端，可以对basic setting
 例如为输出到文件或者某些destination
 Q:  为什么我在注释里面加option都能识别有用呢
 A：可能和pylint运行时候的编译有关，总之这样可以对该module作出测试的option管理输出信息
-
 3.yaml language specifications read
 4.quick note about Package module to install by pip
 5.learn the python package pandas in dealing with data
 6.leran .csv file format
 7.install R, Rstudio and learn the quick start of Synthpop R package
-TODO: however, I encountered bugs when compare 2 datasets running the command line using the package's functions
+
 
 
 ### Done 
@@ -43,8 +74,7 @@ TODO: however, I encountered bugs when compare 2 datasets running the command li
 
 
 ### Method Core work
-1. how to set eps, delta, sensitivity? shall we ask users to specify these parameters? (suppose you want to privatize a dataset and have some detailed needs)
-how to design the sensitive function? 
+1.
 2. 
 
 
@@ -64,9 +94,9 @@ how to design the sensitive function?
     post_processing (......)
     cases like puma_year_detailed......
 ## research thinking
+ Besides, inspired by the access to a public dataset in the 20deID2 competition, in some cases (which is decided by specific method_decision algorithm), we turn to the public dataset instead of the privatized one to generate the query answer. 
+
 refer to overleaf link
-
-
 
 
 https://aws.amazon.com/s3/?did=ft_card&trk=ft_card

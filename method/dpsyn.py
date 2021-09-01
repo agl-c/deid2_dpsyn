@@ -66,6 +66,7 @@ class DPSyn(Synthesizer):
         # later it calls anonymize() which add noises to marginals
         # (what decides noises is 'priv_split_method') 
         # priv_split_method[set_key]='lap' or....
+        # Step 1: generate noisy marginals
         noisy_marginals = self.get_noisy_marginals(priv_marginal_config, priv_split_method)
 
         # since calculated on noisy marginals
@@ -92,6 +93,7 @@ class DPSyn(Synthesizer):
         # if there exist public dataset to refer to
         if self.data.pub_ref:
             pub_onehot_view_dict, pub_attr_view_dict = self.construct_views(pub_marginals)
+        # Step 2: create some data structures
         noisy_onehot_view_dict, noisy_attr_view_dict = self.construct_views(noisy_marginals)
 
         
@@ -106,6 +108,7 @@ class DPSyn(Synthesizer):
             num_synthesize_records)
 
         # TODO: take care of how the consistency works
+        # consist the noisy marginals to submit to some rules
         consistenter = Consistenter(self.onehot_view_dict, self.domain_list)
         consistenter.consist_views()
 
@@ -116,7 +119,12 @@ class DPSyn(Synthesizer):
 
         return noisy_marginals
 
-
+    #　we call it in experiment.py by 
+    #  tmp = synthesizer.synthesize(fixed_n=n)
+    # in below function, we call synthesize_records()
+    # it further utilize the lib function in record_synthesizer.py
+    # TODO: it seems that the coding logic already uses only general functions
+    #  without relation with PUMA, YEAR things?
     def synthesize(self, fixed_n=0) -> pd.DataFrame:
         noisy_marginals = self.obtain_consistent_marginals()
 
@@ -138,6 +146,8 @@ class DPSyn(Synthesizer):
     # synthesize for each possible number
     # then for each puma-year, we just duplicate the appropriate synthesized data
     def synthesize_records_numbers(self, puma_year: pd.DataFrame, clusters: Clusters, fixed_n: int):
+        # shall we set new interval value in general cases?
+        # Are you sure that we set it to round to 100 bits???
         interval = 100
         puma_year = puma_year.round(interval).astype(np.int)
         details = False
@@ -147,6 +157,7 @@ class DPSyn(Synthesizer):
 
         singleton_views = self.obtain_singleton_views(self.attrs_view_dict)
 
+        # Clusters = Dict[Tuple[str], List[Tuple[str]]]
         for cluster_attrs, list_marginal_attrs in clusters.items():
             attrs_index_map = {attrs: index for index, attrs in enumerate(list_marginal_attrs)}
 
@@ -174,6 +185,7 @@ class DPSyn(Synthesizer):
                         tmp['YEAR'] = year_i
                         syn_df_list.append(tmp)
         self.synthesized_df = pd.concat(syn_df_list, ignore_index=True)
+
 
     # synthesize for each combination of puma-year because the final scoring is on puma-year
     def synthesize_records_PUMA_YEAR(self, puma_year: pd.DataFrame, clusters: Clusters, fixed_n: int):
@@ -321,9 +333,11 @@ class DPSyn(Synthesizer):
                 singleton_views[cur_attrs] = view
         return singleton_views
 
+
     def construct_views(self, marginals: Marginals) -> Tuple[Dict, Dict]:
         """construct views for each marginal item,
         return 2 dictionaries, onehot2view and attr2view
+
         """
         onehot_view_dict = {}
         attr_view_dict = {}
@@ -414,6 +428,8 @@ class DPSyn(Synthesizer):
 
             self.synthesized_df.loc[:, cluster_attrs] = synthesizer.df.loc[:, cluster_attrs]
 
+
+    # it seems that the function calculates the l1_error in another version
     def calculate_l1_errors_v2(self, M0, M1, M2, Te):
 
         l1_0_1 = []

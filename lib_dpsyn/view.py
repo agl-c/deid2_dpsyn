@@ -59,10 +59,11 @@ class View:
             categories_num = np.roll(categories_num, 1)
             # why we set [0]=1
             categories_num[0] = 1
-            # we conduct cumprod
+            # we conduct cumprod to get a new array and envalue it to cum_mul 
             self.cum_mul = np.cumprod(categories_num)
 
             # encoding method 2? (so just do for experiment?)
+            # too confusing, why do these?
             categories_num = domain_size_list[categories_index]
             categories_num = np.roll(categories_num, self.view_num_attr - 1)
             categories_num[-1] = 1
@@ -84,7 +85,7 @@ class View:
                 index = self.attributes_index[i]
                 # create a new array with len=the attribute's domain size
                 categories = np.arange(self.domain_size_list[index])
-                # 
+                # how to 
                 column_key = np.tile(np.repeat(categories, self.encode_num[i]), self.cum_mul[i])
 
                 self.tuple_key[:, i] = column_key

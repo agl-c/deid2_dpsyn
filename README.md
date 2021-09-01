@@ -1,6 +1,6 @@
 # DPSyn: a quick start tutorial 
 ## What is DPsyn?
-We present DPSyn, an algorithm for synthesizing microdata for data analysis while satisfying differential privacy. Besides, inspired by the access to a public dataset in the 20deID2 competition, in some cases (which is decided by specific method_decision algorithm), we turn to the public dataset instead of the privatized one to generate the query answer. 
+We present DPSyn, an algorithm for synthesizing microdata for data analysis while satisfying differential privacy.
 
 To facilitate your understanding, please refer to the paper *PrivSyn: Differentially Private Data Synthesis* [link](https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun).
 
@@ -9,7 +9,7 @@ There are two similar and highly-related papers (both from competitors in the co
 [PrivMRF](http://www.vldb.org/pvldb/vol14/p2190-cai.pdf), and
 [PGM](https://arxiv.org/pdf/1901.09136.pdf).
 
-The difference is that PrivSyn includes the whole data synthesize pipeline: (1) finding marginals and (2) synthesize dataset from the marginals. PGM only handles the second part, and PrivMRF only handles the first part (and uses PGM as the second part).  Since the PrivSyn and PrivMRF appear concurrently, there is no direct comparison between the two. Compared to PGM, PrivSyn shows its synthesizing method can handle *dense* graph.
+The difference is that PrivSyn includes the whole data synthesis pipeline: (1) finding marginals and (2) synthesize dataset from the marginals. PGM only handles the second part, and PrivMRF only handles the first part (and uses PGM as the second part).  Since the PrivSyn and PrivMRF appear concurrently, there is no direct comparison between the two. Compared to PGM, PrivSyn shows its synthesizing method can handle *dense* graph.
 
 In this repository, we only include the second part for now.
 
@@ -23,11 +23,6 @@ In this repository, we only include the second part for now.
 
 
 ## Install DPsyn (fill this part after packaging, easy)
-
-
-
-
-
 
 
 
@@ -50,13 +45,8 @@ More details:
 TODO:
 1. consider including the code of  attribute selection and combination part in DPSyn paper. 😋
 2. King seemed to mention one combination package which might help in instructing combining? (But I can not figure out how it works as we even cannot know the inner features of the to-protect dataset.)
-
-
-4. If your dataset includes some attributes that can be determined by other attributes, you can specify them in data.yaml, but by default we exclude the part and you can find related code in comment
-5. If you have a public dataset to refer to, set pub_ref=True in load_data() in DataLoader.py
-TODO:  🤣
-there is a parameter called pub_only in load_data and I guess whether it is when we only input the public dataset?
-
+3. If your dataset includes some attributes that can be determined by other attributes, you can specify them in data.yaml, but by default we exclude the part and you can find related code in comment
+4. If you have a public dataset to refer to, set pub_ref=True in load_data() in DataLoader.py
 
 ### As to dp parameters(eps, delta, sensitivity)
 Users should set the eps, delta, sensitivity value in 'runs' in parameters.json according to their specific differential privacy requirements.
@@ -101,7 +91,6 @@ Tips on how to design those values will be obtained in related places in code fi
 
 
  😅:
-  pub_marginals = self.data.generate_all_pub_marginals()
   noise_type = priv_split_method[set_key]
   def lap_adv_comp(epsilon, delta, sensitivity, k):
   zcdp and zcdp2 and rdp perform the same
