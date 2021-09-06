@@ -8,8 +8,8 @@ from data.DataLoader import *
 from data.RecordPostprocessor import RecordPostprocessor
 from method.dpsyn import DPSyn
 # TODO: later we remove below two modules which serve no use for dpsyn 
-from method.sample_parallel import Sample
-from method.direct_sample import DirectSample
+# from method.sample_parallel import Sample
+# from method.direct_sample import DirectSample
 # from metric import *
 # from detailed_metric import *
 import numpy as np

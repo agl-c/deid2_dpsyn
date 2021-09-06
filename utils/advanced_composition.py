@@ -106,24 +106,24 @@ def get_noise(eps, delta, sensitivity, num_composition):
 # print(gauss_zcdp(10, 3e-11, 7, 233) ** 2)
 # print(2 * (1.0 / lap_comp(10, 3e-11, 7, 233) ** 2))
 
-total_epss = [0.01, 1]
-sensitivitys = [1]
-# n = 30000
-total_delta = 1e-12
-ks = [1, 5, 10, 15, 20, 30, 50, 100]
-for total_eps in total_epss:
-    for sensitivity in sensitivitys:
-        print(total_eps)
-        for k in ks:
-            lap_param = lap_comp(total_eps, total_delta, sensitivity, k)
-            lap_naive_var = 2 * (1.0 / lap_param ** 2)
-            print('& $%.1E$' % lap_naive_var ** 0.5, end='\t')
+# total_epss = [0.01, 1]
+# sensitivitys = [1]
+# # n = 30000
+# total_delta = 1e-12
+# ks = [1, 5, 10, 15, 20, 30, 50, 100]
+# for total_eps in total_epss:
+#     for sensitivity in sensitivitys:
+#         print(total_eps)
+#         for k in ks:
+#             lap_param = lap_comp(total_eps, total_delta, sensitivity, k)
+#             lap_naive_var = 2 * (1.0 / lap_param ** 2)
+#             print('& $%.1E$' % lap_naive_var ** 0.5, end='\t')
 
-        print('\\\\')
-        for k in ks:
-            lap_param = lap_adv_comp(total_eps, total_delta, sensitivity, k)
-            lap_var = 2 * (1.0 / lap_param ** 2)
-            print('& $%.1E$' % lap_var ** 0.5, end='\t')
+#         print('\\\\')
+#         for k in ks:
+#             lap_param = lap_adv_comp(total_eps, total_delta, sensitivity, k)
+#             lap_var = 2 * (1.0 / lap_param ** 2)
+#             print('& $%.1E$' % lap_var ** 0.5, end='\t')
 
 
 '''
