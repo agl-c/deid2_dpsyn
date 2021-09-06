@@ -7,6 +7,7 @@ import copy
 from data.DataLoader import *
 from data.RecordPostprocessor import RecordPostprocessor
 from method.dpsyn import DPSyn
+# TODO: later we remove below two modules which serve no use for dpsyn 
 from method.sample_parallel import Sample
 from method.direct_sample import DirectSample
 # from metric import *
@@ -17,7 +18,7 @@ import numpy as np
 def main():
     np.random.seed(0)
     np.random.RandomState(0)
-    # why can we directly use args.config here?
+    # by default, args.config is ./config/data.yaml, you may change it by typing --config=.....
     with open(args.config, 'r') as f:
         config = yaml.load(f, Loader=yaml.BaseLoader)
     print("------> load config, priv data", config['priv_dataset_path'])
@@ -37,12 +38,13 @@ def main():
     # bias_penalty_cutoff = 250
 
     # check what is bias_penalty_cutoff
-    syn_data = run_method(config, dataloader, n, bias_penalty_cutoff)
-
+    # syn_data = run_method(config, dataloader, n, bias_penalty_cutoff)
+    syn_data = run_method(config, dataloader, n)
     syn_data.to_csv(f"{args.method}-{n}-{config['priv_dataset_path']}.csv", index=False)
 
 
-def run_method(config, dataloader, n, bias_penalty_cutoff):
+#def run_method(config, dataloader, n, bias_penalty_cutoff):
+def run_method(config, dataloader, n):
     parameters = json.loads(Path(config['parameter_spec']).read_text())
     syn_data = None
 

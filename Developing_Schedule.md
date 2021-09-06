@@ -1,5 +1,9 @@
 # Developing Schedule
 (tip: Note that git seetings to check about password login)
+
+fix github use:
+
+https://wallesspku.space/clash/caq@pku.edu.cn/njbet8z8v6
 ## we're in week-7 (Configration should be tackled)
 1. review the backbone of PrivSyn, as to specific coding logic
 2. run the code once to test dataset generation (even just on our groundtruth.csv and state-15-data.csv) 

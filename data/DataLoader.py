@@ -12,12 +12,13 @@ from config.data_type import COLS
 
 
 class DataLoader:
-    """Load data, bin some attributes, group some attributes, during which encode the attributes' values to categorical indexes,
+    """Load data, bin some attributes, group some attributes,
+    during which encode the attributes' values to categorical indexes,
     encode the remained single attributes likewise,
     remove the identifier attribute,
     (if existing) remove those attributes whose values can be determined by others.
 
-    several marginal generation funtions are also included in this class for use.
+    several marginal generation funtions are also included in the class for use.
     
     """
     def __init__(self):
@@ -47,13 +48,15 @@ class DataLoader:
         with open(CONFIG_DATA, 'r') as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
         self.config = config
-        
+        print("config yaml file loaded in DataLoader")
+
         # config['parameter_spec'] means parameters.json
         # which include parameters for several runs and data schema
         with open(config['parameter_spec']) as f:
             parameter_spec = json.load(f)
             self.general_schema = parameter_spec['schema']
-        
+        print("parameter file loaded in DataLoader")
+
         # we use pickle to store the objects in files as binary flow
         public_pickle_path = PICKLE_DIRECTORY / f"preprocessed_pub_{config['pub_dataset_path']}.pkl"
         priv_pickle_path = PICKLE_DIRECTORY / f"preprocessed_priv_{config['priv_dataset_path']}.pkl"
@@ -89,6 +92,7 @@ class DataLoader:
                 # self.public_data = self.remove_determined_attributes(config['determined_attributes'], self.public_data)
                 self.public_data = self.encode_remain(self.general_schema, config, self.public_data)
                 pickle.dump([self.public_data, self.encode_mapping], open(public_pickle_path, 'wb'))
+            print("public data loaded and preprocessed in DataLoader")
 
         # load private data
         if os.path.isfile(priv_pickle_path) and not pub_only:
@@ -107,6 +111,8 @@ class DataLoader:
         for attr, encode_mapping in self.encode_mapping.items():
         # note that here schema means all the valid values of encoded ones
             self.encode_schema[attr] = sorted(encode_mapping.values())
+        print("private dataset loaded and preprocessed in DataLoader")
+
 
     def obtain_attrs(self):
         """return the list of all attributes' name  except the identifier attribute
@@ -146,6 +152,7 @@ class DataLoader:
             self.encode_mapping[attr] = {(bins[i], bins[i + 1]): i for i in range(len(bins) - 1)}
             # actually, the decode_maping is naive? just record the index array should suffice? I doubt...
             self.decode_mapping[attr] = [i for i in range(len(bins) - 1)]
+        print("binning attributes done in DataLoader")
         return data
 
     def grouping_attributes(self, grouping_info, data):
@@ -181,6 +188,7 @@ class DataLoader:
             print("new uniques", sorted(data[new_attr].unique()))
         # display after grouping
         print("columns after grouping:", data.columns)
+        print("grouping attributes done in DataLoader")
     
         return data
 
@@ -190,6 +198,7 @@ class DataLoader:
         """
         data = data.drop(self.config['identifier'], axis=1)
         print("remove identifier column", self.config['identifier'])
+        print("identifier removed in DataLoader")
         return data
     
     # we declare the function as @staticmethod so that you can use it without instantiating an object
@@ -232,6 +241,7 @@ class DataLoader:
             data[attr] = data[attr].map(encoding)
             self.encode_mapping[attr] = encoding
             self.decode_mapping[attr] = mapping
+        print("single attributes remained encoded in DataLoader")
         return data
 
     def generate_all_pub_marginals(self):
@@ -272,7 +282,7 @@ class DataLoader:
         # we check the file name is not NULL in case of there exists not public dataset?
         if pub_marginal_pickle is not None:
             pickle.dump(self.pub_marginals, open(pub_marginal_pickle, 'wb'))
-
+        print("all pub marginals generated")
         return self.pub_marginals
 
    
@@ -320,6 +330,7 @@ class DataLoader:
             #if attr == 'PUMA' or attr == 'YEAR':
             #    continue
             marginals[frozenset([attr])] = self.generate_one_way_marginal(records, attr)
+        print("all one way marginals generated")
         return marginals
     
     def generate_all_two_way_marginals(self, records: pd.DataFrame):
@@ -336,6 +347,7 @@ class DataLoader:
                 #if all_attrs[j] == 'PUMA' or all_attrs[j] == 'YEAR':
                 #    continue
                 marginals[frozenset([attr, all_attrs[j]])] = self.generate_two_way_marginal(records, attr, all_attrs[j])
+        print("all two way marginals generated")
         return marginals
     
 
