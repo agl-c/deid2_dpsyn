@@ -137,8 +137,12 @@ class DataLoader:
 
         """
         for attr, spec_list in binning_info.items():
+            # note that for "DEPARTS" and "ARRIVES", we offer finer binning settings with 4 parameters input
+            # which doesn't fit with the hard coded [s,t,step]
+            # we change the binning setting to fit general cases [s,t,step]
             # if attr == "DEPARTS" or attr == "ARRIVES":
             # why we hard code it like this? why h times 100? it should be *60?
+            # nvm, it just serves for semantics
             # here we use np.r_ to connect the 1-dim arrays in row display
             #    bins = np.r_[-np.inf, [h * 100 + m for h in range(24) for m in spec_list], np.inf]
             # else:

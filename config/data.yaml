@@ -48,16 +48,25 @@ numerical_binning:
     - 0
     - 520
     - 20
+# we change the settings all in type of [s,t,step]
+  # "DEPARTS":
+  #   - 0
+  #   - 15
+  #   - 30
+  #   - 45
+  # "ARRIVES":
+  #   - 0
+  #   - 15
+  #   - 30
+  #   - 45  
   "DEPARTS":
     - 0
-    - 15
-    - 30
     - 45
+    - 15
   "ARRIVES":
     - 0
-    - 15
-    - 30
     - 45
+    - 15
 # you can define settings to group some attributes 
 # specifically, define which attributes to group,  the count of combined values,
 # the new grouped attribute's name and the valid combinations
