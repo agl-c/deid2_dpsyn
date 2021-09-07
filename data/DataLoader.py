@@ -43,6 +43,7 @@ class DataLoader:
 
     def load_data(self, pub_only=False):
     
+        # TODO: I guess pub_only serves for sampling methods
         # load public data and get grouping mapping and filter values
         # CONFIG_DATA means data.yaml, which include some paths and value bins
         with open(CONFIG_DATA, 'r') as f:
@@ -82,7 +83,7 @@ class DataLoader:
                 # e.g., 
                 # return f'hello {text}, hello {name}'
                 # return 'hello '+text+', hello '+name
-
+                print("************start loading public data************")
                 self.public_data = pd.read_csv(DATA_DIRECTORY / f"{config['pub_dataset_path']}.csv", dtype=COLS)
                 self.public_data = self.binning_attributes(config['numerical_binning'], self.public_data)
                 self.public_data = self.grouping_attributes(config['grouping_attributes'], self.public_data)
@@ -92,7 +93,7 @@ class DataLoader:
                 # self.public_data = self.remove_determined_attributes(config['determined_attributes'], self.public_data)
                 self.public_data = self.encode_remain(self.general_schema, config, self.public_data)
                 pickle.dump([self.public_data, self.encode_mapping], open(public_pickle_path, 'wb'))
-            print("public data loaded and preprocessed in DataLoader")
+            print("************public data loaded and preprocessed in DataLoader*************")
 
         # load private data
         if os.path.isfile(priv_pickle_path) and not pub_only:
@@ -100,6 +101,7 @@ class DataLoader:
             for attr, encode_mapping in self.encode_mapping.items():
                 self.decode_mapping[attr] = sorted(encode_mapping, key=encode_mapping.get)
         elif not pub_only:
+            print("*************start loading private data*************")
             self.private_data = pd.read_csv(DATA_DIRECTORY / f"{config['priv_dataset_path']}.csv", dtype=COLS)
             self.private_data = self.binning_attributes(config['numerical_binning'], self.private_data)
             self.private_data = self.grouping_attributes(config['grouping_attributes'], self.private_data)
@@ -111,7 +113,7 @@ class DataLoader:
         for attr, encode_mapping in self.encode_mapping.items():
         # note that here schema means all the valid values of encoded ones
             self.encode_schema[attr] = sorted(encode_mapping.values())
-        print("private dataset loaded and preprocessed in DataLoader")
+        print("*************private dataset loaded and preprocessed in DataLoader************")
 
 
     def obtain_attrs(self):
@@ -163,6 +165,7 @@ class DataLoader:
         """Some attributes can be grouped  under settings in grouping_info
 
         """
+        print("******start grouping some attributes******")
         for grouping in grouping_info:
             attributes = grouping['attributes']
             new_attr = grouping['grouped_name']
@@ -189,7 +192,7 @@ class DataLoader:
             # and we print the detailed information to help understanding
             data = data.drop(attributes, axis=1)
             print("new attr:", new_attr, "<-", attributes)
-            print("new uniques", sorted(data[new_attr].unique()))
+            print("new uniques after encoding:", sorted(data[new_attr].unique()))
         # display after grouping
         print("columns after grouping:", data.columns)
         print("grouping attributes done in DataLoader")
@@ -201,7 +204,7 @@ class DataLoader:
         
         """
         data = data.drop(self.config['identifier'], axis=1)
-        print("remove identifier column", self.config['identifier'])
+        print("remove identifier column:", self.config['identifier'])
         print("identifier removed in DataLoader")
         return data
     
@@ -226,6 +229,7 @@ class DataLoader:
     #　in　other　words, all the attributes are encoded to save now
     def encode_remain(self, schema, config, data, is_private=False):
         encoded_attr = list(config['numerical_binning'].keys()) + [grouping['grouped_name'] for grouping in config['grouping_attributes']]
+        print("start encoding remaining single attributes")
         for attr in data.columns:
             # note that there are so many config[identifier] throughout the codes, 
             # I guess why not set a global variable in config which is the str 
@@ -245,7 +249,7 @@ class DataLoader:
             data[attr] = data[attr].map(encoding)
             self.encode_mapping[attr] = encoding
             self.decode_mapping[attr] = mapping
-        print("single attributes remained encoded in DataLoader")
+        print("encoding remaining single attributes done in DataLoader")
         return data
 
     def generate_all_pub_marginals(self):
@@ -286,7 +290,7 @@ class DataLoader:
         # we check the file name is not NULL in case of there exists not public dataset?
         if pub_marginal_pickle is not None:
             pickle.dump(self.pub_marginals, open(pub_marginal_pickle, 'wb'))
-        print("all pub marginals generated")
+        print("all public marginals generated")
         return self.pub_marginals
 
    

@@ -27,25 +27,34 @@ In this repository, we only include the second part for now.
 
 
 ## How to configure to synthesize a dataset by DPsyn?
-### Preparation work to generate supporting files for specific dataset
+### generate supporting files for specific dataset
 You should first preprocess the dataset. 
-We require you to provide dataset in format of filename.csv(comma-separated file, and you can find ground_truth.csv as an example), and we offer you tools(https://github.com/hd23408/nist-schemagen) to generate the parameters.json and read_csv_kwargs.json(both we include example files in the repository) which include some schema of the dataset to help our algorithm run.
-**In summary, the cofig file is data.yaml**, where users should set file paths, identifier attribute, bin value parameters, grouping settings, and possibly value-determined attributes which are detected by users themselves.
+We require you to provide dataset in format of filename.csv(comma-separated file, and you can find ground_truth.csv as an example).
+And we offer you tools(https://github.com/hd23408/nist-schemagen) to generate the **parameters.json** and **column_datatypes.json**(both we include example files in the repository) which include some schema of the dataset to help our algorithm run.
+Based on that, you can easily generate **data_type.py**, which simply include a dictionary called COLS that record the columns' data types.
 
-More details:
+### set file paths
+You should set several paths in **config/path.py**, instructed by the variables' names. 
+
+### In data.yaml
+You should set file paths, identifier attribute, bin value parameters, grouping settings, and possibly value-determined attributes which are detected by users themselves.
+
+**More details**
 1. You can specify the identifier attribute's name in data.yaml (we assume your dataset has the identifer attribute by default and obviously, in synthetic dataset the column should be removed to protect privacy)
-2. You can specify bin values like [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. Moreover, you can change more details in bin generation in binning_attributes() in DataLoader.py
-3. You can define attributes to be grouped in data.yaml based on analysis in possible existing public datasets and we may give you some tips on choosing to group which attributes
+2. You can specify bin settings in format of [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. Further, you can change more details in bin generation in binning_attributes() in DataLoader.py
+3. You can define attributes to be grouped in data.yaml(possibly based on analysis in possible existing public datasets), and we may give you some tips on deciding which attributes to group.
+
 *some intuitional grouping tips:* 
-   * group those with small domains;
-   * group those with embedded correlation;
-   * group those essitially the same attributes (for instance, one attribute differs with another only in naming or can be fully determined by the other);
+   * group those with small domains
+   * group those with embedded correlation
+   * group those essitially the same (for instance, some attributes only differ in naming or one can be fully determined by another)
 
 TODO:
 1. consider including the code of  attribute selection and combination part in DPSyn paper. 😋
 2. King seemed to mention one combination package which might help in instructing combining? (But I can not figure out how it works as we even cannot know the inner features of the to-protect dataset.)
 3. If your dataset includes some attributes that can be determined by other attributes, you can specify them in data.yaml, but by default we exclude the part and you can find related code in comment
 4. If you have a public dataset to refer to, set pub_ref=True in load_data() in DataLoader.py
+
 
 ### As to dp parameters(eps, delta, sensitivity)
 Users should set the eps, delta, sensitivity value in 'runs' in parameters.json according to their specific differential privacy requirements.

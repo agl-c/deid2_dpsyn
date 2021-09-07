@@ -18,4 +18,4 @@ CONFIG_DATA = CONFIG_DIRECTORY / "data.yaml"
 # CONFIG_DATA = CONFIG_DIRECTORY / "data_no_encode.yaml"
 OUTPUT = ROOT_DIRECTORY / "submission.csv"
 
-DETAILED_SCORES_DIR = ROOT_DIRECTORY / "detail_scores"
+# DETAILED_SCORES_DIR = ROOT_DIRECTORY / "detail_scores"
