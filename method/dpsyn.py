@@ -126,6 +126,7 @@ class DPSyn(Synthesizer):
     # TODO: it seems that the coding logic already uses only general functions
     #  without relation with PUMA, YEAR things?
     def synthesize(self, fixed_n=0) -> pd.DataFrame:
+    # def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
         noisy_marginals = self.obtain_consistent_marginals()
 
         # if in need, we can find clusters for synthesize; a cluster is a set of marginals closely connected

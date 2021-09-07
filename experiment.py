@@ -4,6 +4,9 @@
 import argparse
 import copy
 
+# import these when debuggging
+from pathlib import Path
+from loguru import logger
 from data.DataLoader import *
 from data.RecordPostprocessor import RecordPostprocessor
 from method.dpsyn import DPSyn
@@ -68,11 +71,54 @@ def run_method(config, dataloader, n):
             synthesizer = Sample(dataloader, eps, delta, sensitivity)
             tmp = synthesizer.synthesize()
         elif args.method == 'dpsyn':
+            """I guess it help by displaying the runtime logic below
+            1. DPSyn(Synthesizer)
+            it got dataloader, eps, delta, sensitivity
+            however, Synthesizer is so simple and crude(oh no it initializes the parameters in __init__)
+            2. we call synthesizer.synthesize(fixed_n=n) which is written in dpsyn.py(but what fixed_n means?)
+
+
+            3. look at synthesize then
+                def synthesize(self, fixed_n=0) -> pd.DataFrame:
+                # def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
+                    noisy_marginals = self.obtain_consistent_marginals()
+               it call obtain_consistent_marginals without input which introduces bugs
+            4. it calls get_noisy_marginals() which is written in synthesizer.py
+                # noisy_marginals = self.get_noisy_marginals(priv_marginal_config, priv_split_method)
+            5. look at get_noisy_marginals()
+                # we firstly generate punctual marginals
+                priv_marginal_sets, epss = self.data.generate_marginal_by_config(self.data.private_data, priv_marginal_config)
+                # todo: consider fine-tuned noise-adding methods for one-way and two-way respectively?
+                # and now we add noises to get noisy marginals
+                noisy_marginals = self.anonymize(priv_marginal_sets, epss, priv_split_method)
+
+
+            6. look at generate_marginal_by_config() which is written in DataLoader.py
+               we need config files like (but it seems quite weird?)
+               how we manage these?
+            e.g.3.
+               priv_all_one_way: (or priv_all_two_way)
+               total_eps: xxxxx
+
+
+            7. look at anonymize() which is written in synthesizer.py 
+             def anonymize(self, priv_marginal_sets: Dict, epss: Dict, priv_split_method: Dict) -> Marginals:
+                noisy_marginals = {}
+                for set_key, marginals in priv_marginal_sets.items():
+                    eps = epss[set_key]
+                # noise_type, noise_param = advanced_composition.get_noise(eps, self.delta, self.sensitivity, len(marginals))
+                    noise_type = priv_split_method[set_key]
+            actually, priv_split_method seems to be hard_coded in config files here 
+            and in old code we tried to decide the noise type by advanced_compisition()?
+            and I wonder which decision method to take?
+            
+            """
             # we will use dpsyn to generate a dataset 
             synthesizer = DPSyn(dataloader, eps, delta, sensitivity)
             # what fixed_n means?
-            # tmp returns what?
+            # tmp returns a DataFrame
             # it's a simple function having no relation to puma year things
+            
             tmp = synthesizer.synthesize(fixed_n=n)
         else:
             raise NotImplementedError
@@ -119,4 +165,3 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     main()
-
