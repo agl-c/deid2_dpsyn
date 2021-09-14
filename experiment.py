@@ -35,7 +35,7 @@ def main():
     # args.method = 'direct_sample'
     # args.method = 'sample'
     # args.method = 'plain_pub'
-    n = 0
+    n = 100
     # TODO: what do n and bias_penalty means 
     # bias_penalty_cutoff = 2500000
     # bias_penalty_cutoff = 250
@@ -133,6 +133,8 @@ def run_method(config, dataloader, n):
 
     # post-processing generated data
     # map records with grouped/binned attribute back to original attributes
+    # TODO: debug in postprocessing but I  doubt whether things have gone wrong in setting fixed_n=0?
+    # btw, I　guess the mistake happens because of data structure problems
     postprocessor = RecordPostprocessor()
     syn_data = postprocessor.post_process(syn_data, args.config, dataloader.decode_mapping)
     logger.info("post-processed synthetic data")

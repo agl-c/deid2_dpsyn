@@ -16,7 +16,7 @@ class RecordSynthesizer:
     under_cell_indices = None
     zero_cell_indices = None
     over_cell_indices = None
-    records_throw_indices = None
+    records_throw_indices = pd.DataFrame()
 
     add_amount = 0
     add_amount_zero = 0
@@ -34,6 +34,7 @@ class RecordSynthesizer:
         self.domains = domains
         self.num_records = num_records
 
+# TODO: later take a look at values related to alpha beta magic values 
     def update_alpha(self, iteration):
         # interstingly, how to design this? any intuition design or just case by case?
         self.alpha = 1.0 * 0.84 ** (iteration // 20)

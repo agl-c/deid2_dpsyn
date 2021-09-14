@@ -15,6 +15,7 @@ PUBLIC_INPUT = DATA_DIRECTORY / "ground_truth.csv"
 # PRIV_MAR_PKL = PICKLE_DIRECTORY / "priv_marginals.csv"
 PARAMS = DATA_DIRECTORY / "parameters.json"
 CONFIG_DATA = CONFIG_DIRECTORY / "data.yaml"
+MARGINAL_CONFIG = CONFIG_DIRECTORY / "eps=1000.0.yaml"
 # CONFIG_DATA = CONFIG_DIRECTORY / "data_no_encode.yaml"
 OUTPUT = ROOT_DIRECTORY / "submission.csv"
 

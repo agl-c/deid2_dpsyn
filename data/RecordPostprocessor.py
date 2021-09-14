@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
+# below part is the same as data_type.py
 COLS = {
     "PUMA": "str",
     "YEAR": "uint32",
@@ -40,6 +41,7 @@ COLS = {
     "ARRIVES": "uint32",
 }
 
+
 class RecordPostprocessor:
     def __init__(self):
         self.config = None
@@ -49,10 +51,13 @@ class RecordPostprocessor:
         assert isinstance(data, pd.DataFrame)
         with open(config_file_path, 'r') as f:
             self.config = yaml.load(f, Loader=yaml.BaseLoader)
-
+        #TODO: add for debug
+        print(data)
+        print(grouping_mapping)
         data = self.ungrouping_attributes(data, grouping_mapping)
         data = self.unbinning_attributes(data)
-        data = self.add_determined_attrs(data)
+        # I guess we desert this for now
+        # data = self.add_determined_attrs(data)
         data = self.decode_other_attributes(data, grouping_mapping)
         data = self.ensure_types(data)
         return data
@@ -61,11 +66,11 @@ class RecordPostprocessor:
         binning_info = self.config['numerical_binning']
         print(binning_info)
         for att, spec_list in binning_info.items():
-            if att == "DEPARTS" or att == "ARRIVES":
-                bins = np.r_[-np.inf, [int(h) * 100 + int(m) for h in range(24) for m in spec_list], np.inf]
-            else:
-                [s, t, step] = spec_list
-                bins = np.r_[-np.inf, np.arange(int(s), int(t), int(step)), np.inf]
+            # if att == "DEPARTS" or att == "ARRIVES":
+            #     bins = np.r_[-np.inf, [int(h) * 100 + int(m) for h in range(24) for m in spec_list], np.inf]
+            # else:
+            [s, t, step] = spec_list
+            bins = np.r_[-np.inf, np.arange(int(s), int(t), int(step)), np.inf]
 
             # remove np.inf
             bins[0] = bins[1] - 1
@@ -82,7 +87,8 @@ class RecordPostprocessor:
             grouped_attr = grouping['grouped_name']
             attributes = grouping['attributes']
             mapping = pd.Index(decode_mapping[grouped_attr])
-            data[grouped_attr] = mapping[data[grouped_attr]]
+            # why the program print error here?
+            data[grouped_attr] = pd.MultiIndex.to_numpy(mapping[data[grouped_attr]])
             data[attributes] = pd.DataFrame(data[grouped_attr].tolist(), index=data.index)
             data = data.drop(grouped_attr, axis=1)
         return data

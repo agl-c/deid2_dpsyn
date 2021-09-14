@@ -121,7 +121,10 @@ class DataLoader:
         
         """
         if not self.all_attrs:
-            all_attrs = list(self.public_data.columns)
+
+            # wrong
+            # all_attrs = list(self.public_data.columns)
+            all_attrs = list(self.private_data.columns)
             # here we use try: except: and all exceptions are caught in one ways
             try:
                 all_attrs.remove(self.config['identifier'])
@@ -361,6 +364,9 @@ class DataLoader:
 
     def generate_marginal_by_config(self, records: pd.DataFrame, config: dict) -> Tuple[Dict, Dict]:
         """config means those marginals_xxxxx.yaml where define generation details
+        1. users manually set config about marginal choosing
+        2. automatic way of choosing which marginals
+
 
         let's check their meanings (lol)
         e.g.1.

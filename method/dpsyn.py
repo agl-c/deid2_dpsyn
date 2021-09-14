@@ -4,6 +4,7 @@ from typing import List, Tuple, Dict, KeysView
 
 import numpy as np
 import pandas as pd
+import yaml
 from loguru import logger
 from numpy import linalg as LA
 
@@ -11,7 +12,7 @@ from lib_dpsyn.consistent import Consistenter
 from lib_dpsyn.record_synthesizer import RecordSynthesizer
 from lib_dpsyn.view import View
 from method.synthesizer import Synthesizer
-
+from config.path import MARGINAL_CONFIG
 
 class DPSyn(Synthesizer):
     """Note that it inherits the class Synthesizer,
@@ -22,7 +23,8 @@ class DPSyn(Synthesizer):
     synthesized_df = None
     # the magic value is set empirically and users may change as they like
     #　TODO: I think we can set outer interface to change the update_iterations
-    update_iterations = 60  
+    #　originally we set = 60
+    update_iterations = 30
 
     attrs_view_dict = {}
     onehot_view_dict = {}
@@ -41,6 +43,7 @@ class DPSyn(Synthesizer):
     # actually, here the Tuple[str] is just str I think
     Marginals = Dict[Tuple[str], np.array]
     Clusters = Dict[Tuple[str], List[Tuple[str]]]
+
 
     d = None
 
@@ -91,15 +94,31 @@ class DPSyn(Synthesizer):
         # you may understand them as created by another collaborator and we fix interfaces
         # perhaps, views are kind of like marginals, now I guess views work on marginals, let's check it
         # if there exist public dataset to refer to
+        # TODO:
+        # should we always utilize the schema of public dataset like below 2 lines ?
+        # it seems that it has to ?
+        """
+        if you ask to use pub_onehot_view_dict..... to run,
+        you rely on pub_marginals,
+        but I set by default not to generate public marginals ....
+        
+        
+        """
         if self.data.pub_ref:
             pub_onehot_view_dict, pub_attr_view_dict = self.construct_views(pub_marginals)
         # Step 2: create some data structures
         noisy_onehot_view_dict, noisy_attr_view_dict = self.construct_views(noisy_marginals)
 
         
+        # I guess we can not use pub things even when those things are simply schemas
         # all_views is one-hot to view dict, views_dict is attribute to view dict
         # where is all_views then? one-hot here means what?
         # they have different format to satisfy the needs of consistenter and synthesiser
+        if not self.data.pub_ref:
+            pub_onehot_view_dict = noisy_onehot_view_dict
+            pub_attr_view_dict = noisy_attr_view_dict
+
+        # above just to fit in code when we do not have public things to utilize    
         self.onehot_view_dict, self.attrs_view_dict = self.normalize_views(
             pub_onehot_view_dict,
             pub_attr_view_dict,
@@ -125,10 +144,16 @@ class DPSyn(Synthesizer):
     # it further utilize the lib function in record_synthesizer.py
     # TODO: it seems that the coding logic already uses only general functions
     #  without relation with PUMA, YEAR things?
+    # TODO: fixed_n = 0? Are you sure??
     def synthesize(self, fixed_n=0) -> pd.DataFrame:
-    # def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
-        noisy_marginals = self.obtain_consistent_marginals()
 
+        with open(MARGINAL_CONFIG, 'r') as f:
+            priv_marginal_config = yaml.load(f, Loader=yaml.FullLoader)
+        priv_split_method = {}
+    # def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
+        noisy_marginals = self.obtain_consistent_marginals(priv_marginal_config, priv_split_method)
+        
+    # TODO: just based on the marginals to synthesize records
         # if in need, we can find clusters for synthesize; a cluster is a set of marginals closely connected
         # here we do not cluster and use all marginals as a single cluster
         clusters = self.cluster(self.attrs_view_dict)
@@ -137,9 +162,16 @@ class DPSyn(Synthesizer):
         # pub_marginals = self.data.generate_all_pub_marginals()
         # self.calculate_l1_errors_v2(pub_marginals, self.attrs_view_dict, target_marginals, self.data.private_data)
 
-        self.synthesize_records(noisy_marginals, clusters, fixed_n)
+        #def synthesize_records(self, attrs: Attrs, domains: Domains, clusters: Clusters, num_synthesize_records: int):
+        attrs = self.attr_list
+        domains = self.domain_list
+        print(attrs)
+        print(domains)
+        print(clusters)
+        print("***********************************")
+        self.synthesize_records(attrs, domains, clusters, fixed_n)
         # self.synthesize_records_numbers(noisy_puma_year, clusters, fixed_n)
-
+        print(self.synthesized_df)
         return self.synthesized_df
 
 
@@ -301,16 +333,17 @@ class DPSyn(Synthesizer):
         pub_weight = 0.00
         noisy_weight = 1 - pub_weight
 
-        for key, view in pub_onehot_view_dict.items():
-            if noisy_view_dict:
-                view.weight_coeff = 0.01
-                # need to first calculate (num_synthesize_records / np.sum(view.count)), otherwise have numerical problems
-                view.count = view.count * (num_synthesize_records / np.sum(view.count))
-            else:
-                if not np.sum(view.count) == np.sum(list(pub_onehot_view_dict.values())[0].count):
-                    raise ValueError(
-                        f'view sizes do not match; maybe a data reading problem (current key: {key}, sum: {np.sum(view.count)}')
-                view.count = view.count.astype(np.float)
+        # weight between pub and priv 
+        # for key, view in pub_onehot_view_dict.items():
+        #     if noisy_view_dict:
+        #         view.weight_coeff = 0.01
+        #         # need to first calculate (num_synthesize_records / np.sum(view.count)), otherwise have numerical problems
+        #         view.count = view.count * (num_synthesize_records / np.sum(view.count))
+        #     else:
+        #         if not np.sum(view.count) == np.sum(list(pub_onehot_view_dict.values())[0].count):
+        #             raise ValueError(
+        #                 f'view sizes do not match; maybe a data reading problem (current key: {key}, sum: {np.sum(view.count)}')
+        #         view.count = view.count.astype(np.float)
 
         views_dict = pub_attr_view_dict
         onehot_view_dict = pub_onehot_view_dict
@@ -401,6 +434,8 @@ class DPSyn(Synthesizer):
     # (we have a graph where nodes represent attributes and edges represent marginals,
     #  it helps in terms of running time and accuracy if we do it cluster by cluster)
     def synthesize_records(self, attrs: Attrs, domains: Domains, clusters: Clusters, num_synthesize_records: int):
+        print("START SYNTHESIING RECORDS---------------------------->")
+        print(num_synthesize_records)
         for cluster_attrs, list_marginal_attrs in clusters.items():
             logger.info("synthesizing for %s" % (cluster_attrs,))
 
@@ -411,7 +446,12 @@ class DPSyn(Synthesizer):
                     singleton_views[cur_attrs] = view
 
             synthesizer = RecordSynthesizer(attrs, domains, num_synthesize_records)
+            print("num_synthesized_records")
+            print(num_synthesize_records)
+            print("debug 2nd try--------------------------------->")
             synthesizer.initialize_records(list_marginal_attrs, singleton_views=singleton_views)
+            # print("after synthesize initialize:")
+            # print(synthesizer.df)
 
             attrs_index_map = {attrs: index for index, attrs in enumerate(list_marginal_attrs)}
 
@@ -419,6 +459,8 @@ class DPSyn(Synthesizer):
                 logger.info("update round: %d" % (update_iteration,))
 
                 synthesizer.update_alpha(update_iteration)
+                # print("after update alpha:")
+                # print(synthesizer.df)
                 sorted_error_attrs = synthesizer.update_order(update_iteration, self.attrs_view_dict,
                                                               list_marginal_attrs)
 
@@ -426,8 +468,13 @@ class DPSyn(Synthesizer):
                     attrs_i = attrs_index_map[attrs]
                     synthesizer.update_records_prepare(self.attrs_view_dict[attrs])
                     synthesizer.update_records(self.attrs_view_dict[attrs], attrs_i)
-
-            self.synthesized_df.loc[:, cluster_attrs] = synthesizer.df.loc[:, cluster_attrs]
+                    # print("after update records:")
+                    # print(synthesizer.df)
+            print(self.synthesized_df)
+            if self.synthesized_df is None:
+                self.synthesized_df = synthesizer.df
+            else:
+                self.synthesized_df.loc[:, cluster_attrs] = synthesizer.df.loc[:, cluster_attrs]
 
 
     # it seems that the function calculates the l1_error in another version

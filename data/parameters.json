@@ -1,54 +1,6 @@
 {
   "runs": [
     {
-      "epsilon": 0.1,
-      "delta": 3.4498908254380166e-11,
-      "max_records": 1350000,
-      "max_records_per_individual": 7
-    },
-    {
-      "epsilon": 0.2,
-      "delta": 3.4498908254380166e-11,
-      "max_records": 1350000,
-      "max_records_per_individual": 7
-    },
-    {
-      "epsilon": 0.25,
-      "delta": 3.4498908254380166e-11,
-      "max_records": 1350000,
-      "max_records_per_individual": 7
-    },
-    {
-      "epsilon": 0.5,
-      "delta": 3.4498908254380166e-11,
-      "max_records": 1350000,
-      "max_records_per_individual": 7
-    },
-    {
-      "epsilon": 1.0,
-      "delta": 3.4498908254380166e-11,
-      "max_records": 1350000,
-      "max_records_per_individual": 7
-    },
-    {
-      "epsilon": 2.0,
-      "delta": 3.4498908254380166e-11,
-      "max_records": 1350000,
-      "max_records_per_individual": 7
-    },
-    {
-      "epsilon": 4.0,
-      "delta": 3.4498908254380166e-11,
-      "max_records": 1350000,
-      "max_records_per_individual": 7
-    },
-    {
-      "epsilon": 7.0,
-      "delta": 3.4498908254380166e-11,
-      "max_records": 1350000,
-      "max_records_per_individual": 7
-    },
-    {
       "epsilon": 10.0,
       "delta": 3.4498908254380166e-11,
       "max_records": 1350000,
