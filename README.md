@@ -88,8 +88,7 @@ Below we list several hyper parameters through our code which you can design by 
 | :---------------: | :------------------: | :------------:     | :----:| :--------:                     |
 | update_iterations | dpsyn.py             | DPSyn              | 30    | the num of update iterations                        |
 | alpha = 1.0       | record_synthesizer.py| RecordSynthesizer  |  1.0  |                                |
-| update_alpha()    | record_synthesizer.py| RecordSynthesizer  | self.alpha = 1.0 * 0.84 ** (iteration // 20)
-| inspired by ML practice                  |
+| update_alpha()    | record_synthesizer.py| RecordSynthesizer  | self.alpha = 1.0 * 0.84 ** (iteration // 20) |inspired by ML practice |
 
 btw, you can manually set noise type in method/synthesizer.py anoymize() by hardcoding it.
 
