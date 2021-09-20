@@ -228,7 +228,9 @@ class RecordSynthesizer:
         # logger.info("the l1 error before updating is %s" % (l1_error,))
 
     def _rounding(self, vector):
+        # 0.49 
         if self.rounding_method == 'stochastic':
+            # avoid bias 
             ret_vector = np.zeros(vector.size)
             rand = np.random.rand(vector.size)
 
@@ -240,6 +242,7 @@ class RecordSynthesizer:
             ret_vector += integer
             return ret_vector
         elif self.rounding_method == 'deterministic':
+            # 0
             return np.round(vector)
         else:
             raise NotImplementedError(self.rounding_method)

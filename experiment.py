@@ -35,7 +35,8 @@ def main():
     # args.method = 'direct_sample'
     # args.method = 'sample'
     # args.method = 'plain_pub'
-    n = 100
+    # n = 200
+    n = args.n
     # TODO: what do n and bias_penalty means 
     # bias_penalty_cutoff = 2500000
     # bias_penalty_cutoff = 250
@@ -137,7 +138,7 @@ def run_method(config, dataloader, n):
     # btw, I　guess the mistake happens because of data structure problems
     postprocessor = RecordPostprocessor()
     syn_data = postprocessor.post_process(syn_data, args.config, dataloader.decode_mapping)
-    logger.info("post-processed synthetic data")
+    logger.info("--------------->synthetic data post-processed")
 
     # sorry, but what the following part means
     # TODO: below the 'scorexxxx' functions' names are not found
@@ -161,6 +162,9 @@ if __name__ == "__main__":
     # add config file which include paths and so on
     parser.add_argument("--config", type=str, default="./config/data.yaml",
                         help="specify the path of config file in yaml")
+    # we set the default number of records to be 100
+    parser.add_argument("--n",type=int,default=100,help="specify the number of records to generate")
+    
     # actually now we only synthesize by dpsyn
     # parser.add_argument("--method", type=str, default='sample',
     #                    help="specify which method to use")

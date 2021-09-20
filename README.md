@@ -18,7 +18,7 @@ In this repository, we only include the second part for now.
 ### (*for research*)Further, with another public dataset for reference, you can:
 * decide whether to use the public one or the DPSyned dataset to answer queries, as to which problem we place some default intuitional settings (in practice, they could be researched deeper) and users can change as they want.
 ### As to measure the generated dataset:
-*(In the competition's setting, we present 2 metric programes which you can run to test the quality of generated datasets: one is provided by the competition organizer and the other is drafted by ourselves.)
+* (In the competition's setting, we present 2 metric programes which you can run to test the quality of generated datasets: one is provided by the competition organizer and the other is drafted by ourselves.)
 * generally, you can refer to Synthpop(a R package) as a tool to compare the synthesized dataset against the original one.
 
 
@@ -53,7 +53,7 @@ TODO:
 1. consider including the code of  attribute selection and combination part in DPSyn paper. 😋
 2. King seemed to mention one combination package which might help in instructing combining? (But I can not figure out how it works as we even cannot know the inner features of the to-protect dataset.)
 3. If your dataset includes some attributes that can be determined by other attributes, you can specify them in data.yaml, but by default we exclude the part and you can find related code in comment
-4. If you have a public dataset to refer to, set pub_ref=True in load_data() in DataLoader.py
+4. If you have a public dataset to refer to, set pub_ref=True in load_data() in DataLoader.py and fill the settings in data.yaml
 
 
 ### As to dp parameters(eps, delta, sensitivity)
@@ -67,7 +67,7 @@ Here we display an example where the sensitivity value equals to 'max_records_pe
     }
 Meanwhile, as the above example shows, you can specify the 'max_records' parameter to bound the number of rows in the synthesized dataset.
 
-(
+
 ### Below is related to generate a dataset with certain attributes fiexd (I think we'd better desert the part)
 4. add in config 'eps=xxx.yaml' where xxx means the epsilon value(privacy budget) you want to set and include more details in the yaml file which describes what you want to do in this run.
 (For instance, to generate a dataset for each pair of  "PUMA" and "YEAR", which is motivated by the specific metric here, you can set in yaml things like below)
@@ -75,21 +75,42 @@ Meanwhile, as the above example shows, you can specify the 'max_records' paramet
 attributes:
     - 'PUMA'
     - 'YEAR'
-)
+
 
 ### More manual configrations to fit our algorithm to your dataset
-Below we list several places in our code where you can set some magic values (instead of our rude default settings) when using the package to generate specific dataset.
-Tips on how to design those values will be obtained in related places in code files. 
+Below we list several hyper parameters through our code which you can design by yourself to replace our default setting.
 
-| variable          | file                 | class/function) | value |  semantics |
-| :---------------: | :------------------: | :------------:  | :----:| :--------: |
-| update_iterations | dpsyn.py             | DPSyn           | 60    |            |
-| n                 | experiment.py        | main()          | 0 ??? |            |
-| d                 | dpsyn.py             | DPSyn           | 0??   |            |
-| 
+| variable          | file                 | class/function)    | value |  semantics                     |
+| :---------------: | :------------------: | :------------:     | :----:| :--------:                     |
+| update_iterations | dpsyn.py             | DPSyn              | 30    | the num of update iterations                        |
+| alpha = 1.0       | record_synthesizer.py| RecordSynthesizer  |  1.0  |                                |
+| update_alpha()    | record_synthesizer.py| RecordSynthesizer  | self.alpha = 1.0 * 0.84 ** (iteration // 20)
+| inspired by ML practice                  |
 
-TODO: I guess more tip documentation are needed..... 
+btw, you can manually set noise type in method/synthesizer.py anoymize() by hardcoding it.
 
+2. dataset size n
+(1) TODO: automaticly set by dp  A: not n=0, then how?
+(2) user input
+3. noise type? 
+ (1) automatically
+ refer to: synthesizer.py , synthesize()
+ since the advanced_composition is a python module which provides related noise parameters
+ noise_type, noise_param = advanced_composition.get_noise(eps, self.delta, self.sensitivity, len(marginals))
+ we can fix this part as kind of improvement? 
+ (2) users set
+
+
+
+
+4. benchmark and improve, since the metric tool is not that convincing
+5. clean the unrelated code to provide a well-organized code repository with explicit instructions and comments.
+6. As to latest libraries, check then...
+7. As to packacging, maybe we can transfer some settings to command line interactions.....
+
+More:
+1. I haven't read the lib code deeply
+2. remind on sharing reviewing ( 90% bad-quality......)
 
 *Below is simply draft to help thinking:*
 #### Interesting，as to the paper, I found myself memory-lost...
