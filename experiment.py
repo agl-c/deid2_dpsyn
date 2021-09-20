@@ -24,7 +24,7 @@ def main():
     # by default, args.config is ./config/data.yaml, you may change it by typing --config=.....
     with open(args.config, 'r') as f:
         config = yaml.load(f, Loader=yaml.BaseLoader)
-    print("------> load config, priv data", config['priv_dataset_path'])
+    print("----------------> load config, priv data: ", config['priv_dataset_path'])
 
     # dataloader initialization
     dataloader = DataLoader()
@@ -136,6 +136,7 @@ def run_method(config, dataloader, n):
     # map records with grouped/binned attribute back to original attributes
     # TODO: debug in postprocessing but I  doubt whether things have gone wrong in setting fixed_n=0?
     # btw, I　guess the mistake happens because of data structure problems
+    print("********************* START POSTPROCESSING ***********************")
     postprocessor = RecordPostprocessor()
     syn_data = postprocessor.post_process(syn_data, args.config, dataloader.decode_mapping)
     logger.info("--------------->synthetic data post-processed")

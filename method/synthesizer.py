@@ -46,10 +46,10 @@ class Synthesizer(object):
         noisy_marginals = {}
         for set_key, marginals in priv_marginal_sets.items():
             eps = epss[set_key]
-            # noise_type, noise_param = advanced_composition.get_noise(eps, self.delta, self.sensitivity, len(marginals))
+            noise_type, noise_param = advanced_composition.get_noise(eps, self.delta, self.sensitivity, len(marginals))
             # noise_type = priv_split_method[set_key]
             # tip: you can hard code the noise type or let program decide it 
-            noise_type = 'lap'
+            # noise_type = 'lap'
             # we use laplace or guass noise?
             # the advanced_composition is a python module which provides related noise parameters
             # for instance, as to laplace noises, it computes the reciprocal of laplace scale

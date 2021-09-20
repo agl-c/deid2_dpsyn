@@ -52,8 +52,8 @@ class RecordPostprocessor:
         with open(config_file_path, 'r') as f:
             self.config = yaml.load(f, Loader=yaml.BaseLoader)
         #TODO: add for debug
-        print(data)
-        print(grouping_mapping)
+        # print(data)
+        # print(grouping_mapping)
         data = self.ungrouping_attributes(data, grouping_mapping)
         data = self.unbinning_attributes(data)
         # I guess we desert this for now
@@ -63,8 +63,9 @@ class RecordPostprocessor:
         return data
 
     def unbinning_attributes(self, data: pd.DataFrame):
+        print("unbinning attributes --------------->")
         binning_info = self.config['numerical_binning']
-        print(binning_info)
+        # print(binning_info)
         for att, spec_list in binning_info.items():
             # if att == "DEPARTS" or att == "ARRIVES":
             #     bins = np.r_[-np.inf, [int(h) * 100 + int(m) for h in range(24) for m in spec_list], np.inf]
@@ -81,7 +82,7 @@ class RecordPostprocessor:
         return data
 
     def ungrouping_attributes(self, data: pd.DataFrame, decode_mapping: dict):
-        print(data)
+        print("ungroup attributes ----------------->  ")
         grouping_info = self.config['grouping_attributes']
         for grouping in grouping_info:
             grouped_attr = grouping['grouped_name']
@@ -94,6 +95,7 @@ class RecordPostprocessor:
         return data
 
     def decode_other_attributes(self, data: pd.DataFrame, decode_mapping: dict):
+        print("decode other attributes --------------->")
         grouping_attr = [info["grouped_name"] for info in self.config['grouping_attributes']]
         binning_attr = [attr for attr in self.config['numerical_binning'].keys()]
         for attr, mapping in decode_mapping.items():

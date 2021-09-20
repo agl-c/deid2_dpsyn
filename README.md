@@ -31,13 +31,17 @@ In this repository, we only include the second part for now.
 You should first preprocess the dataset. 
 We require you to provide dataset in format of filename.csv(comma-separated file, and you can find ground_truth.csv as an example).
 And we offer you tools(https://github.com/hd23408/nist-schemagen) to generate the **parameters.json** and **column_datatypes.json**(both we include example files in the repository) which include some schema of the dataset to help our algorithm run.
-Based on that, you can easily generate **data_type.py**, which simply include a dictionary called COLS that record the columns' data types.
+Based on that, you can easily generate **data_type.py**, which simply include a dictionary called COLS that record the columns' data types. And you may add this part in data/RecordPostprocessor.py.
 
 ### set file paths
 You should set several paths in **config/path.py**, instructed by the variables' names. 
 
 ### In data.yaml
 You should set file paths, identifier attribute, bin value parameters, grouping settings, and possibly value-determined attributes which are detected by users themselves.
+
+### Marginal selection method config
+Refer to eps=1000.0.yaml as an example file where we manully restrict the marginal selection method to be all the two way marginals.
+
 
 **More details**
 1. You can specify the identifier attribute's name in data.yaml (we assume your dataset has the identifer attribute by default and obviously, in synthetic dataset the column should be removed to protect privacy)

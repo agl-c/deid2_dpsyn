@@ -165,12 +165,16 @@ class DPSyn(Synthesizer):
         #def synthesize_records(self, attrs: Attrs, domains: Domains, clusters: Clusters, num_synthesize_records: int):
         attrs = self.attr_list
         domains = self.domain_list
+        print("------------------------> attributes: ")
         print(attrs)
+        print("------------------------> domains: ")
         print(domains)
+        print("------------------------> cluseters: ")
         print(clusters)
-        print("***********************************")
+        print("********************* START SYNTHESIZING RECORDS ********************")
         self.synthesize_records(attrs, domains, clusters, fixed_n)
         # self.synthesize_records_numbers(noisy_puma_year, clusters, fixed_n)
+        print("------------------------> synthetic dataframe: ")
         print(self.synthesized_df)
         return self.synthesized_df
 
@@ -434,7 +438,7 @@ class DPSyn(Synthesizer):
     # (we have a graph where nodes represent attributes and edges represent marginals,
     #  it helps in terms of running time and accuracy if we do it cluster by cluster)
     def synthesize_records(self, attrs: Attrs, domains: Domains, clusters: Clusters, num_synthesize_records: int):
-        print("START SYNTHESIING RECORDS---------------------------->")
+        print("-----------------------> num of synthesized records: ")
         print(num_synthesize_records)
         for cluster_attrs, list_marginal_attrs in clusters.items():
             logger.info("synthesizing for %s" % (cluster_attrs,))
@@ -446,9 +450,8 @@ class DPSyn(Synthesizer):
                     singleton_views[cur_attrs] = view
 
             synthesizer = RecordSynthesizer(attrs, domains, num_synthesize_records)
-            print("num_synthesized_records")
-            print(num_synthesize_records)
-            print("debug 2nd try--------------------------------->")
+            # print(num_synthesize_records)
+            # print("debug 2nd try--------------------------------->")
             synthesizer.initialize_records(list_marginal_attrs, singleton_views=singleton_views)
             # print("after synthesize initialize:")
             # print(synthesizer.df)
@@ -470,7 +473,7 @@ class DPSyn(Synthesizer):
                     synthesizer.update_records(self.attrs_view_dict[attrs], attrs_i)
                     # print("after update records:")
                     # print(synthesizer.df)
-            print(self.synthesized_df)
+            # print(self.synthesized_df)
             if self.synthesized_df is None:
                 self.synthesized_df = synthesizer.df
             else:
