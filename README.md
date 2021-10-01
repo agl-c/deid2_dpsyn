@@ -121,7 +121,7 @@ I can work on:
 1. clean unrelated code
 2. explicit instructions and comments
 3. add a catalog in README,  refer to https://github.com/cmla-psu/statdp, consider the format of code (add dark background), add a catalog
-4. latest libraries, check then...
+4. latest libraries, check then... (✅)
 5. packaging, 
 
 

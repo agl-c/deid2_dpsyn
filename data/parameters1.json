@@ -1,0 +1,407 @@
+{
+  "runs": [
+    {
+      "epsilon": 10.0,
+      "delta": 3.4498908254380166e-11,
+      "max_records": 1350000,
+      "max_records_per_individual": 7
+    }
+  ],
+  "schema": {
+    "Age": {
+      "dtype": "uint8",
+      "kind": "numeric",
+      "min": 14,
+      "max": 87,
+      "bins": 10
+    },
+    "Sex": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "FEMALE",
+        "MALE"
+      ],
+      "codes": [
+        1,
+        2
+      ]
+    },
+    "Race": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "ASIAN",
+        "BLACK",
+        "HISPANIC, BLACK",
+        "HISPANIC, WHITE",
+        "NATIVE AMERICAN",
+        "WHITE"
+      ],
+      "codes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "Residence State": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "CA",
+        "CT",
+        "FL",
+        "MA",
+        "NC",
+        "NJ",
+        "NY",
+        "PA",
+        "RI",
+        "TX"
+      ],
+      "codes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
+    },
+    "Death County": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "FAIRFIELD",
+        "HARTFORD",
+        "LITCHFIELD",
+        "MIDDLESEX",
+        "NEW HAVEN",
+        "NEW LONDON",
+        "TOLLAND",
+        "WINDHAM"
+      ],
+      "codes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    "Location": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "CONVALESCENT HOME",
+        "HOSPICE",
+        "HOSPITAL",
+        "NURSING HOME",
+        "OTHER",
+        "RESIDENCE"
+      ],
+      "codes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "Location if Other": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "ABANDONED/VACANT",
+        "COMMERCIAL BUILDING",
+        "FACILITY",
+        "HOTEL/MOTEL/INN",
+        "NON-COMMERCIAL",
+        "OUTDOORS",
+        "RESIDENCE",
+        "UNSPECIFIED BUILDING",
+        "VEHICLE"
+      ],
+      "codes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    "Injury County": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "DUTCHESS",
+        "FAIRFIELD",
+        "HARTFORD",
+        "LITCHFIELD",
+        "MIDDLESEX",
+        "MNEW LONDON",
+        "NEW HAVEN",
+        "NEW LONDON",
+        "PUTNAM",
+        "TOLLAND",
+        "UNKNOWN",
+        "WASHINGTON",
+        "WESTCHESTER",
+        "WINDHAM"
+      ],
+      "codes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    "Injury State": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "CT",
+        "NY"
+      ],
+      "codes": [
+        1,
+        2
+      ]
+    },
+    "Heroin": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Cocaine": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Fentanyl": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Fentanyl Analogue": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Oxycodone": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Oxymorphone": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Ethanol": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Hydrocodone": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Benzodiazepine": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Methadone": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Amphet": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Tramad": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Morphine (Not Heroin)": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Hydromorphone": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Xylazine": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Opiate NOS": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "Any Opioid": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "CardioCondition": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "RespiratoryCondition": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "ObesityCondition": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    },
+    "DiabetesCondition": {
+      "dtype": "str",
+      "kind": "categorical",
+      "values": [
+        "Y"
+      ],
+      "codes": [
+        1
+      ]
+    }
+  }
+}

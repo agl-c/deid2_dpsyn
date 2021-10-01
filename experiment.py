@@ -4,7 +4,6 @@
 import argparse
 import copy
 
-# import these when debuggging
 from pathlib import Path
 from loguru import logger
 from data.DataLoader import *
@@ -22,7 +21,7 @@ def main():
     np.random.seed(0)
     np.random.RandomState(0)
     # by default, args.config is ./config/data.yaml, you may change it by typing --config=.....
-    with open(args.config, 'r') as f:
+    with open(args.config, 'r', encoding="utf-8") as f:
         config = yaml.load(f, Loader=yaml.BaseLoader)
     print("----------------> load config, priv data: ", config['priv_dataset_path'])
 
@@ -35,19 +34,13 @@ def main():
     # args.method = 'direct_sample'
     # args.method = 'sample'
     # args.method = 'plain_pub'
-    # n = 200
-    n = args.n
-    # TODO: what do n and bias_penalty means 
-    # bias_penalty_cutoff = 2500000
-    # bias_penalty_cutoff = 250
 
-    # check what is bias_penalty_cutoff
-    # syn_data = run_method(config, dataloader, n, bias_penalty_cutoff)
+    n = args.n
+   
     syn_data = run_method(config, dataloader, n)
     syn_data.to_csv(f"{args.method}-{n}-{config['priv_dataset_path']}.csv", index=False)
 
 
-#def run_method(config, dataloader, n, bias_penalty_cutoff):
 def run_method(config, dataloader, n):
     parameters = json.loads(Path(config['parameter_spec']).read_text())
     syn_data = None

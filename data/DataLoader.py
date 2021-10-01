@@ -46,17 +46,17 @@ class DataLoader:
         # TODO: I guess pub_only serves for sampling methods
         # load public data and get grouping mapping and filter values
         # CONFIG_DATA means data.yaml, which include some paths and value bins
-        with open(CONFIG_DATA, 'r') as f:
+        with open(CONFIG_DATA, 'r', encoding="utf-8") as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
         self.config = config
-        print("----------------> config yaml file loaded in DataLoader")
+        print("----------------> config yaml file loaded in DataLoader, config file: ", CONFIG_DATA)
 
         # config['parameter_spec'] means parameters.json
         # which include parameters for several runs and data schema
         with open(config['parameter_spec']) as f:
             parameter_spec = json.load(f)
             self.general_schema = parameter_spec['schema']
-        print("----------------> parameter file loaded in DataLoader")
+        print("----------------> parameter file loaded in DataLoader, parameter file: ", config['parameter_spec'])
 
         # we use pickle to store the objects in files as binary flow
         public_pickle_path = PICKLE_DIRECTORY / f"preprocessed_pub_{config['pub_dataset_path']}.pkl"
@@ -86,7 +86,7 @@ class DataLoader:
                 print("************start loading public data************")
                 self.public_data = pd.read_csv(DATA_DIRECTORY / f"{config['pub_dataset_path']}.csv", dtype=COLS)
                 self.public_data = self.binning_attributes(config['numerical_binning'], self.public_data)
-                self.public_data = self.grouping_attributes(config['grouping_attributes'], self.public_data)
+                # self.public_data = self.grouping_attributes(config['grouping_attributes'], self.public_data)
                 # remove the identifier
                 self.public_data = self.remove_identifier(self.public_data)
                 # note if there exist determined attributes to tackle
@@ -104,7 +104,7 @@ class DataLoader:
             print("************* start loading private data *************")
             self.private_data = pd.read_csv(DATA_DIRECTORY / f"{config['priv_dataset_path']}.csv", dtype=COLS)
             self.private_data = self.binning_attributes(config['numerical_binning'], self.private_data)
-            self.private_data = self.grouping_attributes(config['grouping_attributes'], self.private_data)
+            # self.private_data = self.grouping_attributes(config['grouping_attributes'], self.private_data)
             self.private_data = self.remove_identifier(self.private_data)
             # self.private_data = self.remove_determined_attributes(config['determined_attributes'], self.private_data)
             self.private_data = self.encode_remain(self.general_schema, config, self.private_data, is_private=True)
@@ -207,6 +207,7 @@ class DataLoader:
         
         """
         data = data.drop(self.config['identifier'], axis=1)
+        # data = data.drop(self.config['invalid'], axis=1)
         print("--------------> remove identifier column:", self.config['identifier'])
         print("identifier removed in DataLoader")
         return data
@@ -231,7 +232,9 @@ class DataLoader:
     # encode the remaining single attributes to save storage
     #　in　other　words, all the attributes are encoded to save now
     def encode_remain(self, schema, config, data, is_private=False):
-        encoded_attr = list(config['numerical_binning'].keys()) + [grouping['grouped_name'] for grouping in config['grouping_attributes']]
+       
+        # encoded_attr = list(config['numerical_binning'].keys()) + [grouping['grouped_name'] for grouping in config['grouping_attributes']]
+        encoded_attr = list(config['numerical_binning'].keys()) 
         print("--------------> start encoding remaining single attributes")
         for attr in data.columns:
             # note that there are so many config[identifier] throughout the codes, 

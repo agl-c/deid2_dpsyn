@@ -5,4 +5,4 @@
 #     - 'PUMA'
 #     - 'YEAR'
 priv_all_two_way:
-  total_eps: 990
+  total_eps: 10
