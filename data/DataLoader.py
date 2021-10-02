@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from config.path import CONFIG_DATA, PICKLE_DIRECTORY, DATA_DIRECTORY
+from config.path import CONFIG_DATA, PICKLE_DIRECTORY, DATA_DIRECTORY, PARAMS, PRIV_DATA, PRIV_DATA_NAME
 from config.data_type import COLS
 
 
@@ -53,14 +53,15 @@ class DataLoader:
 
         # config['parameter_spec'] means parameters.json
         # which include parameters for several runs and data schema
-        with open(config['parameter_spec']) as f:
+        # with open(config['parameter_spec']) as f:
+        with open(PARAMS) as f:
             parameter_spec = json.load(f)
             self.general_schema = parameter_spec['schema']
-        print("----------------> parameter file loaded in DataLoader, parameter file: ", config['parameter_spec'])
+        print("----------------> parameter file loaded in DataLoader, parameter file: ", PARAMS)
 
         # we use pickle to store the objects in files as binary flow
-        public_pickle_path = PICKLE_DIRECTORY / f"preprocessed_pub_{config['pub_dataset_path']}.pkl"
-        priv_pickle_path = PICKLE_DIRECTORY / f"preprocessed_priv_{config['priv_dataset_path']}.pkl"
+        # public_pickle_path = PICKLE_DIRECTORY / f"preprocessed_pub_{config['pub_dataset_path']}.pkl"
+        priv_pickle_path = PICKLE_DIRECTORY / f"preprocessed_priv_{PRIV_DATA_NAME}.pkl"
 
         # load public data
         if self.pub_ref:
@@ -102,7 +103,9 @@ class DataLoader:
                 self.decode_mapping[attr] = sorted(encode_mapping, key=encode_mapping.get)
         elif not pub_only:
             print("************* start loading private data *************")
-            self.private_data = pd.read_csv(DATA_DIRECTORY / f"{config['priv_dataset_path']}.csv", dtype=COLS)
+            # self.private_data = pd.read_csv(DATA_DIRECTORY / f"{config['priv_dataset_path']}.csv", dtype=COLS)
+            self.private_data = pd.read_csv(PRIV_DATA, dtype=COLS)
+            print("----------------> private dataset: ", PRIV_DATA)
             self.private_data = self.binning_attributes(config['numerical_binning'], self.private_data)
             # self.private_data = self.grouping_attributes(config['grouping_attributes'], self.private_data)
             self.private_data = self.remove_identifier(self.private_data)

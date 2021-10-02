@@ -1,21 +1,22 @@
 ---
 # this file is written by yaml(yet-another-markup-language), "---" denotes the start of a piece of content
-# it describes the specific data serialization of the dataset being tackled
-# if you have a public dataset to refer to, please set the path below 
-# if without a public dataset, just leave the content after ':' as vacant space? 
-# so that when program encounter config['pub_dataset_path'], it returns NULL?
-pub_dataset_path: ground_truth
+
+# pub_dataset_path: ground_truth
 # priv_dataset_path: stat-15-data
-priv_dataset_path: accidential_drug_deaths
+# priv_dataset_path: accidential_drug_deaths
+
 # parameters.json describes all the valid values corresponding to each attribute, no matter it is numerical or categorical 
 # parameter_spec: ./data/parameters.json
-parameter_spec: ./data/parameters1.json
-# you can write the identifier attribute's name  below, and in procession we will remove the column for privacy desire
+# parameter_spec: ./data/parameters1.json
+
+
+# you can set the identifier attribute's name  below
+# in synthesis we will remove the column for privacy desire
 # identifier: sim_individual_id
 identifier: ID
-# invalid: Date
-# you can define the binning settings as you want, the three line means [min,max,step] values for bin
 
+
+# you can define the binning settings as you want, the three line means [min,max,step] values for bin
 numerical_binning:
   "Age":
     - 14
@@ -83,11 +84,14 @@ numerical_binning:
 # you can define settings to group some attributes 
 # specifically, define which attributes to group,  the count of combined values,
 # the new grouped attribute's name and the valid combinations
+# sicne they are tailored for specific datasets and in practice tricks for efficiency consideration
+# currently we set them as NULL
 
 grouping_attributes: {}
 determined_attributes: {}
 
-# TODO： just a test
+
+# but you can refer to below as a possible example 
 
 # grouping_attributes:
 #   - attributes:
@@ -200,9 +204,11 @@ determined_attributes: {}
 #       - !!python/tuple [5, 1]
 #       - !!python/tuple [5, 2]
 #       - !!python/tuple [5, 3]
+
+
 # you can detect some attributes whose value can be determined by others to help the efficiency
 # in that case, write down the mapping details below
-# but if the dataset doesn't include determined_attributes, you should 'mute' those related codes in our package
+
 # determined_attributes:
 #   "EMPSTAT":
 #     by: "EMPSTATD"

@@ -37,20 +37,18 @@ Based on that,  **data_type.py** easily generate a dict COLS that record the col
 
 #### Set paths
 
-Set several paths in **config/path.py**, instructed by the variables' names.  <font color=red>(we'd better keep all paths in only one place)</font>
-
-<font color=blue> I want to : (1) make path all in path.py  </font>
+Set several paths in **config/path.py**, as the comments in the file instruct.
 
 #### In data.yaml 
 
-Set file paths, identifier attribute, bin value parameters.
+Set identifier attribute, bin value parameters.
 
 + You can specify the **identifier** attribute's name in data.yaml (we assume your dataset has the identifer attribute by default and obviously, in synthetic dataset the column should be removed to protect privacy)
 + You can specify **bin** settings in format of [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. ( Further, you can change more details in bin generation in binning_attributes() in DataLoader.py )
 
 ----
 
-<font color=green> Currently below functions are commented sicne they are in practice tricks for efficiency consideration and they are tailored for specific datasets </font>
+<font color=green> Currently below functions are commented sicne they are tailored for specific datasets and in practice tricks for efficiency consideration. </font>
 
 <font color=green>(more) set and fix if you want: grouping settings</font>
 

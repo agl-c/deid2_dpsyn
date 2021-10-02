@@ -9,12 +9,14 @@ from loguru import logger
 from data.DataLoader import *
 from data.RecordPostprocessor import RecordPostprocessor
 from method.dpsyn import DPSyn
+from config.path import PARAMS, PRIV_DATA_NAME
 # we remove below two modules which serve no use for dpsyn 
 # from method.sample_parallel import Sample
 # from method.direct_sample import DirectSample
 # from metric import *
 # from detailed_metric import *
 import numpy as np
+
 
 
 def main():
@@ -24,7 +26,7 @@ def main():
     with open(args.config, 'r', encoding="utf-8") as f:
         config = yaml.load(f, Loader=yaml.BaseLoader)
     print("----------------> load config file: ", args.config)
-    print("----------------> private dataset: ", config['priv_dataset_path'])
+    #　print("----------------> private dataset: ", config['priv_dataset_path'])
 
     # dataloader initialization
     dataloader = DataLoader()
@@ -39,11 +41,11 @@ def main():
     n = args.n
    
     syn_data = run_method(config, dataloader, n)
-    syn_data.to_csv(f"{args.method}-{n}-{config['priv_dataset_path']}.csv", index=False)
+    syn_data.to_csv(f"{args.method}-{n}-{PRIV_DATA_NAME}.csv", index=False)
 
 
 def run_method(config, dataloader, n):
-    parameters = json.loads(Path(config['parameter_spec']).read_text())
+    parameters = json.loads(PARAMS.read_text())
     syn_data = None
 
     # each item in 'runs' specify one dp task with (eps, delta, sensitivity) 
