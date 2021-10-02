@@ -22,8 +22,8 @@ class DPSyn(Synthesizer):
     """
     synthesized_df = None
     # the magic value is set empirically and users may change as they like
-    #　TODO: I think we can set outer interface to change the update_iterations
-    #　originally we set = 60
+    #　TODO: I think we can set outer interface to change the update_iterations?
+
     update_iterations = 30
 
     attrs_view_dict = {}
@@ -39,7 +39,7 @@ class DPSyn(Synthesizer):
     # Tuple[str] means 
     #    (i) a tuple type which has a single element which is str?
     # or (ii) a tuple type which has a undetermined length of str elements?
-    # I guess it should be (ii)
+    # it should be (ii)
     # actually, here the Tuple[str] is just str I think
     Marginals = Dict[Tuple[str], np.array]
     Clusters = Dict[Tuple[str], List[Tuple[str]]]

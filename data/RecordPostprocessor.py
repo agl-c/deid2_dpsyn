@@ -15,12 +15,12 @@ class RecordPostprocessor:
         assert isinstance(data, pd.DataFrame)
         with open(config_file_path, 'r', encoding="utf-8") as f:
             self.config = yaml.load(f, Loader=yaml.BaseLoader)
-        #TODO: add for debug
+        # add for debug
         # print(data)
         # print(grouping_mapping)
         # data = self.ungrouping_attributes(data, grouping_mapping)
         data = self.unbinning_attributes(data)
-        # I guess we desert this for now
+        # we desert this for now
         # data = self.add_determined_attrs(data)
         # data = self.decode_other_attributes(data, grouping_mapping)
         data = self.ensure_types(data)
@@ -31,9 +31,6 @@ class RecordPostprocessor:
         binning_info = self.config['numerical_binning']
         # print(binning_info)
         for att, spec_list in binning_info.items():
-            # if att == "DEPARTS" or att == "ARRIVES":
-            #     bins = np.r_[-np.inf, [int(h) * 100 + int(m) for h in range(24) for m in spec_list], np.inf]
-            # else:
             [s, t, step] = spec_list
             bins = np.r_[-np.inf, np.arange(int(s), int(t), int(step)), np.inf]
 
