@@ -1,14 +1,7 @@
 ---
-# priv_PUMA_YEAR:
-#   total_eps: 10
-#   attributes:
-#     - 'PUMA'
-#     - 'YEAR'
 priv_all_two_way:
-  total_eps: 10
+  total_eps: 10.0
 
-
-  
 
 # something cut from parameters.json
 #     {

@@ -1,29 +1,16 @@
-"""this file describes the coloumn attributes' data type
+"""this file read the DATA_TYPE json file to generate a dict COLS,
+which describes the coloumn attributes' data type
 
-specifically, it is the instantiation to the dataset used in the competition,
-namely Public Use Microdata Sample (PUMS) of the 1940 USA Census Data.
 """
 import json 
 from config.path import DATA_TYPE
-#"Date": {
-    #   "dtype": "date",
-    #   "kind": "date",
-    #   "min": "2012-01-01 00:00:00",
-    #   "max": "2020-12-31 00:00:00"
-    # },
-    # "Date Type": {
-    #   "dtype": "str",
-    #   "kind": "categorical",
-    #   "values": [
-    #     "DATEOFDEATH",
-    #     "DATEREPORTED"
-    #   ],
-    #   "codes": [
-    #     1,
-    #     2
-    #   ]
-    # },
-# just a test 
+
+
+with open(DATA_TYPE,'r') as f:
+    content = json.load(f)
+COLS = content['dtype']
+
+# one example is given below
 # COLS = {
 #     "PUMA": "str",
 #     "YEAR": "uint32",
@@ -62,10 +49,28 @@ from config.path import DATA_TYPE
 #     "ARRIVES": "uint32",
 # }
 
-with open(DATA_TYPE,'r') as f:
-    content = json.load(f)
-COLS = content['dtype']
+# we delete the complex column data type in simple test 
+#"Date": {
+    #   "dtype": "date",
+    #   "kind": "date",
+    #   "min": "2012-01-01 00:00:00",
+    #   "max": "2020-12-31 00:00:00"
+    # },
+    # "Date Type": {
+    #   "dtype": "str",
+    #   "kind": "categorical",
+    #   "values": [
+    #     "DATEOFDEATH",
+    #     "DATEREPORTED"
+    #   ],
+    #   "codes": [
+    #     1,
+    #     2
+    #   ]
+    # },
+# just a test
 
+# another example is given below 
 # COLS = {
 #    "Date": "date",
 #    "Date Type": "str",

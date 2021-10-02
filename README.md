@@ -30,8 +30,10 @@ In this repository, we only include the second part for now.
 #### Generate supporting schema files 
 
 The input dataset should be in format of filename.csv with its first row a header row.
-And you should first preprocess the dataset. we offer you tools(https://github.com/hd23408/nist-schemagen) to generate the **parameters.json** and **column_datatypes.json** (both we include example files in the repository) which include some schema of the dataset to help our algorithm run.
-Based on that, you can easily generate **data_type.py**, which simply include a dictionary called COLS that record the columns' data types. And you may add this part in data/RecordPostprocessor.py.
+And you should first preprocess the dataset. A tool(https://github.com/hd23408/nist-schemagen) is provided to generate the **parameters.json** and **column_datatypes.json** (both we include repository  example files ), which include some schema of the dataset to help our algorithm run.
+Based on that,  **data_type.py** easily generate a dict COLS that record the columns' data types. 
+
+----
 
 #### Set paths
 
@@ -39,27 +41,20 @@ Set several paths in **config/path.py**, instructed by the variables' names.  <f
 
 <font color=blue> I want to : (1) make path all in path.py  </font>
 
-
-
 #### In data.yaml 
 
-<font color=red>(we can rename the config file?) </font>
+Set file paths, identifier attribute, bin value parameters.
 
-<font color=blue> conside desert / rename some files </font>
++ You can specify the **identifier** attribute's name in data.yaml (we assume your dataset has the identifer attribute by default and obviously, in synthetic dataset the column should be removed to protect privacy)
++ You can specify **bin** settings in format of [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. ( Further, you can change more details in bin generation in binning_attributes() in DataLoader.py )
 
-You should set file paths, identifier attribute, bin value parameters, grouping settings, 
+----
 
-<font color=green>and possibly value-determined attributes which are detected by users themselves. (desert ? Y) </font>
+<font color=green> Currently below functions are commented sicne they are in practice tricks for efficiency consideration and they are tailored for specific datasets </font>
 
-#### Marginal selection config
+<font color=green>(more) set and fix if you want: grouping settings</font>
 
-Refer to eps=1000.0.yaml as an example where we manually restrict the marginal selection method to be all the two way marginals. <font color=red>(include automatic marginal selection and combination part as in PrivSyn? )</font>
-
-+ You can specify the identifier attribute's name in data.yaml (we assume your dataset has the identifer attribute by default and obviously, in synthetic dataset the column should be removed to protect privacy)
-
-+ You can specify bin settings in format of [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. Further, you can change more details in bin generation in binning_attributes() in DataLoader.py
-
-+ You can define attributes to be grouped in data.yaml (possibly based on analysis in possible existing public datasets), and we may give you some tips on deciding which attributes to group.
++ You can define attributes to be grouped in data.yaml ( possibly based on analysis in possible existing public datasets ), and we may give you some tips on deciding which attributes to group.
 
 **some intuitional grouping tips:**
 
@@ -67,25 +62,47 @@ Refer to eps=1000.0.yaml as an example where we manually restrict the marginal s
    * group those with embedded correlation
    * group those essitially the same (for instance, some attributes only differ in naming or one can be fully determined by another)
 
-<font color=green> Discuss if desert below functions:</font>
+<font color=green>(more) set and fix if you want: value-determined attributes which you can detect by yourself. </font>
 
-+ If your dataset includes some attributes that can be determined by other attributes, you can specify them in data.yaml, but by default we exclude the part and you can find related code in comment
++ If the original dataset includes some attributes that can be determined by other attributes, you can specify them in data.yaml, but by default we exclude the part and you can find related code in comment.
 
-+ If you have a public dataset to refer to, set pub_ref=True in load_data() in DataLoader.py and fill the settings in data.yaml 
+----
 
 #### Differential privacy parameters (eps, delta, sensitivity)
 
-<font color=red>for naive users, how to instruct design the sensitive functions </font> (Gary comments they might not know how to set this)
+<font color=red>for naive users, instruct about dp understandings, and instruct them to design the sensitive functions ? </font> (Gary comments they might not know how to set this..........)
 
-Users should set the eps, delta, sensitivity value in 'runs' in parameters.json according to their specific differential privacy requirements. 
+Users should set the eps, delta, sensitivity value in 'runs' in **parameters.json** according to their specific differential privacy requirements. 
 Here we display an example where the sensitivity value equals to 'max_records_per_individual', which essentially means the global sensitivity value of a specified function f(here is the count).
+
+```json
+  "runs": [
     {
-      "epsilon": 2.0,
+      "epsilon": 10.0,
       "delta": 3.4498908254380166e-11,
       "max_records": 1350000,
       "max_records_per_individual": 7
     }
+  ]
+```
+
+
 Meanwhile, as the above example shows, you can specify the 'max_records' parameter to bound the number of rows in the synthesized dataset. 
+
+#### Marginal selection config
+
+Refer to eps=10.0.yaml as an example where we manually restrict the marginal selection method to be all the two way marginals. <font color=red>(include automatic marginal selection and combination part as in PrivSyn? )</font>
+
+And we also write in this file the epsilon parameter corresponding to the one set in parameters.json "runs".
+
+e.g.
+
+```yaml
+priv_all_two_way:
+  total_eps: 10
+```
+
+----
 
 
 ### Details in fine tuning
@@ -96,47 +113,6 @@ Below we list several hyper parameters through our code. You can fine tune them 
 | update_iterations | dpsyn.py             | DPSyn              | 30    | the num of update iterations                        |
 | alpha = 1.0       | record_synthesizer.py| RecordSynthesizer  |  1.0  |                                |
 | update_alpha()    | record_synthesizer.py| RecordSynthesizer  | self.alpha = 1.0 * 0.84 ** (iteration // 20) |inspired by ML practice |
-
-
-
-----
-
-<font color=red>Challenging parts：</font>
-
-1. how to set <font color=green>groupings</font> when a new dataset come, simply with schema we cannot decide how to group?
-
-   Actually I'm unclear about what rules the grouping info in config should submit to? 
-
-   Should the dataset include exactly all the possible combinations of grouping settings?  
-
-   ( one attribute as a group? or no grouping )
-
-2. include <font color=red>marginal selection and combination </font>(?)
-
-3. <font color=red>dataset size n: as for now, we just input it when run, if automatically set by dp, </font>how? (I haven't figured it out)   
-
-   ( some number calculation function )
-
-4. as to metric, we need a small tool to produce a smaller sized dataset as inputs since the metric function consumes a lot of memory.  
-
-   (refer to numpy or pandas)
-
-
-
-I can work on:
-
-
-1. clean unrelated code
-2. explicit instructions and comments
-3. add a catalog in README,  refer to https://github.com/cmla-psu/statdp, consider the format of code (add dark background), add a catalog
-4. latest libraries, check then... (✅)
-5. packaging, 
-
-
-
-<font color=red> what arrived now</font>
-
-After config (where we should think how users provide grouping info and design sensitivity function), we run with input n which denotes the num of records to synthesize, and we can synthesize a dataset with all-two-way marginals method.
 
 ----
 
