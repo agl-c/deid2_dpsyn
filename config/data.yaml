@@ -16,7 +16,9 @@
 identifier: ID
 
 
-# you can define the binning settings as you want, the three line means [min,max,step] values for bin
+# you can define the binning settings as you want
+# the three line means [min,max,step] values for bin,
+# referring to parameters1.json, we set as below 
 numerical_binning:
   "Age":
     - 14

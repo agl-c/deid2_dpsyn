@@ -33,6 +33,8 @@ The input dataset should be in format of filename.csv with its first row a heade
 And you should first preprocess the dataset. A tool(https://github.com/hd23408/nist-schemagen) is provided to generate the **parameters.json** and **column_datatypes.json** (both we include repository  example files ), which include some schema of the dataset to help our algorithm run.
 Based on that,  **data_type.py** easily generate a dict COLS that record the columns' data types. 
 
+Refer to **parameters.json**, you can set the bin parts in data.yaml.
+
 ----
 
 #### Set paths
