@@ -13,9 +13,9 @@ PICKLE_DIRECTORY = DATA_DIRECTORY / "pkl"
 # PRIV_PKL = PICKLE_DIRECTORY / "preprocessed_private.pkl"
 # PUB_MAR_PKL = PICKLE_DIRECTORY / "pub_marginals.csv"
 # PRIV_MAR_PKL = PICKLE_DIRECTORY / "priv_marginals.csv"
+CONFIG_DATA = CONFIG_DIRECTORY / "data.yaml"
 PARAMS = DATA_DIRECTORY / "parameters1.json"
 DATA_TYPE = DATA_DIRECTORY / "column_datatypes.json"
-CONFIG_DATA = CONFIG_DIRECTORY / "data.yaml"
 MARGINAL_CONFIG = CONFIG_DIRECTORY / "eps=10.0.yaml"
 
 

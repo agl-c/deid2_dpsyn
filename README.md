@@ -37,11 +37,19 @@ Based on that, you can easily generate **data_type.py**, which simply include a 
 
 Set several paths in **config/path.py**, instructed by the variables' names.  <font color=red>(we'd better keep all paths in only one place)</font>
 
+<font color=blue> I want to : (1) make path all in path.py  </font>
+
+
+
 #### In data.yaml 
 
 <font color=red>(we can rename the config file?) </font>
 
-You should set file paths, identifier attribute, bin value parameters, grouping settings, <font color=red>and possibly value-determined attributes which are detected by users themselves. (desert ?)</font>
+<font color=blue> conside desert / rename some files </font>
+
+You should set file paths, identifier attribute, bin value parameters, grouping settings, 
+
+<font color=green>and possibly value-determined attributes which are detected by users themselves. (desert ? Y) </font>
 
 #### Marginal selection config
 
@@ -59,7 +67,7 @@ Refer to eps=1000.0.yaml as an example where we manually restrict the marginal s
    * group those with embedded correlation
    * group those essitially the same (for instance, some attributes only differ in naming or one can be fully determined by another)
 
-<font color=red> Discuss if desert below functions:</font>
+<font color=green> Discuss if desert below functions:</font>
 
 + If your dataset includes some attributes that can be determined by other attributes, you can specify them in data.yaml, but by default we exclude the part and you can find related code in comment
 
@@ -95,7 +103,7 @@ Below we list several hyper parameters through our code. You can fine tune them 
 
 <font color=red>Challenging parts：</font>
 
-1. how to set <font color=red>groupings</font> when a new dataset come, simply with schema we cannot decide how to group?
+1. how to set <font color=green>groupings</font> when a new dataset come, simply with schema we cannot decide how to group?
 
    Actually I'm unclear about what rules the grouping info in config should submit to? 
 

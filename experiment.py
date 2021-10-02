@@ -9,7 +9,7 @@ from loguru import logger
 from data.DataLoader import *
 from data.RecordPostprocessor import RecordPostprocessor
 from method.dpsyn import DPSyn
-# TODO: later we remove below two modules which serve no use for dpsyn 
+# we remove below two modules which serve no use for dpsyn 
 # from method.sample_parallel import Sample
 # from method.direct_sample import DirectSample
 # from metric import *
@@ -23,7 +23,8 @@ def main():
     # by default, args.config is ./config/data.yaml, you may change it by typing --config=.....
     with open(args.config, 'r', encoding="utf-8") as f:
         config = yaml.load(f, Loader=yaml.BaseLoader)
-    print("----------------> load config, priv data: ", config['priv_dataset_path'])
+    print("----------------> load config file: ", args.config)
+    print("----------------> private dataset: ", config['priv_dataset_path'])
 
     # dataloader initialization
     dataloader = DataLoader()
@@ -45,17 +46,18 @@ def run_method(config, dataloader, n):
     parameters = json.loads(Path(config['parameter_spec']).read_text())
     syn_data = None
 
-    #　each item in 'runs' specify one dp task with (eps, delta, sensitivity) 
+    # each item in 'runs' specify one dp task with (eps, delta, sensitivity) 
     # as well as a possible 'max_records' value which bounds the dataset's size
     for r in parameters["runs"]:
-        # replace the below 'max_records_per_individual' with your own design
         # 'max_records_per_individual' is the global sensitivity value of the designed function f
         #  here in the example f is the count, and you may change as you like
         eps, delta, sensitivity = r['epsilon'], r['delta'], r['max_records_per_individual']
+
         # we import logger in synthesizer.py
-        # we import DPSyn which inderitats synthesizer 
-        # and I'm not sure whether it will import synthesizer.py too
+        # we import DPSyn which inherits synthesizer 
         logger.info(f'working on eps={eps}, delta={delta}, and sensitivity={sensitivity}')
+
+        # we will use dpsyn to generate a dataset 
         if args.method == 'plain_pub':
             tmp = copy.deepcopy(dataloader.public_data)
         elif args.method == 'direct_sample':
@@ -88,8 +90,7 @@ def run_method(config, dataloader, n):
 
 
             6. look at generate_marginal_by_config() which is written in DataLoader.py
-               we need config files like (but it seems quite weird?)
-               how we manage these?
+               we need config files like 
             e.g.3.
                priv_all_one_way: (or priv_all_two_way)
                total_eps: xxxxx
@@ -102,22 +103,21 @@ def run_method(config, dataloader, n):
                     eps = epss[set_key]
                 # noise_type, noise_param = advanced_composition.get_noise(eps, self.delta, self.sensitivity, len(marginals))
                     noise_type = priv_split_method[set_key]
-            actually, priv_split_method seems to be hard_coded in config files here 
-            and in old code we tried to decide the noise type by advanced_compisition()?
-            and I wonder which decision method to take?
-            
+                (1)priv_split_method is hard_coded 
+                (2) we decide the noise type by advanced_compisition()
+
+
             """
-            # we will use dpsyn to generate a dataset 
             synthesizer = DPSyn(dataloader, eps, delta, sensitivity)
-            # what fixed_n means?
             # tmp returns a DataFrame
-            # it's a simple function having no relation to puma year things
-            
             tmp = synthesizer.synthesize(fixed_n=n)
         else:
             raise NotImplementedError
 
+        # we add in the synthesized dataframe a new column which is 'epsilon'
+        # so when do comparison, you should remove this column for consistence
         tmp['epsilon'] = eps
+
         # syn_data is a list 
         # tmp is added in the list 
         if syn_data is None:
@@ -125,26 +125,13 @@ def run_method(config, dataloader, n):
         else:
             syn_data = syn_data.append(tmp, ignore_index=True)
 
-    # post-processing generated data
-    # map records with grouped/binned attribute back to original attributes
-    # TODO: debug in postprocessing but I  doubt whether things have gone wrong in setting fixed_n=0?
-    # btw, I　guess the mistake happens because of data structure problems
+
+    # post-processing generated data, map records with grouped/binned attribute back to original attributes
     print("********************* START POSTPROCESSING ***********************")
     postprocessor = RecordPostprocessor()
     syn_data = postprocessor.post_process(syn_data, args.config, dataloader.decode_mapping)
     logger.info("--------------->synthetic data post-processed")
 
-    # sorry, but what the following part means
-    # TODO: below the 'scorexxxx' functions' names are not found
-    # but actually, for synthesis task, we do not resort to these metric functions
-    # if n == 0:
-    #     # here we encounter the use of bias_penalty_cutoff, but what does it mean?
-    #     score_online(ground_truth_csv=DATA_DIRECTORY / f"{config['priv_dataset_path']}.csv", submission_df=syn_data, parameters_json=Path(config['parameter_spec']), bias_penalty_cutoff=bias_penalty_cutoff)
-    # else:
-    #     if args.method == 'sample' or 'direct_sample':
-    #         puma_year_detailed_score(ground_truth_csv=DATA_DIRECTORY / f"{config['priv_dataset_path']}.csv", submission_df=syn_data)
-    #     else:
-    #         iteration_detailed_score(ground_truth_csv=DATA_DIRECTORY / f"{config['priv_dataset_path']}.csv", submission_df=syn_data)
 
     return syn_data
 
@@ -152,14 +139,13 @@ def run_method(config, dataloader, n):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    #　we use the argparse 
-    # add config file which include paths and so on
+    # config file which include paths and so on
     parser.add_argument("--config", type=str, default="./config/data.yaml",
                         help="specify the path of config file in yaml")
-    # we set the default number of records to be 100
+    # the default number of records is set as 100
     parser.add_argument("--n",type=int,default=100,help="specify the number of records to generate")
     
-    # actually now we only synthesize by dpsyn
+    # now we only synthesize by dpsyn, so remove this arg
     # parser.add_argument("--method", type=str, default='sample',
     #                    help="specify which method to use")
 

@@ -84,6 +84,9 @@ numerical_binning:
 # specifically, define which attributes to group,  the count of combined values,
 # the new grouped attribute's name and the valid combinations
 
+grouping_attributes: {}
+determined_attributes: {}
+
 # TODO： just a test
 
 # grouping_attributes:
