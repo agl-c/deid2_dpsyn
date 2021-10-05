@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from config.path import CONFIG_DATA, PICKLE_DIRECTORY, DATA_DIRECTORY, PARAMS, PRIV_DATA, PRIV_DATA_NAME
-from config.data_type import COLS
+from config.path import PICKLE_DIRECTORY, DATA_DIRECTORY
+# from config.data_type import COLS
 
 
 class DataLoader:
@@ -46,6 +46,7 @@ class DataLoader:
         # TODO: I guess pub_only serves for sampling methods
         # load public data and get grouping mapping and filter values
         # CONFIG_DATA means data.yaml, which include some paths and value bins
+        from experiment import PRIV_DATA, CONFIG_DATA, PARAMS, PRIV_DATA_NAME, DATA_TYPE
         with open(CONFIG_DATA, 'r', encoding="utf-8") as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
         self.config = config
@@ -84,6 +85,9 @@ class DataLoader:
                 # e.g., 
                 # return f'hello {text}, hello {name}'
                 # return 'hello '+text+', hello '+name
+                with open(DATA_TYPE,'r') as f:
+                    content = json.load(f)
+                COLS = content['dtype']
                 print("************start loading public data************")
                 self.public_data = pd.read_csv(DATA_DIRECTORY / f"{config['pub_dataset_path']}.csv", dtype=COLS)
                 self.public_data = self.binning_attributes(config['numerical_binning'], self.public_data)
@@ -262,6 +266,7 @@ class DataLoader:
         return data
 
     def generate_all_pub_marginals(self):
+        from experiment import PRIV_DATA, CONFIG_DATA, PARAMS, PRIV_DATA_NAME
         with open(CONFIG_DATA, 'r') as f:
             config = yaml.load(f, Loader=yaml.BaseLoader)
 
@@ -427,6 +432,7 @@ class DataLoader:
         """I don't know why we write the reload_priv function and new_data_path means what? 😅
 
         """
+        from experiment import PRIV_DATA, CONFIG_DATA, PARAMS, PRIV_DATA_NAME
         with open(CONFIG_DATA, 'r') as f:
             config = yaml.load(f)
 

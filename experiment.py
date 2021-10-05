@@ -6,17 +6,65 @@ import copy
 
 from pathlib import Path
 from loguru import logger
+import numpy as np
+
+
+parser = argparse.ArgumentParser()
+
+# original dataset file 
+parser.add_argument("--priv_data", type=str, default="./data/accidential_drug_deaths.csv",
+                    help="specify the path of original data file in csv format")
+
+
+# config file which include identifier and binning settings 
+parser.add_argument("--config", type=str, default="./config/data.yaml",
+                    help="specify the path of config file in yaml format")
+
+# the default number of records is set as 100
+parser.add_argument("--n", type=int, default=100, 
+                    help="specify the number of records to generate")
+
+# params file which include schema of the original dataset
+parser.add_argument("--params", type=str, default="./data/parameters1.json",
+                    help="specify the path of parameters file in json format")
+
+# datatype file which include the data types of the columns
+parser.add_argument("--datatype", type=str, default="./data/column_datatypes.json",
+                    help="specify the path of datatype file in json format")
+
+# marginal_config which specify marginal usage method
+parser.add_argument("--marginal_config", type=str, default="./config/eps=10.0.yaml",
+help="specify the path of marginal config file in yaml format")
+
+parser.add_argument("--priv_data_name", type=str, default="accidential_drug_deaths",
+help="specify the name of the private dataset")
+
+# now we only synthesize by dpsyn, so remove this arg
+# parser.add_argument("--method", type=str, default='sample',
+#                    help="specify which method to use")
+
+args = parser.parse_args()
+
+
+# from config.path import MARGINAL_CONFIG
+# from config.path import DATA_TYPE
+# from config.path import CONFIG_DATA
+# from config.path import PARAMS, PRIV_DATA_NAME
 from data.DataLoader import *
 from data.RecordPostprocessor import RecordPostprocessor
 from method.dpsyn import DPSyn
-from config.path import PARAMS, PRIV_DATA_NAME
+
 # we remove below two modules which serve no use for dpsyn 
 # from method.sample_parallel import Sample
 # from method.direct_sample import DirectSample
-# from metric import *
-# from detailed_metric import *
-import numpy as np
 
+
+PRIV_DATA = args.priv_data
+PRIV_DATA_NAME = args.priv_data_name
+CONFIG_DATA = args.config
+PARAMS = args.params
+DATA_TYPE = args.datatype
+MARGINAL_CONFIG = args.marginal_config
 
 
 def main():
@@ -26,7 +74,6 @@ def main():
     with open(args.config, 'r', encoding="utf-8") as f:
         config = yaml.load(f, Loader=yaml.BaseLoader)
     print("----------------> load config file: ", args.config)
-    #　print("----------------> private dataset: ", config['priv_dataset_path'])
 
     # dataloader initialization
     dataloader = DataLoader()
@@ -34,18 +81,17 @@ def main():
 
     # default method is dpsyn
     args.method = 'dpsyn'
-    # args.method = 'direct_sample'
-    # args.method = 'sample'
-    # args.method = 'plain_pub'
 
     n = args.n
+    priv_data = args.priv_data
+    priv_data_name = args.priv_data_name
    
     syn_data = run_method(config, dataloader, n)
-    syn_data.to_csv(f"{args.method}-{n}-{PRIV_DATA_NAME}.csv", index=False)
+    syn_data.to_csv(f"{args.method}-{n}-{priv_data_name}.csv", index=False)
 
 
 def run_method(config, dataloader, n):
-    parameters = json.loads(PARAMS.read_text())
+    parameters = json.loads(Path(args.params).read_text())
     syn_data = None
 
     # each item in 'runs' specify one dp task with (eps, delta, sensitivity) 
@@ -69,7 +115,7 @@ def run_method(config, dataloader, n):
             synthesizer = Sample(dataloader, eps, delta, sensitivity)
             tmp = synthesizer.synthesize()
         elif args.method == 'dpsyn':
-            """I guess it help by displaying the runtime logic below
+            """I guess it helps by displaying the runtime logic below
             1. DPSyn(Synthesizer)
             it got dataloader, eps, delta, sensitivity
             however, Synthesizer is so simple and crude(oh no it initializes the parameters in __init__)
@@ -120,8 +166,7 @@ def run_method(config, dataloader, n):
         # so when do comparison, you should remove this column for consistence
         tmp['epsilon'] = eps
 
-        # syn_data is a list 
-        # tmp is added in the list 
+        # syn_data is a list, tmp is added in the list 
         if syn_data is None:
             syn_data = tmp
         else:
@@ -138,18 +183,5 @@ def run_method(config, dataloader, n):
     return syn_data
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    # config file which include paths and so on
-    parser.add_argument("--config", type=str, default="./config/data.yaml",
-                        help="specify the path of config file in yaml")
-    # the default number of records is set as 100
-    parser.add_argument("--n",type=int,default=100,help="specify the number of records to generate")
-    
-    # now we only synthesize by dpsyn, so remove this arg
-    # parser.add_argument("--method", type=str, default='sample',
-    #                    help="specify which method to use")
-
-    args = parser.parse_args()
+if __name__ == "__main__":    
     main()

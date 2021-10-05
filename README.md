@@ -23,48 +23,44 @@ In this repository, we only include the second part for now.
 
 *(fill this part after packaging, easy)*
 
+We use the tool argparse for users to customize the input parameters and the usage message is shown below.
+
+```
+C:\Users\陈安琪\Desktop\nist_comp\deid2_dpsyn>python experiment.py -h
+usage: experiment.py [-h] [--priv_data PRIV_DATA] [--config CONFIG] [--n N] [--params PARAMS]
+                     [--datatype DATATYPE] [--marginal_config MARGINAL_CONFIG]
+                     [--priv_data_name PRIV_DATA_NAME]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --priv_data PRIV_DATA
+                        specify the path of original data file in csv format
+  --config CONFIG       specify the path of config file in yaml format
+  --n N                 specify the number of records to generate
+  --params PARAMS       specify the path of parameters file in json format
+  --datatype DATATYPE   specify the path of datatype file in json format
+  --marginal_config MARGINAL_CONFIG
+                        specify the path of marginal config file in yaml format
+  --priv_data_name PRIV_DATA_NAME
+                        specify the name of the private dataset
+```
+
+
+
 ----
 
 ### How to configure?
 
-#### Generate supporting schema files 
+#### Depend on 2 schema files and 2 config files
 
 The input dataset should be in format of filename.csv with its first row a header row.
-And you should first preprocess the dataset. A tool(https://github.com/hd23408/nist-schemagen) is provided to generate the **parameters.json** and **column_datatypes.json** (both we include repository  example files ), which include some schema of the dataset to help our algorithm run.
-Based on that,  **data_type.py** easily generate a dict COLS that record the columns' data types. 
+You should first preprocess the dataset. A tool(https://github.com/hd23408/nist-schemagen) is provided to generate 2 schema files: **(1) parameters.json** **(2) column_datatypes.json**  from the original dataset and actually our algorithm relies on them as input. We both include example files in our reporsitory.
 
-Refer to **parameters.json**, you can set the bin parts in data.yaml.
+Besides, you should specify parameters in "runs" in **parameters.json** as instructed later.
 
-----
+Refer to **parameters.json**, you can set the bin parts in the config file like  **data.yaml**.
 
-#### Set paths
-
-Set several paths in **config/path.py**, as the comments in the file instruct.
-
-#### In data.yaml 
-
-Set identifier attribute, bin value parameters.
-
-+ You can specify the **identifier** attribute's name in data.yaml (we assume your dataset has the identifer attribute by default and obviously, in synthetic dataset the column should be removed to protect privacy)
-+ You can specify **bin** settings in format of [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. ( Further, you can change more details in bin generation in binning_attributes() in DataLoader.py )
-
-----
-
-<font color=green> Currently below functions are commented sicne they are tailored for specific datasets and in practice tricks for efficiency consideration. </font>
-
-<font color=green>(more) set and fix if you want: grouping settings</font>
-
-+ You can define attributes to be grouped in data.yaml ( possibly based on analysis in possible existing public datasets ), and we may give you some tips on deciding which attributes to group.
-
-**some intuitional grouping tips:**
-
-   * group those with small domains
-   * group those with embedded correlation
-   * group those essitially the same (for instance, some attributes only differ in naming or one can be fully determined by another)
-
-<font color=green>(more) set and fix if you want: value-determined attributes which you can detect by yourself. </font>
-
-+ If the original dataset includes some attributes that can be determined by other attributes, you can specify them in data.yaml, but by default we exclude the part and you can find related code in comment.
+And you can specify marginal settings in marginal config file like **eps=xxx.yaml**. (e.g. eps=10.0.yaml)
 
 ----
 
@@ -88,6 +84,28 @@ Here we display an example where the sensitivity value equals to 'max_records_pe
 
 
 Meanwhile, as the above example shows, you can specify the 'max_records' parameter to bound the number of rows in the synthesized dataset. 
+
+#### In data.yaml 
+
+Set identifier attribute, bin value parameters.
+
+You can specify the **identifier** attribute's name in data.yaml (we assume your dataset has the identifer attribute by default and obviously, in synthetic dataset the column should be removed to protect privacy)
+
+You can specify **bin** settings in format of [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. ( Further, you can change more details in bin generation in binning_attributes() in DataLoader.py )
+
+```yaml
+identifier: ID
+# you can define the binning settings as you want
+# the three line means [min,max,step] values for bin,
+# referring to parameters1.json, we set as below 
+numerical_binning:
+  "Age":
+    - 14
+    - 87
+    - 10
+```
+
+----
 
 #### Marginal selection config
 
@@ -116,9 +134,31 @@ Below we list several hyper parameters through our code. You can fine tune them 
 
 ----
 
+### Unused currently
+
+Currently below functions are commented sicne they are tailored for specific datasets and in practice tricks **for efficiency consideration**.
+
+##### grouping settings
+
+You can define attributes to be grouped in data.yaml ( possibly based on analysis in possible existing public datasets ), and we may give you some tips on deciding which attributes to group.
+
+**some intuitional grouping tips:**
+
+   * group those with small domains
+   * group those with embedded correlation
+   * group those essitially the same (for instance, some attributes only differ in naming or one can be fully determined by another)
+
+##### value-determined attributes 
+
+If the original dataset includes some attributes that can be determined by other attributes, you can specify them in data.yaml, but by default we exclude the part since they are a little tricky.
+
+----
+
 ### Measurements
 
 You can refer to Synthpop(a R package) as a tool to compare the synthesized dataset against the original one. And we offer a quick-start guide [Synthpop](https://docs.google.com/document/d/17jSDoMcSbozjc8Ef8X42xPJXRb6g_Syt/edit#heading=h.gjdgxs ) for you here. 
+
+Besides, we offer simple metric modules to measure the L1, L2 distance between the original dataset and the synthetic one.
 
 ## Team Members & Affiliation(s):
 

@@ -12,7 +12,7 @@ from lib_dpsyn.consistent import Consistenter
 from lib_dpsyn.record_synthesizer import RecordSynthesizer
 from lib_dpsyn.view import View
 from method.synthesizer import Synthesizer
-from config.path import MARGINAL_CONFIG
+# from config.path import MARGINAL_CONFIG
 
 class DPSyn(Synthesizer):
     """Note that it inherits the class Synthesizer,
@@ -146,7 +146,8 @@ class DPSyn(Synthesizer):
     #  without relation with PUMA, YEAR things?
     # TODO: fixed_n = 0? Are you sure??
     def synthesize(self, fixed_n=0) -> pd.DataFrame:
-
+        
+        from experiment import MARGINAL_CONFIG
         with open(MARGINAL_CONFIG, 'r') as f:
             priv_marginal_config = yaml.load(f, Loader=yaml.FullLoader)
         priv_split_method = {}

@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 import yaml
+import json 
 
-
-from config.data_type import COLS 
+# from config.data_type import COLS 
 
 
 class RecordPostprocessor:
@@ -82,6 +82,10 @@ class RecordPostprocessor:
         return data
 
     def ensure_types(self, data: pd.DataFrame):
+        from experiment import DATA_TYPE
+        with open(DATA_TYPE,'r') as f:
+            content = json.load(f)
+        COLS = content['dtype']
         for col, data_type in COLS.items():
             data[col] = data[col].astype(data_type)
         return data
