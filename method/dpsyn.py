@@ -94,9 +94,6 @@ class DPSyn(Synthesizer):
         # you may understand them as created by another collaborator and we fix interfaces
         # perhaps, views are kind of like marginals, now I guess views work on marginals, let's check it
         # if there exist public dataset to refer to
-        # TODO:
-        # should we always utilize the schema of public dataset like below 2 lines ?
-        # it seems that it has to ?
         """
         if you ask to use pub_onehot_view_dict..... to run,
         you rely on pub_marginals,
@@ -142,9 +139,7 @@ class DPSyn(Synthesizer):
     #  tmp = synthesizer.synthesize(fixed_n=n)
     # in below function, we call synthesize_records()
     # it further utilize the lib function in record_synthesizer.py
-    # TODO: it seems that the coding logic already uses only general functions
-    #  without relation with PUMA, YEAR things?
-    # TODO: fixed_n = 0? Are you sure??
+  
     def synthesize(self, fixed_n=0) -> pd.DataFrame:
         
         from experiment import MARGINAL_CONFIG
