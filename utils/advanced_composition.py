@@ -99,12 +99,6 @@ def get_noise(eps, delta, sensitivity, num_composition):
         return 'gauss', gauss_param
 
 
-# print(gauss_zcdp(0.25, 3.45e-11, 7, 1) ** 2)
-# print(gauss_zcdp(0.88, 3e-11, 7, 22) ** 2)
-# print(2 * (1.0 / lap_comp(0.88, 3.45e-11, 7, 22) ** 2))
-#
-# print(gauss_zcdp(10, 3e-11, 7, 233) ** 2)
-# print(2 * (1.0 / lap_comp(10, 3e-11, 7, 233) ** 2))
 
 # total_epss = [0.01, 1]
 # sensitivitys = [1]
