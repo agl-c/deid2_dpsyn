@@ -3,8 +3,6 @@ import pandas as pd
 import yaml
 import json 
 
-# from config.data_type import COLS 
-
 
 class RecordPostprocessor:
     def __init__(self):
@@ -27,6 +25,9 @@ class RecordPostprocessor:
         return data
 
     def unbinning_attributes(self, data: pd.DataFrame):
+        """unbin the binned attributes
+        
+        """
         print("unbinning attributes --------------->")
         binning_info = self.config['numerical_binning']
         # print(binning_info)
@@ -43,6 +44,10 @@ class RecordPostprocessor:
         return data
 
     def ungrouping_attributes(self, data: pd.DataFrame, decode_mapping: dict):
+        """ungroup the grouped attributes for consistency consideration
+        as for now, not used since we do not group attributes
+        
+        """
         print("ungroup attributes ----------------->  ")
         grouping_info = self.config['grouping_attributes']
         for grouping in grouping_info:
@@ -56,6 +61,10 @@ class RecordPostprocessor:
         return data
 
     def decode_other_attributes(self, data: pd.DataFrame, decode_mapping: dict):
+        """decode the attributes aside from the grouped ones and binned ones
+        as for now, it works for decoding the attributes aside from binned ones since we set grouping info NULL
+
+        """
         print("decode other attributes --------------->")
         grouping_attr = [info["grouped_name"] for info in self.config['grouping_attributes']]
         binning_attr = [attr for attr in self.config['numerical_binning'].keys()]
@@ -82,6 +91,10 @@ class RecordPostprocessor:
         return data
 
     def ensure_types(self, data: pd.DataFrame):
+        """refer to the schema file DATA_TYPE,
+        to ensure that the generated dataset have valid data types
+        
+        """
         from experiment import DATA_TYPE
         with open(DATA_TYPE,'r') as f:
             content = json.load(f)
