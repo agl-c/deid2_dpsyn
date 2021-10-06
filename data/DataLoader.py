@@ -79,6 +79,7 @@ class DataLoader:
                 # COLS is config.data_type, so read_csv with restricted datatypes
                 # pd.read_csv returns a 2-dimensional DataFrame
                 # note that the default setting is that the first row is the table header
+                
                 # below line use the str-formatting grammar in python which is a little confusing 
                 # and basically the f "" means a formatted string, {} decorates inside a string, and .csv is just string
                 # they are connected to form the file name by method of formatted string
@@ -89,8 +90,10 @@ class DataLoader:
                     content = json.load(f)
                 COLS = content['dtype']
                 print("************start loading public data************")
+
                 self.public_data = pd.read_csv(DATA_DIRECTORY / f"{config['pub_dataset_path']}.csv", dtype=COLS)
                 self.public_data = self.binning_attributes(config['numerical_binning'], self.public_data)
+                # we comment the unused functions for now
                 # self.public_data = self.grouping_attributes(config['grouping_attributes'], self.public_data)
                 # remove the identifier
                 self.public_data = self.remove_identifier(self.public_data)
@@ -129,7 +132,6 @@ class DataLoader:
         """
         if not self.all_attrs:
 
-            # wrong
             # all_attrs = list(self.public_data.columns)
             all_attrs = list(self.private_data.columns)
             # here we use try: except: and all exceptions are caught in one ways
@@ -149,18 +151,12 @@ class DataLoader:
 
         """
         for attr, spec_list in binning_info.items():
-            # note that for "DEPARTS" and "ARRIVES", we offer finer binning settings with 4 parameters input
-            # which doesn't fit with the hard coded [s,t,step]
-            # we change the binning setting to fit general cases [s,t,step]
-            # if attr == "DEPARTS" or attr == "ARRIVES":
-            # why we hard code it like this? why h times 100? it should be *60?
-            # nvm, it just serves for semantics
+            # fit with the binning settings in format of [s,t,step]        
             # here we use np.r_ to connect the 1-dim arrays in row display
-            #    bins = np.r_[-np.inf, [h * 100 + m for h in range(24) for m in spec_list], np.inf]
-            # else:
             [s, t, step] = spec_list
             # generate the bins
-            bins = np.r_[-np.inf, np.arange(s, t, step), np.inf]    # use np.arrange(s,t,step) to generate 1-dim array
+            # use np.arrange(s,t,step) to generate 1-dim array
+            bins = np.r_[-np.inf, np.arange(s, t, step), np.inf]    
             # translate attribute original value to intervals and further translate to interval codes 
             data[attr] = pd.cut(data[attr], bins).cat.codes    
             # actually, the following 2 rows are based on agreed convention and serve not hard use
@@ -199,7 +195,6 @@ class DataLoader:
             #     data = data[~data[new_attr].isin(self.filter_values[new_attr])]
 
             # drop those already included in new_attr
-            # and we print the detailed information to help understanding
             data = data.drop(attributes, axis=1)
             print("new attr:", new_attr, "<-", attributes)
             print("new uniques after encoding:", sorted(data[new_attr].unique()))
@@ -214,7 +209,6 @@ class DataLoader:
         
         """
         data = data.drop(self.config['identifier'], axis=1)
-        # data = data.drop(self.config['invalid'], axis=1)
         print("--------------> remove identifier column:", self.config['identifier'])
         print("identifier removed in DataLoader")
         return data
