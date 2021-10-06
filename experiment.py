@@ -39,26 +39,7 @@ help="specify the path of marginal config file in yaml format")
 parser.add_argument("--priv_data_name", type=str, default="accidential_drug_deaths",
 help="specify the name of the private dataset")
 
-# now we only synthesize by dpsyn, so remove this arg
-# parser.add_argument("--method", type=str, default='sample',
-#                    help="specify which method to use")
-
 args = parser.parse_args()
-
-
-# from config.path import MARGINAL_CONFIG
-# from config.path import DATA_TYPE
-# from config.path import CONFIG_DATA
-# from config.path import PARAMS, PRIV_DATA_NAME
-from data.DataLoader import *
-from data.RecordPostprocessor import RecordPostprocessor
-from method.dpsyn import DPSyn
-
-# we remove below two modules which serve no use for dpsyn 
-# from method.sample_parallel import Sample
-# from method.direct_sample import DirectSample
-
-
 PRIV_DATA = args.priv_data
 PRIV_DATA_NAME = args.priv_data_name
 CONFIG_DATA = args.config
@@ -67,10 +48,14 @@ DATA_TYPE = args.datatype
 MARGINAL_CONFIG = args.marginal_config
 
 
+from data.DataLoader import *
+from data.RecordPostprocessor import RecordPostprocessor
+from method.dpsyn import DPSyn
+
+
 def main():
     np.random.seed(0)
     np.random.RandomState(0)
-    # by default, args.config is ./config/data.yaml, you may change it by typing --config=.....
     with open(args.config, 'r', encoding="utf-8") as f:
         config = yaml.load(f, Loader=yaml.BaseLoader)
     print("----------------> load config file: ", args.config)
@@ -80,14 +65,14 @@ def main():
     dataloader.load_data()
 
     # default method is dpsyn
-    args.method = 'dpsyn'
+    method = 'dpsyn'
 
     n = args.n
     priv_data = args.priv_data
     priv_data_name = args.priv_data_name
    
     syn_data = run_method(config, dataloader, n)
-    syn_data.to_csv(f"{args.method}-{n}-{priv_data_name}.csv", index=False)
+    syn_data.to_csv(f"{method}-{n}-{priv_data_name}.csv", index=False)
 
 
 def run_method(config, dataloader, n):
@@ -106,62 +91,44 @@ def run_method(config, dataloader, n):
         logger.info(f'working on eps={eps}, delta={delta}, and sensitivity={sensitivity}')
 
         # we will use dpsyn to generate a dataset 
-        if args.method == 'plain_pub':
-            tmp = copy.deepcopy(dataloader.public_data)
-        elif args.method == 'direct_sample':
-            synthesizer = DirectSample(dataloader, eps, delta, sensitivity)
-            tmp = synthesizer.synthesize(fixed_n=n)
-        elif args.method == 'sample':
-            synthesizer = Sample(dataloader, eps, delta, sensitivity)
-            tmp = synthesizer.synthesize()
-        elif args.method == 'dpsyn':
-            """I guess it helps by displaying the runtime logic below
-            1. DPSyn(Synthesizer)
-            it got dataloader, eps, delta, sensitivity
-            however, Synthesizer is so simple and crude(oh no it initializes the parameters in __init__)
-            2. we call synthesizer.synthesize(fixed_n=n) which is written in dpsyn.py(but what fixed_n means?)
+        """I guess it helps by displaying the runtime logic below
+        1. DPSyn(Synthesizer)
+        it got dataloader, eps, delta, sensitivity
+        however, Synthesizer is so simple and crude(oh no it initializes the parameters in __init__)
+        2. we call synthesizer.synthesize(fixed_n=n) which is written in dpsyn.py
+        3. look at synthesize then
+            def synthesize(self, fixed_n=0) -> pd.DataFrame:
+            # def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
+                noisy_marginals = self.obtain_consistent_marginals()
+        4. it calls get_noisy_marginals() which is written in synthesizer.py
+            # noisy_marginals = self.get_noisy_marginals(priv_marginal_config, priv_split_method)
+        5. look at get_noisy_marginals()
+            # we firstly generate punctual marginals
+            priv_marginal_sets, epss = self.data.generate_marginal_by_config(self.data.private_data, priv_marginal_config)
+            # todo: consider fine-tuned noise-adding methods for one-way and two-way respectively?
+            # and now we add noises to get noisy marginals
+            noisy_marginals = self.anonymize(priv_marginal_sets, epss, priv_split_method)
+        6. look at generate_marginal_by_config() which is written in DataLoader.py
+            we need config files like 
+        e.g.3.
+            priv_all_one_way: (or priv_all_two_way)
+            total_eps: xxxxx
+        7. look at anonymize() which is written in synthesizer.py 
+            def anonymize(self, priv_marginal_sets: Dict, epss: Dict, priv_split_method: Dict) -> Marginals:
+            noisy_marginals = {}
+            for set_key, marginals in priv_marginal_sets.items():
+                eps = epss[set_key]
+            # noise_type, noise_param = advanced_composition.get_noise(eps, self.delta, self.sensitivity, len(marginals))
+                noise_type = priv_split_method[set_key]
+            (1)priv_split_method is hard_coded 
+            (2) we decide the noise type by advanced_compisition()
 
 
-            3. look at synthesize then
-                def synthesize(self, fixed_n=0) -> pd.DataFrame:
-                # def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
-                    noisy_marginals = self.obtain_consistent_marginals()
-               it call obtain_consistent_marginals without input which introduces bugs
-            4. it calls get_noisy_marginals() which is written in synthesizer.py
-                # noisy_marginals = self.get_noisy_marginals(priv_marginal_config, priv_split_method)
-            5. look at get_noisy_marginals()
-                # we firstly generate punctual marginals
-                priv_marginal_sets, epss = self.data.generate_marginal_by_config(self.data.private_data, priv_marginal_config)
-                # todo: consider fine-tuned noise-adding methods for one-way and two-way respectively?
-                # and now we add noises to get noisy marginals
-                noisy_marginals = self.anonymize(priv_marginal_sets, epss, priv_split_method)
-
-
-            6. look at generate_marginal_by_config() which is written in DataLoader.py
-               we need config files like 
-            e.g.3.
-               priv_all_one_way: (or priv_all_two_way)
-               total_eps: xxxxx
-
-
-            7. look at anonymize() which is written in synthesizer.py 
-             def anonymize(self, priv_marginal_sets: Dict, epss: Dict, priv_split_method: Dict) -> Marginals:
-                noisy_marginals = {}
-                for set_key, marginals in priv_marginal_sets.items():
-                    eps = epss[set_key]
-                # noise_type, noise_param = advanced_composition.get_noise(eps, self.delta, self.sensitivity, len(marginals))
-                    noise_type = priv_split_method[set_key]
-                (1)priv_split_method is hard_coded 
-                (2) we decide the noise type by advanced_compisition()
-
-
-            """
-            synthesizer = DPSyn(dataloader, eps, delta, sensitivity)
-            # tmp returns a DataFrame
-            tmp = synthesizer.synthesize(fixed_n=n)
-        else:
-            raise NotImplementedError
-
+        """
+        synthesizer = DPSyn(dataloader, eps, delta, sensitivity)
+        # tmp returns a DataFrame
+        tmp = synthesizer.synthesize(fixed_n=n)
+        
         # we add in the synthesized dataframe a new column which is 'epsilon'
         # so when do comparison, you should remove this column for consistence
         tmp['epsilon'] = eps
