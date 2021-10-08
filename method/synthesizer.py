@@ -45,6 +45,14 @@ class Synthesizer(object):
         """
         noisy_marginals = {}
         for set_key, marginals in priv_marginal_sets.items():
+            # for debug about num
+            tmp_num = np.mean([np.sum(marginal.values) for marginal_att, marginal in marginals.items()])
+            print("**************** help debug ************** num of records from marginal count", tmp_num)
+
+            # refer to : np.mean([np.sum(x.values) for _, x in noisy_marginals.items()]).round().astype(np.int)
+
+
+
             eps = epss[set_key]
             noise_type, noise_param = advanced_composition.get_noise(eps, self.delta, self.sensitivity, len(marginals))
             # noise_type = priv_split_method[set_key]
@@ -60,8 +68,6 @@ class Synthesizer(object):
                     marginal += np.random.laplace(scale=noise_param, size=marginal.shape)
                     noisy_marginals[marginal_att] = marginal
             else:
-            # interestingly, I want to specify how advanced_composition works
-            # is it used for determine the scale parameter to input?
             # marginal.shape should return the shape of this np.array (should it be 1-dim int number or can it be multi-dim?)
             # oh it never minds since it just matches the marginal's shape in output, that works well then    
                 noise_param = advanced_composition.gauss_zcdp(eps, self.delta, self.sensitivity, len(marginals))
@@ -72,37 +78,18 @@ class Synthesizer(object):
             logger.info(f"marginal {set_key} use eps={eps}, noise type:{noise_type}, noise parameter={noise_param}, sensitivity:{self.sensitivity}")
         return noisy_marginals
 
-    # below function currently is not filled or used??????
-    # but you call it in dpsyn.py????
+    # below function currently is not filled or used?
     def get_noisy_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
-        """
-        
+        """instructed by priv_marginal_config, it generate noisy marginals
         generally, priv_marginal_config only includes one/two way and eps,
         e.g.
         priv_all_two_way: 
           total_eps: 990
-
-        what intrigues me is the total_eps, is it scaled on conventional epsilon value in dp definition?
+        
+        btw, currently we don't set priv_split method in hard code
       
-        look at the essential 'epsilon' set in parameters.json:
-        "runs": [
-        {
-            "epsilon": 0.1,
-            "delta": 3.4498908254380166e-11,
-            "max_records": 1350000,
-            "max_records_per_individual": 7
-        },...
-        ]
-        I guess there is some relation between 'total_eps' and 'epsilon'?
-        further, if we ask users to set the 'epsilon', then what about the 'total_eps'?
-        I guess some calculation logic is hidden in translating the 'epsilon' to 'total_eps' which has something to with our algorithm?
-        like the part in dpsyn paper where we introduced zero-concentrated dp?
-    
-        btw, I also doubt whether it relates to allocating the privacy budget during several stages of the algorithm.
-
-
         """
-        # FYI,  generate_marginal_by_config return Tuple[Dict,Dict]     
+        # generate_marginal_by_config return Tuple[Dict,Dict]     
         # epss[marginal_key] = marginal_dict['total_eps']
         # marginal_sets[marginal_key] = marginals
         # return marginal_sets, epss

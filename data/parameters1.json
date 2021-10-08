@@ -1,7 +1,7 @@
 {
   "runs": [
     {
-      "epsilon": 10.0,
+      "epsilon": 1000.0,
       "delta": 3.4498908254380166e-11,
       "max_records": 1350000,
       "max_records_per_individual": 7

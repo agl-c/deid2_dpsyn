@@ -64,45 +64,6 @@ class DataLoader:
         # public_pickle_path = PICKLE_DIRECTORY / f"preprocessed_pub_{config['pub_dataset_path']}.pkl"
         priv_pickle_path = PICKLE_DIRECTORY / f"preprocessed_priv_{PRIV_DATA_NAME}.pkl"
 
-        # load public data
-        if self.pub_ref:
-            if os.path.isfile(public_pickle_path):
-                [self.public_data, self.encode_mapping] = pickle.load(open(public_pickle_path, 'rb'))
-                # want to check pub_only means what?
-                if pub_only:
-                    # want to know the dictionary's value is it 
-                    # use the same variable name should introduce problems....
-                    for attr, encode_mapping in self.encode_mapping.items():
-                    # note that sorted() returns a new list
-                        self.decode_mapping[attr] = sorted(encode_mapping, key=encode_mapping.get)
-            else:
-                # COLS is config.data_type, so read_csv with restricted datatypes
-                # pd.read_csv returns a 2-dimensional DataFrame
-                # note that the default setting is that the first row is the table header
-                
-                # below line use the str-formatting grammar in python which is a little confusing 
-                # and basically the f "" means a formatted string, {} decorates inside a string, and .csv is just string
-                # they are connected to form the file name by method of formatted string
-                # e.g., 
-                # return f'hello {text}, hello {name}'
-                # return 'hello '+text+', hello '+name
-                with open(DATA_TYPE,'r') as f:
-                    content = json.load(f)
-                COLS = content['dtype']
-                print("************start loading public data************")
-
-                self.public_data = pd.read_csv(DATA_DIRECTORY / f"{config['pub_dataset_path']}.csv", dtype=COLS)
-                self.public_data = self.binning_attributes(config['numerical_binning'], self.public_data)
-                # we comment the unused functions for now
-                # self.public_data = self.grouping_attributes(config['grouping_attributes'], self.public_data)
-                # remove the identifier
-                self.public_data = self.remove_identifier(self.public_data)
-                # note if there exist determined attributes to tackle
-                # self.public_data = self.remove_determined_attributes(config['determined_attributes'], self.public_data)
-                self.public_data = self.encode_remain(self.general_schema, config, self.public_data)
-                pickle.dump([self.public_data, self.encode_mapping], open(public_pickle_path, 'wb'))
-            print("************ public data loaded and preprocessed in DataLoader *************")
-
         # load private data
         if os.path.isfile(priv_pickle_path) and not pub_only:
             [self.private_data, self.encode_mapping] = pickle.load(open(priv_pickle_path, 'rb'))
@@ -124,6 +85,7 @@ class DataLoader:
         # note that here schema means all the valid values of encoded ones
             self.encode_schema[attr] = sorted(encode_mapping.values())
         print("************* private data loaded and preprocessed in DataLoader ************")
+        print("priv df's rows:--------------------> ", self.private_data.shape[0])
 
 
     def obtain_attrs(self):
@@ -132,7 +94,6 @@ class DataLoader:
         """
         if not self.all_attrs:
 
-            # all_attrs = list(self.public_data.columns)
             all_attrs = list(self.private_data.columns)
             # here we use try: except: and all exceptions are caught in one ways
             try:
@@ -231,25 +192,20 @@ class DataLoader:
         return data
 
     # encode the remaining single attributes to save storage
-    #　in　other　words, all the attributes are encoded to save now
+    #　i.e., all the attributes are encoded to save now
     def encode_remain(self, schema, config, data, is_private=False):
        
         # encoded_attr = list(config['numerical_binning'].keys()) + [grouping['grouped_name'] for grouping in config['grouping_attributes']]
         encoded_attr = list(config['numerical_binning'].keys()) 
         print("--------------> start encoding remaining single attributes")
-        for attr in data.columns:
-            # note that there are so many config[identifier] throughout the codes, 
-            # I guess why not set a global variable in config which is the str 
-
+        for attr in data.columns:    
             if attr in [self.config['identifier']] or attr in encoded_attr:
                 continue
             print("encode remain:", attr)
             assert attr in schema and 'values' in schema[attr]
             # below line serves for syhthesizing a dataset when fixing PUMA,YEAR 
             # data[].unique() returns an array which includes all the unique values in the column
-            #if is_private and attr == 'PUMA':
-            #    mapping = data[attr].unique()
-            #else:
+
             mapping = schema[attr]['values']
             encoding = {v: i for i, v in enumerate(mapping)}
             # we encode the remaining single attributes' original values to the categorical indexes
@@ -258,49 +214,6 @@ class DataLoader:
             self.decode_mapping[attr] = mapping
         print("encoding remaining single attributes done in DataLoader")
         return data
-
-    def generate_all_pub_marginals(self):
-        from experiment import PRIV_DATA, CONFIG_DATA, PARAMS, PRIV_DATA_NAME
-        with open(CONFIG_DATA, 'r') as f:
-            config = yaml.load(f, Loader=yaml.BaseLoader)
-
-        # we in first place utilize the storage in pickle files
-        pub_marginal_pickle = PICKLE_DIRECTORY / f"pub_all_marginals_{config['pub_dataset_path']}.pkl"
-        # we check the file name is not NULL in case of there exists not public dataset?
-        # i.e., config['pub_dataset_path'] is not NULL?
-        if pub_marginal_pickle is not None and os.path.isfile(pub_marginal_pickle):
-            self.pub_marginals = pickle.load(open(pub_marginal_pickle, 'rb'))
-            return self.pub_marginals
-
-        all_attrs = list(self.public_data.columns)
-        
-        # we already removed it during load_data() so public_data.columns should not include the identifier
-        try:
-            all_attrs.remove(config['identifier'])
-        except:
-            pass
-        # one-way marginals except PUMA and YEAR
-        for attr in all_attrs:
-            #if attr == 'PUMA' or attr == 'YEAR':
-            #    continue
-            self.pub_marginals[frozenset([attr])] = self.generate_one_way_marginal(self.public_data, attr)
-        # two_way marginals except PUMA and YEAR, enumerate return tuple(index,value) and the default starting index=0
-        for i, attr in enumerate(all_attrs):
-            #if attr == 'PUMA' or attr == 'YEAR':
-            #    continue
-            # default step is 1, and range(s,t) return [s,s+1,....,t-1];
-            for j in range(i + 1, len(all_attrs)):
-                #if all_attrs[j] == 'PUMA' or all_attrs[j] == 'YEAR':
-                #    continue
-                self.pub_marginals[frozenset([all_attrs[i], all_attrs[j]])] = self.generate_two_way_marginal(
-                    self.public_data, all_attrs[i], all_attrs[j])
-
-        # we check the file name is not NULL in case of there exists not public dataset?
-        if pub_marginal_pickle is not None:
-            pickle.dump(self.pub_marginals, open(pub_marginal_pickle, 'wb'))
-        print("-------------> all public marginals generated")
-        return self.pub_marginals
-
    
     def generate_one_way_marginal(self, records: pd.DataFrame, index_attribute: list):
         """ generate marginal for one attribute
@@ -343,8 +256,6 @@ class DataLoader:
         all_attrs = self.obtain_attrs()
         marginals = {}
         for attr in all_attrs:
-            #if attr == 'PUMA' or attr == 'YEAR':
-            #    continue
             marginals[frozenset([attr])] = self.generate_one_way_marginal(records, attr)
         print("---------------> all one way marginals generated")
         return marginals
@@ -357,42 +268,26 @@ class DataLoader:
         all_attrs = self.obtain_attrs()
         marginals = {}
         for i, attr in enumerate(all_attrs):
-            #if attr == 'PUMA' or attr == 'YEAR':
-            #    continue
             for j in range(i + 1, len(all_attrs)):
-                #if all_attrs[j] == 'PUMA' or all_attrs[j] == 'YEAR':
-                #    continue
                 marginals[frozenset([attr, all_attrs[j]])] = self.generate_two_way_marginal(records, attr, all_attrs[j])
         print("-----------------> all two way marginals generated")
+        # debug
+        tmp_num = np.mean([np.sum(marginal.values) for marginal_att, marginal in marginals.items()])
+        print("**************** help debug ************** num of records from marginal count", tmp_num)
+
         return marginals
     
 
     def generate_marginal_by_config(self, records: pd.DataFrame, config: dict) -> Tuple[Dict, Dict]:
         """config means those marginals_xxxxx.yaml where define generation details
         1. users manually set config about marginal choosing
-        2. automatic way of choosing which marginals
+        2. automatic way of choosing which marginals TODO
 
-
-        let's check their meanings (lol)
-        e.g.1.
+        e.g.
         priv_all_two_way: 
           total_eps: 990
-        # use generate_...except_PUMA_YEAR, so meaning generating for result?
-
-        e.g.2.when privatizing only PUMA YEAR attributes
-        priv_PUMA_YEAR: 
-          total_eps: 0.1
-          attributes:
-            - 'PUMA'
-            - 'YEAR'
-        # use generate_....., so meaning middle-way procession for possible use?
-
-        In summary, as to our synthesis task, how to set marginal_key?
-        Do our program need config file like eps=xxxx.yaml to work?
-
-
-        e.g.3.
-        priv_all_one_way: (or priv_all_two_way)
+        e.g.
+        priv_all_one_way: 
           total_eps: xxxxx
 
         """
@@ -400,7 +295,7 @@ class DataLoader:
         epss = {}
         for marginal_key, marginal_dict in config.items():
             marginals = {}
-            # genrally, marginal_key should
+        
             if marginal_key == 'priv_all_one_way':
                 # merge the returned marginal dictionary
                 marginals.update(self.generate_all_one_way_marginals(records))
@@ -445,6 +340,7 @@ class DataLoader:
         """return a dictionary which map attr to a list of attr:
         if it's a single attribute, the list include itself,
         otherwise the list includes the attributes being grouped.
+
         """
         info = {}
         grouping_info = self.config['grouping_attributes']

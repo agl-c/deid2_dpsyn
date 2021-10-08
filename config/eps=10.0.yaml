@@ -1,6 +1,6 @@
 ---
 priv_all_two_way:
-  total_eps: 10.0
+  total_eps: 1000.0
 
 
 # something cut from parameters.json

@@ -42,12 +42,10 @@ class DPSyn(Synthesizer):
     # actually, here the Tuple[str] is just str I think
     Marginals = Dict[Tuple[str], np.array]
     Clusters = Dict[Tuple[str], List[Tuple[str]]]
-
-
     d = None
 
+
     def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
-       
         """marginals are specified by a dict from attribute tuples to frequency (pandas) tables
         however, consistency should mean post processing, right?
         why here seems to be an active obtain?
@@ -56,9 +54,7 @@ class DPSyn(Synthesizer):
 
         """
 
-        # note whether the below sentence is supported with a public dataset 
-        # generate_all_pub_marginals() generates all the one-way and two-way marginals of the public set
-        # which is implemented in DataLoader.py
+        # generate_all_pub_marginals() generates all the one and two way marginals of the public set which is implemented in DataLoader.py
         if self.data.pub_ref:
             pub_marginals = self.data.generate_all_pub_marginals()
       
@@ -74,7 +70,10 @@ class DPSyn(Synthesizer):
         # since calculated on noisy marginals
         # we use mean function to estimate the number of synthesized records
         num_synthesize_records = np.mean([np.sum(x.values) for _, x in noisy_marginals.items()]).round().astype(np.int)
-
+        print("*********************** DEBUG ***************** ", num_synthesize_records)
+        
+        
+        
         # the list of all attributes' name(str)  except the identifier attribute
         self.attr_list = self.data.obtain_attrs()
         # domain_list is an array recording the count of each attribute's candidate values
@@ -89,13 +88,6 @@ class DPSyn(Synthesizer):
         # you may understand them as created by another collaborator and we fix interfaces
         # perhaps, views are kind of like marginals, now I guess views work on marginals, let's check it
         # if there exist public dataset to refer to
-        """
-        if you ask to use pub_onehot_view_dict..... to run,
-        you rely on pub_marginals,
-        but I set by default not to generate public marginals ....
-        
-        
-        """
         if self.data.pub_ref:
             pub_onehot_view_dict, pub_attr_view_dict = self.construct_views(pub_marginals)
         # Step 2: create some data structures
@@ -128,19 +120,22 @@ class DPSyn(Synthesizer):
 
         return noisy_marginals, num_synthesize_records
 
-    #　we call it in experiment.py by 
-    #  tmp = synthesizer.synthesize(fixed_n=n)
+
+    # in experiment.py, tmp = synthesizer.synthesize(fixed_n=n)
     # in below function, we call synthesize_records()
     # it further utilize the lib function in record_synthesizer.py
   
     def synthesize(self, fixed_n=0) -> pd.DataFrame:
-        
+        """synthesize a DataFrame in fixed_n size
+         
+        """
         from experiment import MARGINAL_CONFIG
         with open(MARGINAL_CONFIG, 'r') as f:
             priv_marginal_config = yaml.load(f, Loader=yaml.FullLoader)
-        priv_split_method = {}
-    # def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
+        priv_split_method = {} 
+
         noisy_marginals, num_records = self.obtain_consistent_marginals(priv_marginal_config, priv_split_method)
+        
         if fixed_n != 0:
             num_records = fixed_n
         # TODO: just based on the marginals to synthesize records
@@ -161,6 +156,44 @@ class DPSyn(Synthesizer):
         print("------------------------> synthetic dataframe before postprocessing: ")
         print(self.synthesized_df)
         return self.synthesized_df
+
+
+    #  we have a graph where nodes represent attributes and edges represent marginals,
+    #  it helps in terms of running time and accuracy if we do it cluster by cluster
+    def synthesize_records(self, attrs: Attrs, domains: Domains, clusters: Clusters, num_synthesize_records: int):
+        print("-----------------------> num of synthesized records: ")
+        print(num_synthesize_records)
+        for cluster_attrs, list_marginal_attrs in clusters.items():
+            logger.info("synthesizing for %s" % (cluster_attrs,))
+
+            # singleton_views = {attr: self.attr_view_dict[frozenset([attr])] for attr in attrs}
+            singleton_views = {}
+            for cur_attrs, view in self.attrs_view_dict.items():
+                if len(cur_attrs) == 1:
+                    singleton_views[cur_attrs] = view
+
+            synthesizer = RecordSynthesizer(attrs, domains, num_synthesize_records)
+            synthesizer.initialize_records(list_marginal_attrs, singleton_views=singleton_views)
+            attrs_index_map = {attrs: index for index, attrs in enumerate(list_marginal_attrs)}
+
+            from experiment import UPDATE_ITERATIONS
+            self.update_iterations = UPDATE_ITERATIONS
+
+            for update_iteration in range(self.update_iterations):
+                logger.info("update round: %d" % (update_iteration,))
+
+                synthesizer.update_alpha(update_iteration)
+                sorted_error_attrs = synthesizer.update_order(update_iteration, self.attrs_view_dict,
+                                                              list_marginal_attrs)
+
+                for attrs in sorted_error_attrs:
+                    attrs_i = attrs_index_map[attrs]
+                    synthesizer.update_records_prepare(self.attrs_view_dict[attrs])
+                    synthesizer.update_records(self.attrs_view_dict[attrs], attrs_i)
+            if self.synthesized_df is None:
+                self.synthesized_df = synthesizer.df
+            else:
+                self.synthesized_df.loc[:, cluster_attrs] = synthesizer.df.loc[:, cluster_attrs]
 
 
     @staticmethod
@@ -273,55 +306,4 @@ class DPSyn(Synthesizer):
         for attr in cur_att:
             cur_view_key[attr_index_map[attr]] = 1
         return cur_view_key
-
-    # synthesize cluster by cluster: the general function, not used for now
-    # (we have a graph where nodes represent attributes and edges represent marginals,
-    #  it helps in terms of running time and accuracy if we do it cluster by cluster)
-    def synthesize_records(self, attrs: Attrs, domains: Domains, clusters: Clusters, num_synthesize_records: int):
-        print("-----------------------> num of synthesized records: ")
-        print(num_synthesize_records)
-        for cluster_attrs, list_marginal_attrs in clusters.items():
-            logger.info("synthesizing for %s" % (cluster_attrs,))
-
-            # singleton_views = {attr: self.attr_view_dict[frozenset([attr])] for attr in attrs}
-            singleton_views = {}
-            for cur_attrs, view in self.attrs_view_dict.items():
-                if len(cur_attrs) == 1:
-                    singleton_views[cur_attrs] = view
-
-            synthesizer = RecordSynthesizer(attrs, domains, num_synthesize_records)
-            # print(num_synthesize_records)
-            # print("debug 2nd try--------------------------------->")
-            synthesizer.initialize_records(list_marginal_attrs, singleton_views=singleton_views)
-            # print("after synthesize initialize:")
-            # print(synthesizer.df)
-
-            attrs_index_map = {attrs: index for index, attrs in enumerate(list_marginal_attrs)}
-
-            from experiment import UPDATE_ITERATIONS
-            self.update_iterations = UPDATE_ITERATIONS
-            
-            for update_iteration in range(self.update_iterations):
-                logger.info("update round: %d" % (update_iteration,))
-
-                synthesizer.update_alpha(update_iteration)
-                # print("after update alpha:")
-                # print(synthesizer.df)
-                sorted_error_attrs = synthesizer.update_order(update_iteration, self.attrs_view_dict,
-                                                              list_marginal_attrs)
-
-                for attrs in sorted_error_attrs:
-                    attrs_i = attrs_index_map[attrs]
-                    synthesizer.update_records_prepare(self.attrs_view_dict[attrs])
-                    synthesizer.update_records(self.attrs_view_dict[attrs], attrs_i)
-                    # print("after update records:")
-                    # print(synthesizer.df)
-            # print(self.synthesized_df)
-            if self.synthesized_df is None:
-                self.synthesized_df = synthesizer.df
-            else:
-                self.synthesized_df.loc[:, cluster_attrs] = synthesizer.df.loc[:, cluster_attrs]
-
-
-  
 
