@@ -26,10 +26,10 @@ In this repository, we only include the second part for now.
 We use the tool argparse for users to customize the input parameters and the usage message is shown below.
 
 ```
-C:\Users\陈安琪\Desktop\nist_comp\deid2_dpsyn>python experiment.py -h
-usage: experiment.py [-h] [--priv_data PRIV_DATA] [--config CONFIG] [--n N] [--params PARAMS]
-                     [--datatype DATATYPE] [--marginal_config MARGINAL_CONFIG]
-                     [--priv_data_name PRIV_DATA_NAME]
+C:\Users\陈安琪\Desktop\nist_comp\deid2_s2 - clean_refresh\deid2_dpsyn>python experiment.py -h
+usage: experiment.py [-h] [--priv_data PRIV_DATA] [--config CONFIG] [--n N] [--params PARAMS] [--datatype DATATYPE]
+                     [--marginal_config MARGINAL_CONFIG] [--priv_data_name PRIV_DATA_NAME]
+                     [--update_iterations UPDATE_ITERATIONS]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -43,6 +43,8 @@ optional arguments:
                         specify the path of marginal config file in yaml format
   --priv_data_name PRIV_DATA_NAME
                         specify the name of the private dataset
+  --update_iterations UPDATE_ITERATIONS
+                        specify the num of update iterations
 ```
 
 
