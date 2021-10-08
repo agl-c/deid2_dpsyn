@@ -21,7 +21,7 @@ parser.add_argument("--config", type=str, default="./config/data.yaml",
                     help="specify the path of config file in yaml format")
 
 # the default number of records is set as 100
-parser.add_argument("--n", type=int, default=100, 
+parser.add_argument("--n", type=int, default=0, 
                     help="specify the number of records to generate")
 
 # params file which include schema of the original dataset
@@ -36,8 +36,14 @@ parser.add_argument("--datatype", type=str, default="./data/column_datatypes.jso
 parser.add_argument("--marginal_config", type=str, default="./config/eps=10.0.yaml",
 help="specify the path of marginal config file in yaml format")
 
+# priv_data_name for use of naming mile-stone files
 parser.add_argument("--priv_data_name", type=str, default="accidential_drug_deaths",
 help="specify the name of the private dataset")
+
+# hyper parameter, the num of update iterations
+parser.add_argument("--update_iterations", type=int, default=30,
+                   help="specify the num of update iterations")
+
 
 args = parser.parse_args()
 PRIV_DATA = args.priv_data
@@ -46,6 +52,7 @@ CONFIG_DATA = args.config
 PARAMS = args.params
 DATA_TYPE = args.datatype
 MARGINAL_CONFIG = args.marginal_config
+UPDATE_ITERATIONS = args.update_iterations
 
 
 from data.DataLoader import *
@@ -144,8 +151,8 @@ def run_method(config, dataloader, n):
     print("********************* START POSTPROCESSING ***********************")
     postprocessor = RecordPostprocessor()
     syn_data = postprocessor.post_process(syn_data, args.config, dataloader.decode_mapping)
-    logger.info("--------------->synthetic data post-processed")
-
+    logger.info("--------------->synthetic data post-processed:")
+    print(syn_data)
 
     return syn_data
 

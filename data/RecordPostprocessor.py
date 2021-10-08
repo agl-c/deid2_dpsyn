@@ -20,7 +20,7 @@ class RecordPostprocessor:
         data = self.unbinning_attributes(data)
         # we desert this for now
         # data = self.add_determined_attrs(data)
-        # data = self.decode_other_attributes(data, grouping_mapping)
+        data = self.decode_other_attributes(data, grouping_mapping)
         data = self.ensure_types(data)
         return data
 
