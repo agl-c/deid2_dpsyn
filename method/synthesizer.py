@@ -44,17 +44,21 @@ class Synthesizer(object):
 
         """
         noisy_marginals = {}
+        # as for now, set_key only havs one value, i.e. "priv_all_two_way"
         for set_key, marginals in priv_marginal_sets.items():
             # for debug about num
             tmp_num = np.mean([np.sum(marginal.values) for marginal_att, marginal in marginals.items()])
-            print("**************** help debug ************** num of records from marginal count", tmp_num)
-
-            # refer to : np.mean([np.sum(x.values) for _, x in noisy_marginals.items()]).round().astype(np.int)
-
-
+            print("**************** help debug ************** num of records from marginal count before adding noise:", tmp_num)
 
             eps = epss[set_key]
+            print("----------------> now we decide the noise type: ")
+            print("considering eps:", eps, ", delta:", self.delta, ", sensitivity:", self.sensitivity,
+            ", len of marginals:", len(marginals))
+            
             noise_type, noise_param = advanced_composition.get_noise(eps, self.delta, self.sensitivity, len(marginals))
+            print("---------------> noise type:", noise_type)
+            print("---------------> noise parameter:", noise_param)
+
             # noise_type = priv_split_method[set_key]
             # tip: you can hard code the noise type or let program decide it 
             # noise_type = 'lap'

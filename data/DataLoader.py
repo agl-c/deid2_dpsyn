@@ -8,7 +8,7 @@ import pandas as pd
 import yaml
 
 from config.path import PICKLE_DIRECTORY, DATA_DIRECTORY
-# from config.data_type import COLS
+
 
 
 class DataLoader:
@@ -52,27 +52,38 @@ class DataLoader:
         self.config = config
         print("----------------> config yaml file loaded in DataLoader, config file: ", CONFIG_DATA)
 
-        # config['parameter_spec'] means parameters.json
+     
         # which include parameters for several runs and data schema
-        # with open(config['parameter_spec']) as f:
-        with open(PARAMS) as f:
+        with open(PARAMS,'r', encoding="utf-8") as f:
             parameter_spec = json.load(f)
             self.general_schema = parameter_spec['schema']
         print("----------------> parameter file loaded in DataLoader, parameter file: ", PARAMS)
 
         # we use pickle to store the objects in files as binary flow
-        # public_pickle_path = PICKLE_DIRECTORY / f"preprocessed_pub_{config['pub_dataset_path']}.pkl"
         priv_pickle_path = PICKLE_DIRECTORY / f"preprocessed_priv_{PRIV_DATA_NAME}.pkl"
 
         # load private data
         if os.path.isfile(priv_pickle_path) and not pub_only:
+            print("********** load private data from pickle **************")
             [self.private_data, self.encode_mapping] = pickle.load(open(priv_pickle_path, 'rb'))
             for attr, encode_mapping in self.encode_mapping.items():
                 self.decode_mapping[attr] = sorted(encode_mapping, key=encode_mapping.get)
+        
         elif not pub_only:
             print("************* start loading private data *************")
-            # self.private_data = pd.read_csv(DATA_DIRECTORY / f"{config['priv_dataset_path']}.csv", dtype=COLS)
+
+            from experiment import DATA_TYPE
+
+            with open(DATA_TYPE,'r', encoding="utf-8") as f:
+                content = json.load(f)
+            COLS = content['dtype']
+
             self.private_data = pd.read_csv(PRIV_DATA, dtype=COLS)
+            print(self.private_data)
+
+            self.private_data.fillna('',inplace=True)
+            print("********** afer fillna ***********")
+            print(self.private_data)
             print("----------------> private dataset: ", PRIV_DATA)
             self.private_data = self.binning_attributes(config['numerical_binning'], self.private_data)
             # self.private_data = self.grouping_attributes(config['grouping_attributes'], self.private_data)
@@ -245,6 +256,13 @@ class DataLoader:
         indices = sorted([i for i in self.encode_mapping[index_attribute].values()])
         columns = sorted([i for i in self.encode_mapping[column_attribute].values()])
         marginal = marginal.reindex(index=indices, columns=columns).fillna(0).astype(np.int32)
+       
+        # print("*********** generating a two-way marginal *********** ")
+        # print("*********** i ******* ", indices)
+        # print("*********** j ******* ", columns)
+        # print(marginal)
+        # print("********** tmp count from the two-way marginal ****** ", np.sum(marginal.values))
+
         return marginal
 
     
@@ -270,10 +288,11 @@ class DataLoader:
         for i, attr in enumerate(all_attrs):
             for j in range(i + 1, len(all_attrs)):
                 marginals[frozenset([attr, all_attrs[j]])] = self.generate_two_way_marginal(records, attr, all_attrs[j])
+        
         print("-----------------> all two way marginals generated")
         # debug
         tmp_num = np.mean([np.sum(marginal.values) for marginal_att, marginal in marginals.items()])
-        print("**************** help debug ************** num of records from marginal count", tmp_num)
+        print("**************** help debug ************** num of records averaged from all two-way marginals:", tmp_num)
 
         return marginals
     
@@ -316,25 +335,6 @@ class DataLoader:
             marginal_sets[marginal_key] = marginals
         return marginal_sets, epss
 
-    
-    def reload_priv(self, new_data_path):
-        """I don't know why we write the reload_priv function and new_data_path means what? 😅
-
-        """
-        from experiment import PRIV_DATA, CONFIG_DATA, PARAMS, PRIV_DATA_NAME
-        with open(CONFIG_DATA, 'r') as f:
-            config = yaml.load(f)
-
-        self.private_data = pd.read_csv(new_data_path)
-        self.private_data = self.binning_attributes(config['numerical_binning'], self.private_data)
-        self.private_data = self.grouping_attributes(config['grouping_attributes'], self.private_data)
-        self.private_data = self.remove_identifier(self.private_data)
-        # we also ignore the utility of removing determined attributes in the below line
-        #self.private_data = self.remove_determined_attributes(config['determined_attributes'], self.private_data)
-        self.private_data = self.encode_remain(self.general_schema, config, self.private_data, is_private=True)
-        for attr, encode_mapping in self.encode_mapping.items():
-            self.encode_schema[attr] = sorted(encode_mapping.values())
-        print(f"reload private {new_data_path} done...")
 
     def get_marginal_grouping_info(self, cur_attrs):
         """return a dictionary which map attr to a list of attr:

@@ -1,13 +1,39 @@
 {
   "runs": [
     {
-      "epsilon": 1000.0,
+      "epsilon": 10.0,
       "delta": 3.4498908254380166e-11,
       "max_records": 1350000,
-      "max_records_per_individual": 7
+      "max_records_per_individual": 1
     }
   ],
   "schema": {
+    "Date": {
+      "dtype": "uint16",
+      "kind": "categorical",
+      "values": [
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020
+      ],
+      "codes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
     "Age": {
       "dtype": "uint8",
       "kind": "numeric",
@@ -31,6 +57,7 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "ASIAN",
         "BLACK",
         "HISPANIC, BLACK",
@@ -39,6 +66,7 @@
         "WHITE"
       ],
       "codes": [
+        0,
         1,
         2,
         3,
@@ -51,6 +79,7 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "CA",
         "CT",
         "FL",
@@ -63,6 +92,7 @@
         "TX"
       ],
       "codes": [
+        0,
         1,
         2,
         3,
@@ -79,6 +109,7 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "FAIRFIELD",
         "HARTFORD",
         "LITCHFIELD",
@@ -89,6 +120,7 @@
         "WINDHAM"
       ],
       "codes": [
+        0,
         1,
         2,
         3,
@@ -103,6 +135,7 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "CONVALESCENT HOME",
         "HOSPICE",
         "HOSPITAL",
@@ -111,6 +144,7 @@
         "RESIDENCE"
       ],
       "codes": [
+        0,
         1,
         2,
         3,
@@ -123,6 +157,7 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "ABANDONED/VACANT",
         "COMMERCIAL BUILDING",
         "FACILITY",
@@ -134,6 +169,7 @@
         "VEHICLE"
       ],
       "codes": [
+        0,
         1,
         2,
         3,
@@ -149,6 +185,7 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "DUTCHESS",
         "FAIRFIELD",
         "HARTFORD",
@@ -165,6 +202,7 @@
         "WINDHAM"
       ],
       "codes": [
+        0,
         1,
         2,
         3,
@@ -185,10 +223,12 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "CT",
         "NY"
       ],
       "codes": [
+        0,
         1,
         2
       ]
@@ -197,9 +237,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -207,9 +249,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -217,9 +261,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -227,9 +273,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -237,9 +285,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -247,9 +297,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -257,9 +309,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -267,9 +321,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -277,9 +333,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -287,9 +345,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -297,9 +357,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -307,9 +369,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -317,9 +381,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -327,9 +393,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -337,9 +405,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -347,9 +417,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -357,9 +429,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -367,9 +441,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -377,9 +453,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -387,9 +465,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     },
@@ -397,9 +477,11 @@
       "dtype": "str",
       "kind": "categorical",
       "values": [
+        "",
         "Y"
       ],
       "codes": [
+        0,
         1
       ]
     }

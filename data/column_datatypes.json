@@ -1,5 +1,6 @@
 {
   "dtype": {
+    "Date": "uint16",
     "Age": "uint8",
     "Sex": "str",
     "Race": "str",
@@ -32,3 +33,6 @@
     "DiabetesCondition": "str"
   }
 }
+
+
+

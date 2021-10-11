@@ -70,7 +70,7 @@ class DPSyn(Synthesizer):
         # since calculated on noisy marginals
         # we use mean function to estimate the number of synthesized records
         num_synthesize_records = np.mean([np.sum(x.values) for _, x in noisy_marginals.items()]).round().astype(np.int)
-        print("*********************** DEBUG ***************** ", num_synthesize_records)
+        print("-------------------> now we get the estimate of records' num by averaging from nosiy marginals:", num_synthesize_records)
         
         
         

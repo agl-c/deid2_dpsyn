@@ -62,16 +62,16 @@ numerical_binning:
 #     - 520
 #     - 20
 # we change the settings all in type of [s,t,step]
-  # "DEPARTS":
-  #   - 0
-  #   - 15
-  #   - 30
-  #   - 45
-  # "ARRIVES":
-  #   - 0
-  #   - 15
-  #   - 30
-  #   - 45  
+#   "DEPARTS":
+#     - 0
+#     - 15
+#     - 30
+#     - 45
+#   "ARRIVES":
+#     - 0
+#     - 15
+#     - 30
+#     - 45  
 
   # TODO: just a test
   # "DEPARTS":
