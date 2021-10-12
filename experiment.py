@@ -79,7 +79,12 @@ def main():
     priv_data_name = args.priv_data_name
    
     syn_data = run_method(config, dataloader, n)
-    syn_data.to_csv(f"{method}-{n}-{priv_data_name}.csv", index=False)
+    # if users set the records' num, we denote it in synthetic dataset's name
+    if n!=0:
+        syn_data.to_csv(f"{method}-{n}-{priv_data_name}.csv", index=False)
+    # the default synthetic dataset name when n=0 
+    else:
+        syn_data.to_csv(f"{method}-{priv_data_name}.csv", index=False)
 
 
 def run_method(config, dataloader, n):
