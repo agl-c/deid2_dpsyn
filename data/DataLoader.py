@@ -50,14 +50,14 @@ class DataLoader:
         with open(CONFIG_DATA, 'r', encoding="utf-8") as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
         self.config = config
-        print("----------------> config yaml file loaded in DataLoader, config file: ", CONFIG_DATA)
+        print("------------------------> config yaml file loaded in DataLoader, config file: ", CONFIG_DATA)
 
      
         # which include parameters for several runs and data schema
         with open(PARAMS,'r', encoding="utf-8") as f:
             parameter_spec = json.load(f)
             self.general_schema = parameter_spec['schema']
-        print("----------------> parameter file loaded in DataLoader, parameter file: ", PARAMS)
+        print("------------------------> parameter file loaded in DataLoader, parameter file: ", PARAMS)
 
         # we use pickle to store the objects in files as binary flow
         priv_pickle_path = PICKLE_DIRECTORY / f"preprocessed_priv_{PRIV_DATA_NAME}.pkl"
@@ -65,6 +65,7 @@ class DataLoader:
         # load private data
         if os.path.isfile(priv_pickle_path) and not pub_only:
             print("********** load private data from pickle **************")
+            print("------------------------> priv pickle path: ", priv_pickle_path)
             [self.private_data, self.encode_mapping] = pickle.load(open(priv_pickle_path, 'rb'))
             for attr, encode_mapping in self.encode_mapping.items():
                 self.decode_mapping[attr] = sorted(encode_mapping, key=encode_mapping.get)
@@ -84,7 +85,7 @@ class DataLoader:
             self.private_data.fillna('',inplace=True)
             print("********** afer fillna ***********")
             print(self.private_data)
-            print("----------------> private dataset: ", PRIV_DATA)
+            print("------------------------> private dataset: ", PRIV_DATA)
             self.private_data = self.binning_attributes(config['numerical_binning'], self.private_data)
             # self.private_data = self.grouping_attributes(config['grouping_attributes'], self.private_data)
             self.private_data = self.remove_identifier(self.private_data)
@@ -96,7 +97,7 @@ class DataLoader:
         # note that here schema means all the valid values of encoded ones
             self.encode_schema[attr] = sorted(encode_mapping.values())
         print("************* private data loaded and preprocessed in DataLoader ************")
-        print("priv df's rows:--------------------> ", self.private_data.shape[0])
+        print("priv df's rows:------------------------> ", self.private_data.shape[0])
 
 
     def obtain_attrs(self):
@@ -181,7 +182,7 @@ class DataLoader:
         
         """
         data = data.drop(self.config['identifier'], axis=1)
-        print("--------------> remove identifier column:", self.config['identifier'])
+        print("------------------------> remove identifier column:", self.config['identifier'])
         print("identifier removed in DataLoader")
         return data
     
@@ -208,7 +209,7 @@ class DataLoader:
        
         # encoded_attr = list(config['numerical_binning'].keys()) + [grouping['grouped_name'] for grouping in config['grouping_attributes']]
         encoded_attr = list(config['numerical_binning'].keys()) 
-        print("--------------> start encoding remaining single attributes")
+        print("------------------------> start encoding remaining single attributes")
         for attr in data.columns:    
             if attr in [self.config['identifier']] or attr in encoded_attr:
                 continue
@@ -275,7 +276,7 @@ class DataLoader:
         marginals = {}
         for attr in all_attrs:
             marginals[frozenset([attr])] = self.generate_one_way_marginal(records, attr)
-        print("---------------> all one way marginals generated")
+        print("------------------------> all one way marginals generated")
         return marginals
     
     def generate_all_two_way_marginals(self, records: pd.DataFrame):
@@ -289,7 +290,7 @@ class DataLoader:
             for j in range(i + 1, len(all_attrs)):
                 marginals[frozenset([attr, all_attrs[j]])] = self.generate_two_way_marginal(records, attr, all_attrs[j])
         
-        print("-----------------> all two way marginals generated")
+        print("------------------------> all two way marginals generated")
         # debug
         tmp_num = np.mean([np.sum(marginal.values) for marginal_att, marginal in marginals.items()])
         print("**************** help debug ************** num of records averaged from all two-way marginals:", tmp_num)

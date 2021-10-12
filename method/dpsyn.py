@@ -70,7 +70,7 @@ class DPSyn(Synthesizer):
         # since calculated on noisy marginals
         # we use mean function to estimate the number of synthesized records
         num_synthesize_records = np.mean([np.sum(x.values) for _, x in noisy_marginals.items()]).round().astype(np.int)
-        print("-------------------> now we get the estimate of records' num by averaging from nosiy marginals:", num_synthesize_records)
+        print("------------------------> now we get the estimate of records' num by averaging from nosiy marginals:", num_synthesize_records)
         
         
         
@@ -161,7 +161,7 @@ class DPSyn(Synthesizer):
     #  we have a graph where nodes represent attributes and edges represent marginals,
     #  it helps in terms of running time and accuracy if we do it cluster by cluster
     def synthesize_records(self, attrs: Attrs, domains: Domains, clusters: Clusters, num_synthesize_records: int):
-        print("-----------------------> num of synthesized records: ")
+        print("------------------------> num of synthesized records: ")
         print(num_synthesize_records)
         for cluster_attrs, list_marginal_attrs in clusters.items():
             logger.info("synthesizing for %s" % (cluster_attrs,))

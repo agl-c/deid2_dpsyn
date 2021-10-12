@@ -51,13 +51,13 @@ class Synthesizer(object):
             print("**************** help debug ************** num of records from marginal count before adding noise:", tmp_num)
 
             eps = epss[set_key]
-            print("----------------> now we decide the noise type: ")
+            print("------------------------> now we decide the noise type: ")
             print("considering eps:", eps, ", delta:", self.delta, ", sensitivity:", self.sensitivity,
             ", len of marginals:", len(marginals))
             
             noise_type, noise_param = advanced_composition.get_noise(eps, self.delta, self.sensitivity, len(marginals))
-            print("---------------> noise type:", noise_type)
-            print("---------------> noise parameter:", noise_param)
+            print("------------------------> noise type:", noise_type)
+            print("------------------------> noise parameter:", noise_param)
 
             # noise_type = priv_split_method[set_key]
             # tip: you can hard code the noise type or let program decide it 

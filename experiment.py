@@ -65,7 +65,6 @@ def main():
     np.random.RandomState(0)
     with open(args.config, 'r', encoding="utf-8") as f:
         config = yaml.load(f, Loader=yaml.BaseLoader)
-    print("----------------> load config file: ", args.config)
 
     # dataloader initialization
     dataloader = DataLoader()
@@ -156,7 +155,7 @@ def run_method(config, dataloader, n):
     print("********************* START POSTPROCESSING ***********************")
     postprocessor = RecordPostprocessor()
     syn_data = postprocessor.post_process(syn_data, args.config, dataloader.decode_mapping)
-    logger.info("--------------->synthetic data post-processed:")
+    logger.info("------------------------>synthetic data post-processed:")
     print(syn_data)
 
     return syn_data
