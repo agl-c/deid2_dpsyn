@@ -3,10 +3,12 @@ from loguru import logger
 
 import numpy as np
 from lib_dpsyn.view import View
+"""this file serves for make sure the noisy marginals are consistent, 
+i.e., with the same count, submit to the dependency relationship, non-negative counts
 
+"""
 
 class Consistenter:
-    # sorry, but dependency means what I've forgot
     class SubsetWithDependency:
         def __init__(self, attributes_set):
             self.attributes_set = attributes_set
