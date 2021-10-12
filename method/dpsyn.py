@@ -47,10 +47,7 @@ class DPSyn(Synthesizer):
 
     def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
         """marginals are specified by a dict from attribute tuples to frequency (pandas) tables
-        however, consistency should mean post processing, right?
-        why here seems to be an active obtain?
-
-        automatic method of finding the optimal marginals to care about
+        first obtain noisy marginals and make sure they are consistent
 
         """
 
@@ -86,7 +83,6 @@ class DPSyn(Synthesizer):
 
         # views are wrappers of marginals with additional functions for consistency
         # you may understand them as created by another collaborator and we fix interfaces
-        # perhaps, views are kind of like marginals, now I guess views work on marginals, let's check it
         # if there exist public dataset to refer to
         if self.data.pub_ref:
             pub_onehot_view_dict, pub_attr_view_dict = self.construct_views(pub_marginals)
@@ -94,7 +90,6 @@ class DPSyn(Synthesizer):
         noisy_onehot_view_dict, noisy_attr_view_dict = self.construct_views(noisy_marginals)
     
         # all_views is one-hot to view dict, views_dict is attribute to view dict
-        # where is all_views then? one-hot here means what?
         # they have different format to satisfy the needs of consistenter and synthesiser
         if not self.data.pub_ref:
             pub_onehot_view_dict = noisy_onehot_view_dict
@@ -108,7 +103,6 @@ class DPSyn(Synthesizer):
             self.attr_index_map,
             num_synthesize_records)
 
-        # TODO: take care of how the consistency works
         # consist the noisy marginals to submit to some rules
         consistenter = Consistenter(self.onehot_view_dict, self.domain_list)
         consistenter.consist_views()
@@ -239,6 +233,7 @@ class DPSyn(Synthesizer):
     def obtain_singleton_views(attrs_view_dict):
         singleton_views = {}
         for cur_attrs, view in attrs_view_dict.items():
+            # other use 
             # puma and year won't be there because they only appear together (size=2)
             if len(cur_attrs) == 1:
                 singleton_views[cur_attrs] = view
