@@ -25,7 +25,7 @@ parser.add_argument("--n", type=int, default=0,
                     help="specify the number of records to generate")
 
 # params file which include schema of the original dataset
-parser.add_argument("--params", type=str, default="./data/parameters1.json",
+parser.add_argument("--params", type=str, default="./data/parameters.json",
                     help="specify the path of parameters file in json format")
 
 # datatype file which include the data types of the columns
