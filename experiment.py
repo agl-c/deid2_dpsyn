@@ -44,6 +44,10 @@ help="specify the name of the private dataset")
 parser.add_argument("--update_iterations", type=int, default=30,
                    help="specify the num of update iterations")
 
+# target path of synthetic dataset
+parser.add_argument("--target_path", type=str, default="out.csv",
+help="specify the target path of the synthetic dataset")
+
 
 args = parser.parse_args()
 PRIV_DATA = args.priv_data
@@ -53,7 +57,7 @@ PARAMS = args.params
 DATA_TYPE = args.datatype
 MARGINAL_CONFIG = args.marginal_config
 UPDATE_ITERATIONS = args.update_iterations
-
+TARGET_PATH = args.target_path
 
 from data.DataLoader import *
 from data.RecordPostprocessor import RecordPostprocessor
@@ -80,10 +84,11 @@ def main():
     syn_data = run_method(config, dataloader, n)
     # if users set the records' num, we denote it in synthetic dataset's name
     if n!=0:
-        syn_data.to_csv(f"{method}-{n}-{priv_data_name}.csv", index=False)
+        print("------------------------> now we synthesize a dataset with ", n, "rows")
+        syn_data.to_csv(Path(TARGET_PATH), index=False)
     # the default synthetic dataset name when n=0 
     else:
-        syn_data.to_csv(f"{method}-{priv_data_name}.csv", index=False)
+        syn_data.to_csv(Path(TARGET_PATH), index=False)
 
 
 def run_method(config, dataloader, n):

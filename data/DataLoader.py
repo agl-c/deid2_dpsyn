@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from config.path import PICKLE_DIRECTORY, DATA_DIRECTORY
+from config.path import PICKLE_DIRECTORY
 
 
 
