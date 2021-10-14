@@ -78,7 +78,7 @@ We use the tool argparse for users to customize the input parameters and the usa
 To get a better understanding of the args' meanings, you can refer to the default values of them in experiment.py and the run example we provided in later part.
 
 ```
-C:\Users\陈安琪\Desktop\nist_comp\deid2_dpsyn>python experiment.py -h
+python experiment.py -h
 usage: experiment.py [-h] [--priv_data PRIV_DATA] [--config CONFIG] [--n N] [--params PARAMS] [--datatype DATATYPE]
                      [--marginal_config MARGINAL_CONFIG] [--priv_data_name PRIV_DATA_NAME]
                      [--update_iterations UPDATE_ITERATIONS] [--target_path TARGET_PATH]
@@ -107,14 +107,10 @@ optional arguments:
 
 ### How to configure?
 
-#### Depend on 2 schema files and 2 config files
+#### 2 schema files and 2 config files
 
-The input dataset should be in format of filename.csv with its first row a header row.
-You should first preprocess the dataset. A tool(https://github.com/hd23408/nist-schemagen) is provided to generate 2 schema files: **(1) parameters.json** **(2) column_datatypes.json**  from the original dataset and actually our algorithm relies on them as input. 
-
-We both include example files in our reporsitory.
-
-Besides, you should specify parameters in "runs" in **parameters.json** as instructed later.
+The input dataset should be in format of filename.csv with its first row as a header row.
+You should first preprocess the dataset. [A tool](https://github.com/hd23408/nist-schemagen) is provided to generate 2 schema files: **(1) parameters.json** **(2) column_datatypes.json**  from the original dataset and actually our algorithm relies on them as input. Besides, you should specify parameters in "runs" in **parameters.json** as instructed later.
 
 Refer to **parameters.json**, you can set the bin parts in the config file like  **data.yaml**.
 
@@ -124,10 +120,8 @@ And you can specify marginal settings in marginal config file like **eps=xxx.yam
 
 #### Differential privacy parameters (eps, delta, sensitivity)
 
-for naive users, supporting tutorials  on dp understandings and  the sensitive function design, refer to [The Algorithmic Foundations of Differential Privacy](http://dx.doi.org/10.1561/0400000042))  
-
-Users should set the **eps, delta, sensitivity value** in 'runs' in **parameters.json** according to their specific differential privacy requirements. 
-Here we display an example where the sensitivity value equals to 'max_records_per_individual', which essentially means the global sensitivity value of a specified function f(here is the count).
+You should set the **eps, delta, sensitivity value** in 'runs' in **parameters.json** according to their specific differential privacy requirements （refer to [The Algorithmic Foundations of Differential Privacy](http://dx.doi.org/10.1561/0400000042) if you are not familiar with DP）. 
+Here we display an example where the sensitivity value equals to 'max_records_per_individual', which essentially means the global sensitivity value of a specified function f (here f is the counting function).
 
 ```json
   "runs": [
@@ -140,16 +134,15 @@ Here we display an example where the sensitivity value equals to 'max_records_pe
   ]
 ```
 
-
-Meanwhile, as the above example shows, you can specify the 'max_records' parameter to bound the number of rows in the synthesized dataset. 
+As the above example shows, you can specify the 'max_records' parameter to bound the number of rows in the synthesized dataset. 
 
 #### In data.yaml 
 
 Set identifier attribute, bin value parameters.
 
-You can specify the **identifier** attribute's name in data.yaml (we assume your dataset has the identifer attribute by default and obviously, in synthetic dataset the column should be removed to protect privacy)
+You can specify the **identifier** attribute's name in data.yaml (we assume your dataset has the identifer attribute by default; obviously, in synthetic dataset the column should be removed to protect privacy).
 
-You can specify **bin** settings in format of [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. ( Further, you can change more details in bin generation in binning_attributes() in DataLoader.py )
+You can specify **bin** settings in the format of [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. (Further, you can change more details in bin generation in binning_attributes() in DataLoader.py.)
 
 ```yaml
 identifier: ID
@@ -167,11 +160,7 @@ numerical_binning:
 
 #### Marginal selection config
 
-Refer to eps=10.0.yaml as an example where we manually restrict the marginal selection method to be using all the two way marginals, i.e., "priv_all_two_way", and you may maintain it when setting this configuration file.
-
-And we also write in this file the epsilon parameter corresponding to the one set in parameters.json "runs".
-
-e.g.
+Suppose epsilon parameter in "runs" of parameters.json is 10 now.  We will go to eps=10.0.yaml to find the marginal configuration. In this example, we use all the two way marginals, i.e., "priv_all_two_way":
 
 ```yaml
 priv_all_two_way:
@@ -182,23 +171,23 @@ priv_all_two_way:
 
 
 ### Details in fine tuning
-Below we list several hyper parameters through our code. You can fine tune them when working on your own experiments instead of our default setting.
+Below we list several hyper parameters through our code. You can fine tune them when working on your own experiments.
 
 | variable          | file                 | class/function)    | value |  semantics                     |
 | :---------------: | :------------------: | :------------:     | :----:| :--------:                     |
-| update_iterations | dpsyn.py             | DPSyn              | 30    | the num of update iterations                        |
-| alpha = 1.0       | record_synthesizer.py| RecordSynthesizer  |  1.0  |                                |
+| update_iterations | dpsyn.py             | DPSyn              | 30    | the number of update iterations                        |
+| alpha = 1.0       | record_synthesizer.py| RecordSynthesizer  |  1.0  | update rate                               |
 | update_alpha()    | record_synthesizer.py| RecordSynthesizer  | self.alpha = 1.0 * 0.84 ** (iteration // 20) |inspired by ML practice |
 
 ----
 
 ### Unused currently
 
-Currently below functions are commented sicne they are tailored for specific datasets and in practice tricks **for efficiency consideration**.
+Currently below functions are not used:
 
 ##### grouping settings
 
-You can define attributes to be grouped in data.yaml ( possibly based on analysis in possible existing public datasets ), and we may give you some tips on deciding which attributes to group.
+You can define attributes to be grouped in data.yaml (possibly based on analysis in possible existing public datasets).
 
 **some intuitional grouping tips:**
 
@@ -208,13 +197,13 @@ You can define attributes to be grouped in data.yaml ( possibly based on analysi
 
 ##### value-determined attributes 
 
-If the original dataset includes some attributes that can be determined by other attributes, you can specify them in data.yaml, but by default we exclude the part since they are a little tricky.
+If your dataset includes some attributes that can be determined by other attributes (e.g., if age is <18, then weekly working hour is 0), you can specify them in data.yaml, but by default we exclude the part.
 
 ----
 
 ### Measurements
 
-You can refer to Synthpop(a R package) as a tool to compare the synthesized dataset against the original one. And we offer a quick-start guide [Synthpop](https://docs.google.com/document/d/17jSDoMcSbozjc8Ef8X42xPJXRb6g_Syt/edit#heading=h.gjdgxs ) for you here. 
+You can refer to [Synthpop](https://docs.google.com/document/d/17jSDoMcSbozjc8Ef8X42xPJXRb6g_Syt/edit#heading=h.gjdgxs) (a R package) as a tool to compare the synthesized dataset against the original one. 
 
 ----
 
@@ -225,7 +214,7 @@ Below we offer the outputs in one run example:
 You can find the default input files in the repository we offered here.
 
 ```
-C:\Users\陈安琪\Desktop\nist_comp\deid2_dpsyn>python experiment.py
+python experiment.py
 ------------------------> config yaml file loaded in DataLoader, config file:  ./config/data.yaml
 ------------------------> parameter file loaded in DataLoader, parameter file:  ./data/parameters.json
 ************* start loading private data *************
