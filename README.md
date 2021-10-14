@@ -1,10 +1,13 @@
 # DPSyn: a quick-start guide 
+[TOC]
+
 ## What is DPsyn?
+
 We present DPSyn, an algorithm for synthesizing microdata for data analysis while satisfying differential privacy.
 
-To facilitate your understanding, please refer to the paper *PrivSyn: Differentially Private Data Synthesis* [link](https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun). And the repository is actually based on it.
+To facilitate your understanding, please refer to the paper *PrivSyn: Differentially Private Data Synthesis* [link](https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun). And we utilized the record synthesis method proposed in that paper, which is GUM ( Gradually Update Method ) .
 
-## Comparison with related work
+### Comparison with related work
 
 There are two similar and highly-related papers (both from competitors in the competition) . They are:
 [PrivMRF](http://www.vldb.org/pvldb/vol14/p2190-cai.pdf), and
@@ -23,9 +26,37 @@ In this repository, we only include the second part for now.
 
 ### Docker support
 
-### run the python file
+We create a public image in docker.io [link](https://hub.docker.com/repository/docker/chenanqi18pku/dpsyn)
+
+You can obtain it by
+
+```
+> docker pull chenanqi18pku/dpsyn:v1
+```
+
+Or you can directly create the image with the directory here, since the Dockerfile is already included.
+
+```
+> docker build -t dpsyn .
+```
+
+Then you can create a container to run the image.
+
+We show one example below with target_path=syndata.csv and container named 'test'.
+
+```
+> docker run -it --name test dpsyn --target_path syndata.csv
+```
+
+Note that you can add parameters like when you run "python experiment.py" as below example shows.
+
+And you can find the synthetic dataset **syndata.csv** in the container **test**, right in the directory **/DPSyn** as we declared in the Dockerfile.
+
+### Run the python file
 
 We use the tool argparse for users to customize the input parameters and the usage message is shown below.
+
+To get a better understanding of the args' meanings, you can refer to the default values of them in experiment.py and the run example we provided in later part.
 
 ```
 C:\Users\陈安琪\Desktop\nist_comp\deid2_dpsyn>python experiment.py -h
@@ -60,7 +91,9 @@ optional arguments:
 #### Depend on 2 schema files and 2 config files
 
 The input dataset should be in format of filename.csv with its first row a header row.
-You should first preprocess the dataset. A tool(https://github.com/hd23408/nist-schemagen) is provided to generate 2 schema files: **(1) parameters.json** **(2) column_datatypes.json**  from the original dataset and actually our algorithm relies on them as input. We both include example files in our reporsitory.
+You should first preprocess the dataset. A tool(https://github.com/hd23408/nist-schemagen) is provided to generate 2 schema files: **(1) parameters.json** **(2) column_datatypes.json**  from the original dataset and actually our algorithm relies on them as input. 
+
+We both include example files in our reporsitory.
 
 Besides, you should specify parameters in "runs" in **parameters.json** as instructed later.
 
@@ -115,7 +148,7 @@ numerical_binning:
 
 #### Marginal selection config
 
-Refer to eps=10.0.yaml as an example where we manually restrict the marginal selection method to be all the two way marginals.
+Refer to eps=10.0.yaml as an example where we manually restrict the marginal selection method to be using all the two way marginals, i.e., "priv_all_two_way", and you may maintain it when setting this configuration file.
 
 And we also write in this file the epsilon parameter corresponding to the one set in parameters.json "runs".
 
@@ -163,8 +196,6 @@ If the original dataset includes some attributes that can be determined by other
 ### Measurements
 
 You can refer to Synthpop(a R package) as a tool to compare the synthesized dataset against the original one. And we offer a quick-start guide [Synthpop](https://docs.google.com/document/d/17jSDoMcSbozjc8Ef8X42xPJXRb6g_Syt/edit#heading=h.gjdgxs ) for you here. 
-
-Besides, we offer simple metric modules to measure the L1, L2 distance between the original dataset and the synthetic one.
 
 ----
 
