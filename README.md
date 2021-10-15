@@ -24,7 +24,7 @@
 
 We present DPSyn, an algorithm for synthesizing microdata for data analysis while satisfying differential privacy.
 
-To facilitate your understanding, please refer to the paper *PrivSyn: Differentially Private Data Synthesis* [link](https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun). And we utilized the record synthesis method proposed in that paper, which is GUM ( Gradually Update Method ) .
+To facilitate your understanding, please refer to the paper [*PrivSyn: Differentially Private Data Synthesis*](https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun). And we utilized the record synthesis method proposed in that paper, which is GUM ( Gradually Update Method ) .
 
 ### Comparison with related work
 
@@ -107,22 +107,7 @@ optional arguments:
 
 ### How to configure?
 
-#### 2 schema files and 2 config files
-
-The input dataset should be in format of filename.csv with its first row a header row.
-You should first preprocess the dataset. A [tool]( https://github.com/hd23408/nist-schemagen ) is provided to generate 2 schema files: **(1) parameters.json** **(2) column_datatypes.json**  from the original dataset and actually our algorithm relies on them as input. 
-
-We both include example files in our reporsitory: data/parameters.json ,  data/column_datatypes.json.
-
-Besides, you should specify parameters in "runs" in **parameters.json** as instructed later.
-
-Refer to **parameters.json**, you can set the bin parts in the config file like  **data.yaml** (config/data.yaml)
-
-And you can specify marginal settings in marginal config file like **eps=xxx.yaml**. (config/eps=10.0.yaml)
-
-----
-
-#### Differential privacy parameters (eps, delta, sensitivity)
+#### Determine differential privacy parameters (eps, delta, sensitivity)
 
 You should set the **eps, delta, sensitivity value** in 'runs' in **parameters.json** according to their specific differential privacy requirements （refer to [The Algorithmic Foundations of Differential Privacy](http://dx.doi.org/10.1561/0400000042) if you are not familiar with DP）. 
 Here we display an example where the sensitivity value equals to 'max_records_per_individual', which essentially means the global sensitivity value of a specified function f (here f is the counting function).
@@ -140,7 +125,21 @@ Here we display an example where the sensitivity value equals to 'max_records_pe
 
 As the above example shows, you can specify the 'max_records' parameter to bound the number of rows in the synthesized dataset. 
 
-#### In data.yaml 
+
+#### Obtain 2 schema files ([data/parameters.json](data/parameters.json) and [data/column_datatypes.json](data/column_datatypes.json)) and 2 config files ([data.yaml](config/data.yaml) and [eps=xxx.yaml](config/eps=10.0.yaml))
+
+The input dataset should be in format of filename.csv with its first row a header row.
+You should first preprocess the dataset. A [tool]( https://github.com/hd23408/nist-schemagen ) is provided to generate 2 schema files: **(1) parameters.json** **(2) column_datatypes.json**  from the original dataset and actually our algorithm relies on them as input. 
+
+Besides, you should specify parameters in "runs" in **parameters.json** as instructed later.
+
+Refer to **parameters.json**, you can set the bin parts in the config file like  **data.yaml**
+
+And you can specify marginal settings in marginal config file like **eps=xxx.yaml**.
+
+----
+
+##### data.yaml 
 
 Set identifier attribute, bin value parameters.
 
@@ -162,7 +161,7 @@ numerical_binning:
 
 ----
 
-#### Marginal selection config
+##### Marginal selection config
 
 Suppose epsilon parameter in "runs" of parameters.json is 10 now.  We will go to eps=10.0.yaml to find the marginal configuration. In this example, we use all the two way marginals, i.e., "priv_all_two_way":
 
@@ -199,7 +198,7 @@ You can define attributes to be grouped in data.yaml (possibly based on analysis
    * group those with embedded correlation
    * group those essitially the same (for instance, some attributes only differ in naming or one can be fully determined by another)
 
-##### value-determined attributes 
+##### Value-determined attributes 
 
 If your dataset includes some attributes that can be determined by other attributes (e.g., if age is <18, then weekly working hour is 0), you can specify them in data.yaml, but by default we exclude the part.
 
