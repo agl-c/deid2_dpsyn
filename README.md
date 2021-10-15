@@ -109,12 +109,16 @@ optional arguments:
 
 #### 2 schema files and 2 config files
 
-The input dataset should be in format of filename.csv with its first row as a header row.
-You should first preprocess the dataset. [A tool](https://github.com/hd23408/nist-schemagen) is provided to generate 2 schema files: **(1) parameters.json** **(2) column_datatypes.json**  from the original dataset and actually our algorithm relies on them as input. Besides, you should specify parameters in "runs" in **parameters.json** as instructed later.
+The input dataset should be in format of filename.csv with its first row a header row.
+You should first preprocess the dataset. A [tool]( https://github.com/hd23408/nist-schemagen ) is provided to generate 2 schema files: **(1) parameters.json** **(2) column_datatypes.json**  from the original dataset and actually our algorithm relies on them as input. 
 
-Refer to **parameters.json**, you can set the bin parts in the config file like  **data.yaml**.
+We both include example files in our reporsitory: data/parameters.json ,  data/column_datatypes.json.
 
-And you can specify marginal settings in marginal config file like **eps=xxx.yaml**. (e.g. eps=10.0.yaml)
+Besides, you should specify parameters in "runs" in **parameters.json** as instructed later.
+
+Refer to **parameters.json**, you can set the bin parts in the config file like  **data.yaml** (config/data.yaml)
+
+And you can specify marginal settings in marginal config file like **eps=xxx.yaml**. (config/eps=10.0.yaml)
 
 ----
 
