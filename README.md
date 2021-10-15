@@ -1,25 +1,4 @@
 # DPSyn: a quick-start guide 
-
-- [DPSyn: a quick-start guide](#dpsyn--a-quick-start-guide)
-  * [What is DPsyn?](#what-is-dpsyn-)
-    + [Comparison with related work](#comparison-with-related-work)
-  * [Install DPSyn](#install-dpsyn)
-    + [Docker support](#docker-support)
-    + [Run the python file](#run-the-python-file)
-    + [How to configure?](#how-to-configure-)
-      - [Depend on 2 schema files and 2 config files](#depend-on-2-schema-files-and-2-config-files)
-      - [Differential privacy parameters (eps, delta, sensitivity)](#differential-privacy-parameters--eps--delta--sensitivity-)
-      - [In data.yaml](#in-datayaml)
-      - [Marginal selection config](#marginal-selection-config)
-    + [Details in fine tuning](#details-in-fine-tuning)
-    + [Unused currently](#unused-currently)
-        * [grouping settings](#grouping-settings)
-        * [value-determined attributes](#value-determined-attributes)
-    + [Measurements](#measurements)
-    + [One Run example](#one-run-example)
-  * [Team Members & Affiliation(s):](#team-members---affiliation-s--)
-  * [GitHub User(s) Serving as POC:](#github-user-s--serving-as-poc-)
-
 ## What is DPsyn?
 
 We present DPSyn, an algorithm for synthesizing microdata for data analysis while satisfying differential privacy.
