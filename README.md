@@ -7,14 +7,14 @@
     + [Docker support](#docker-support)
     + [Run the python file](#run-the-python-file)
     + [How to configure?](#how-to-configure-)
-      - [Determine differential privacy parameters (eps, delta, sensitivity)](#determine-differential-privacy-parameters--eps--delta--sensitivity-)
-      - [Obtain 2 schema files ([data/parameters.json](data/parameters.json) and [data/column_datatypes.json](data/column_datatypes.json)) and 2 config files ([data.yaml](config/data.yaml) and [eps=xxx.yaml](config/eps=10.0.yaml))](#obtain-2-schema-files---data-parametersjson--data-parametersjson--and--data-column-datatypesjson--data-column-datatypesjson---and-2-config-files---datayaml--config-datayaml--and--eps-xxxyaml--config-eps-100yaml--)
-        * [data.yaml](#datayaml)
-        * [Marginal selection config](#marginal-selection-config)
+      - [Depend on 2 schema files and 2 config files](#depend-on-2-schema-files-and-2-config-files)
+      - [Differential privacy parameters (eps, delta, sensitivity)](#differential-privacy-parameters--eps--delta--sensitivity-)
+      - [In data.yaml](#in-datayaml)
+      - [Marginal selection config](#marginal-selection-config)
     + [Details in fine tuning](#details-in-fine-tuning)
     + [Unused currently](#unused-currently)
         * [grouping settings](#grouping-settings)
-        * [Value-determined attributes](#value-determined-attributes)
+        * [value-determined attributes](#value-determined-attributes)
     + [Measurements](#measurements)
     + [One Run example](#one-run-example)
   * [Team Members & Affiliation(s):](#team-members---affiliation-s--)
@@ -107,7 +107,9 @@ optional arguments:
 
 ### How to configure?
 
-#### Determine differential privacy parameters (eps, delta, sensitivity)
+First, you preprocess the input dataset (the input dataset should be in format of filename.csv with its first row a header row). A [tool]( https://github.com/hd23408/nist-schemagen ) is provided to generate schema files: **(1) [parameters.json](data/parameters.json)** **(2) [column_datatypes.json](data/column_datatypes.json))** from the original dataset。
+
+#### 1. Determine differential privacy parameters (eps, delta, sensitivity)
 
 You should set the **eps, delta, sensitivity value** in 'runs' in **parameters.json** according to their specific differential privacy requirements （refer to [The Algorithmic Foundations of Differential Privacy](http://dx.doi.org/10.1561/0400000042) if you are not familiar with DP）. 
 Here we display an example where the sensitivity value equals to 'max_records_per_individual', which essentially means the global sensitivity value of a specified function f (here f is the counting function).
@@ -124,28 +126,20 @@ Here we display an example where the sensitivity value equals to 'max_records_pe
 ```
 
 As the above example shows, you can specify the 'max_records' parameter to bound the number of rows in the synthesized dataset. 
+The next step is to specify marginal settings in marginal config file like **[eps=xxx.yaml](config/eps=10.0.yaml)** (each eps=xxx.yaml corresponds to each epsilon=xxx in parameters.json).
 
+##### Marginal selection config
 
-#### Obtain 2 schema files ([data/parameters.json](data/parameters.json) and [data/column_datatypes.json](data/column_datatypes.json)) and 2 config files ([data.yaml](config/data.yaml) and [eps=xxx.yaml](config/eps=10.0.yaml))
+Suppose epsilon parameter in "runs" of parameters.json is 10 now.  We will go to eps=10.0.yaml to find the marginal configuration. In this example, we use all the two way marginals, i.e., "priv_all_two_way":
 
-The input dataset should be in format of filename.csv with its first row a header row.
-You should first preprocess the dataset. A [tool]( https://github.com/hd23408/nist-schemagen ) is provided to generate 2 schema files: **(1) parameters.json** **(2) column_datatypes.json**  from the original dataset and actually our algorithm relies on them as input. 
+```yaml
+priv_all_two_way:
+  total_eps: 10
+```
 
-Besides, you should specify parameters in "runs" in **parameters.json** as instructed later.
+##### Data config
 
-Refer to **parameters.json**, you can set the bin parts in the config file like  **data.yaml**
-
-And you can specify marginal settings in marginal config file like **eps=xxx.yaml**.
-
-----
-
-##### data.yaml 
-
-Set identifier attribute, bin value parameters.
-
-You can specify the **identifier** attribute's name in data.yaml (we assume your dataset has the identifer attribute by default; obviously, in synthetic dataset the column should be removed to protect privacy).
-
-You can specify **bin** settings in the format of [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. (Further, you can change more details in bin generation in binning_attributes() in DataLoader.py.)
+Finally, you need to config [data.yaml](config/data.yaml): You can specify the **identifier** attribute's name in data.yaml (we assume your dataset has the identifer attribute by default; obviously, in synthetic dataset the column should be removed to protect privacy). You can also specify **bin** settings in the format of [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. (Further, you can change more details in bin generation in binning_attributes() in DataLoader.py.)
 
 ```yaml
 identifier: ID
@@ -157,17 +151,6 @@ numerical_binning:
     - 14
     - 87
     - 10
-```
-
-----
-
-##### Marginal selection config
-
-Suppose epsilon parameter in "runs" of parameters.json is 10 now.  We will go to eps=10.0.yaml to find the marginal configuration. In this example, we use all the two way marginals, i.e., "priv_all_two_way":
-
-```yaml
-priv_all_two_way:
-  total_eps: 10
 ```
 
 ----
