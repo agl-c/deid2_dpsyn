@@ -107,9 +107,9 @@ optional arguments:
 
 ### How to configure?
 
-First, you preprocess the input dataset (the input dataset should be in format of filename.csv with its first row a header row). A [tool]( https://github.com/hd23408/nist-schemagen ) is provided to generate schema files: **(1) [parameters.json](data/parameters.json)** **(2) [column_datatypes.json](data/column_datatypes.json))** from the original dataset。
+First, you preprocess the input dataset (the input dataset should be in format of filename.csv with its first row a header row). A [tool]( https://github.com/hd23408/nist-schemagen ) is provided to generate schema files: **(1) [parameters.json](data/parameters.json)** **(2) [column_datatypes.json](data/column_datatypes.json)** from the original dataset.
 
-#### 1. Determine differential privacy parameters (eps, delta, sensitivity)
+##### 1. Determine differential privacy parameters (eps, delta, sensitivity)
 
 You should set the **eps, delta, sensitivity value** in 'runs' in **parameters.json** according to their specific differential privacy requirements （refer to [The Algorithmic Foundations of Differential Privacy](http://dx.doi.org/10.1561/0400000042) if you are not familiar with DP）. 
 Here we display an example where the sensitivity value equals to 'max_records_per_individual', which essentially means the global sensitivity value of a specified function f (here f is the counting function).
@@ -128,7 +128,7 @@ Here we display an example where the sensitivity value equals to 'max_records_pe
 As the above example shows, you can specify the 'max_records' parameter to bound the number of rows in the synthesized dataset. 
 The next step is to specify marginal settings in marginal config file like **[eps=xxx.yaml](config/eps=10.0.yaml)** (each eps=xxx.yaml corresponds to each epsilon=xxx in parameters.json).
 
-##### Marginal selection config
+##### 2. Marginal selection config
 
 Suppose epsilon parameter in "runs" of parameters.json is 10 now.  We will go to eps=10.0.yaml to find the marginal configuration. In this example, we use all the two way marginals, i.e., "priv_all_two_way":
 
@@ -137,7 +137,7 @@ priv_all_two_way:
   total_eps: 10
 ```
 
-##### Data config
+##### 3. Data config
 
 Finally, you need to config [data.yaml](config/data.yaml): You can specify the **identifier** attribute's name in data.yaml (we assume your dataset has the identifer attribute by default; obviously, in synthetic dataset the column should be removed to protect privacy). You can also specify **bin** settings in the format of [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. (Further, you can change more details in bin generation in binning_attributes() in DataLoader.py.)
 
