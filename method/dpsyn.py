@@ -35,11 +35,6 @@ class DPSyn(Synthesizer):
     # despite phthon variables can be used without claiming its type, we import typing to ensure robustness
     Attrs = List[str]
     Domains = np.ndarray
-    # Tuple[str] means 
-    #    (i) a tuple type which has a single element which is str?
-    # or (ii) a tuple type which has a undetermined length of str elements?
-    # it should be (ii)
-    # actually, here the Tuple[str] is just str I think
     Marginals = Dict[Tuple[str], np.array]
     Clusters = Dict[Tuple[str], List[Tuple[str]]]
     d = None
@@ -76,13 +71,12 @@ class DPSyn(Synthesizer):
         # domain_list is an array recording the count of each attribute's candidate values
         self.domain_list = np.array([len(self.data.encode_schema[att]) for att in self.attr_list])
         
-        # map the attribute str to its index in attr_list, maybe for possible use
+        # map the attribute str to its index in attr_list, for possible use
         # use enumerate to return Tuple(index, element) 
         self.attr_index_map = {att: att_i for att_i, att in enumerate(self.attr_list)}
 
 
         # views are wrappers of marginals with additional functions for consistency
-        # you may understand them as created by another collaborator and we fix interfaces
         # if there exist public dataset to refer to
         if self.data.pub_ref:
             pub_onehot_view_dict, pub_attr_view_dict = self.construct_views(pub_marginals)
@@ -91,11 +85,11 @@ class DPSyn(Synthesizer):
     
         # all_views is one-hot to view dict, views_dict is attribute to view dict
         # they have different format to satisfy the needs of consistenter and synthesiser
+        # to fit in code when we do not have public things to utilize    
         if not self.data.pub_ref:
             pub_onehot_view_dict = noisy_onehot_view_dict
             pub_attr_view_dict = noisy_attr_view_dict
 
-        # above just to fit in code when we do not have public things to utilize    
         self.onehot_view_dict, self.attrs_view_dict = self.normalize_views(
             pub_onehot_view_dict,
             pub_attr_view_dict,
@@ -120,7 +114,7 @@ class DPSyn(Synthesizer):
     # it further utilize the lib function in record_synthesizer.py
   
     def synthesize(self, fixed_n=0) -> pd.DataFrame:
-        """synthesize a DataFrame in fixed_n size
+        """synthesize a DataFrame in fixed_n size if denoted n!=0
          
         """
         from experiment import MARGINAL_CONFIG

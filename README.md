@@ -217,6 +217,8 @@ Below we offer the outputs in one run example:
 
 You can find the default input files in the repository we offered here.
 
+And you can find the synthetic dataset "out.csv" ( under default setting ) in your working directory after the program finishes.
+
 ```
 python experiment.py
 ------------------------> config yaml file loaded in DataLoader, config file:  ./config/data.yaml
