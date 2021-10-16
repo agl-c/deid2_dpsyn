@@ -17,16 +17,12 @@ In this repository, we only include the second part for now.
 
 ----
 
-*For your convenience, with a dataset (whose privacy you want to protect), you can directly use DPSyn algorithm to generate a private dataset;*
-
 
 ## Install DPSyn 
 
 ### Docker support
 
-We create a public image in docker.io [link](https://hub.docker.com/repository/docker/chenanqi18pku/dpsyn)
-
-You can obtain it by
+We created a public image in docker.io [link](https://hub.docker.com/repository/docker/chenanqi18pku/dpsyn). You can obtain it by
 
 ```
 > docker pull chenanqi18pku/dpsyn:v1
@@ -38,9 +34,7 @@ Or you can directly create the image with the directory here, since the Dockerfi
 > docker build -t dpsyn .
 ```
 
-Then you can create a container to run the image.
-
-We show one example below with target_path=syndata.csv and container named 'test'.
+Then you can create a container to run the image. We show one example below with target_path=syndata.csv and container named 'test'.
 
 ```
 > docker run -it --name test dpsyn --target_path syndata.csv
@@ -90,7 +84,7 @@ First, you preprocess the input dataset (the input dataset should be in format o
 
 ##### 1. Determine differential privacy parameters (eps, delta, sensitivity)
 
-You should set the **eps, delta, sensitivity value** in 'runs' in **parameters.json** according to their specific differential privacy requirements （refer to [The Algorithmic Foundations of Differential Privacy](http://dx.doi.org/10.1561/0400000042) if you are not familiar with DP）. 
+You should set the **eps, delta, sensitivity value** in 'runs' in **parameters.json** according to their specific differential privacy requirements (refer to [The Algorithmic Foundations of Differential Privacy](http://dx.doi.org/10.1561/0400000042) if you are not familiar with DP). 
 Here we display an example where the sensitivity value equals to 'max_records_per_individual', which essentially means the global sensitivity value of a specified function f (here f is the counting function).
 
 ```json
