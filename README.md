@@ -121,11 +121,11 @@ Here we display an example where the sensitivity value equals to 'max_records_pe
 ```
 
 As the above example shows, you can specify the 'max_records' parameter to bound the number of rows in the synthesized dataset. 
-The next step is to specify marginal settings in marginal config file like **[eps=xxx.yaml](config/eps=10.0.yaml)** ( each eps=xxx.yaml corresponds to each epsilon=xxx in parameters.json and you can find one example file in /config ).
+The next step is to specify marginal settings in marginal config file like **[eps=xxx.yaml](config/eps=10.0.yaml)** ( each eps=xxx.yaml corresponds to each epsilon=xxx in parameters.json ).
 
 ##### 2. Marginal selection config
 
-Suppose epsilon parameter in "runs" of parameters.json is 10 now.  We will go to eps=10.0.yaml ( in /config ) to find the marginal configuration. In this example, we use all the two way marginals, i.e., "priv_all_two_way":
+Suppose epsilon parameter in "runs" of parameters.json is 10 now.  We will go to eps=10.0.yaml ( in [/config](config) ) to find the marginal configuration. In this example, we use all the two way marginals, i.e., "priv_all_two_way":
 
 ```yaml
 priv_all_two_way:
@@ -134,7 +134,7 @@ priv_all_two_way:
 
 ##### 3. Data config
 
-Finally, you need to config [data.yaml](config/data.yaml) ( in /config ): 
+Finally, you need to config [data.yaml](config/data.yaml) ( in [/config](config) ): 
 
 You can specify the **identifier** attribute's name in data.yaml (we assume your dataset has the identifer attribute by default; obviously, in synthetic dataset the column should be removed to protect privacy). 
 
@@ -192,7 +192,7 @@ If your dataset includes some attributes that can be determined by other attribu
 
 ### Measurements
 
-You can refer to [Synthpop](https://docs.google.com/document/d/17jSDoMcSbozjc8Ef8X42xPJXRb6g_Syt/edit#heading=h.gjdgxs) (a R package) as a tool to compare the synthesized dataset against the original one. 
+You can refer to **Synthpop** (a R package) as a tool to compare the synthesized dataset against the original one. And we provide a quick start document on using it in our repository: [Dataset comparison using Synthpop.docx](Dataset comparison using Synthpop.docx)
 
 ----
 
