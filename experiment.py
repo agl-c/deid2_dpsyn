@@ -15,6 +15,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--priv_data", type=str, default="./data/accidential_drug_deaths.csv",
                     help="specify the path of original data file in csv format")
 
+# priv_data_name for use of naming mile-stone files
+parser.add_argument("--priv_data_name", type=str, 
+help="users must specify it to help mid-way naming and avoid possible mistakings")
 
 # config file which include identifier and binning settings 
 parser.add_argument("--config", type=str, default="./config/data.yaml",
@@ -35,10 +38,6 @@ parser.add_argument("--datatype", type=str, default="./data/column_datatypes.jso
 # marginal_config which specify marginal usage method
 parser.add_argument("--marginal_config", type=str, default="./config/eps=10.0.yaml",
 help="specify the path of marginal config file in yaml format")
-
-# priv_data_name for use of naming mile-stone files
-parser.add_argument("--priv_data_name", type=str, 
-help="specify the name of the private dataset to help mid-way naming and avoid conflicts")
 
 # hyper parameter, the num of update iterations
 parser.add_argument("--update_iterations", type=int, default=30,
