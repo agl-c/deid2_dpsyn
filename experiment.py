@@ -37,8 +37,8 @@ parser.add_argument("--marginal_config", type=str, default="./config/eps=10.0.ya
 help="specify the path of marginal config file in yaml format")
 
 # priv_data_name for use of naming mile-stone files
-parser.add_argument("--priv_data_name", type=str, default="accidential_drug_deaths",
-help="specify the name of the private dataset")
+parser.add_argument("--priv_data_name", type=str, 
+help="specify the name of the private dataset to help mid-way naming and avoid conflicts")
 
 # hyper parameter, the num of update iterations
 parser.add_argument("--update_iterations", type=int, default=30,

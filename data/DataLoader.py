@@ -72,7 +72,7 @@ class DataLoader:
         
         elif not pub_only:
             print("************* start loading private data *************")
-
+            print("------------------------> process and store with pkl file name: ", f"preprocessed_priv_{PRIV_DATA_NAME}.pkl")
             from experiment import DATA_TYPE
 
             with open(DATA_TYPE,'r', encoding="utf-8") as f:
