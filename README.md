@@ -80,7 +80,7 @@ optional arguments:
 
 ### How to configure?
 
-First, you preprocess the input dataset (the input dataset should be in format of filename.csv with its first row a header row). A [tool]( https://github.com/hd23408/nist-schemagen ) is provided to generate schema files: **(1) [parameters.json](data/parameters.json)** **(2) [column_datatypes.json](data/column_datatypes.json)** from the original dataset.
+First, you preprocess the input dataset (the input dataset should be in format of filename.csv with its first row a header row). A [tool]( https://github.com/hd23408/nist-schemagen ) is provided to help generate schema files: **(1) [parameters.json](data/parameters.json)** ( users should add "runs" parameters later in this file ) **(2) [column_datatypes.json](data/column_datatypes.json)** from the original dataset.
 
 ##### 1. Determine differential privacy parameters (eps, delta, sensitivity)
 
@@ -99,11 +99,11 @@ Here we display an example where the sensitivity value equals to 'max_records_pe
 ```
 
 As the above example shows, you can specify the 'max_records' parameter to bound the number of rows in the synthesized dataset. 
-The next step is to specify marginal settings in marginal config file like **[eps=xxx.yaml](config/eps=10.0.yaml)** (each eps=xxx.yaml corresponds to each epsilon=xxx in parameters.json).
+The next step is to specify marginal settings in marginal config file like **[eps=xxx.yaml](config/eps=10.0.yaml)** ( each eps=xxx.yaml corresponds to each epsilon=xxx in parameters.json and you can find one example file in /config ).
 
 ##### 2. Marginal selection config
 
-Suppose epsilon parameter in "runs" of parameters.json is 10 now.  We will go to eps=10.0.yaml to find the marginal configuration. In this example, we use all the two way marginals, i.e., "priv_all_two_way":
+Suppose epsilon parameter in "runs" of parameters.json is 10 now.  We will go to eps=10.0.yaml ( in /config ) to find the marginal configuration. In this example, we use all the two way marginals, i.e., "priv_all_two_way":
 
 ```yaml
 priv_all_two_way:
@@ -112,7 +112,15 @@ priv_all_two_way:
 
 ##### 3. Data config
 
-Finally, you need to config [data.yaml](config/data.yaml): You can specify the **identifier** attribute's name in data.yaml (we assume your dataset has the identifer attribute by default; obviously, in synthetic dataset the column should be removed to protect privacy). You can also specify **bin** settings in the format of [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. (Further, you can change more details in bin generation in binning_attributes() in DataLoader.py.)
+Finally, you need to config [data.yaml](config/data.yaml) ( in /config ): 
+
+You can specify the **identifier** attribute's name in data.yaml (we assume your dataset has the identifer attribute by default; obviously, in synthetic dataset the column should be removed to protect privacy). 
+
+You can also specify **bin** settings in the format of [min, max, step] in numerical_binning in data.yaml based on your granuarity preference. ( Further, you can change more details in bin generation in binning_attributes() in DataLoader.py. )
+
+Notice: by default we assume your input dataset include **identifier column** and at least one column with **numerical binning** specified.
+
+Below is one example:
 
 ```yaml
 identifier: ID
