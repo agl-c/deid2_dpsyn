@@ -118,7 +118,7 @@ class DPSyn(Synthesizer):
          
         """
         from experiment import MARGINAL_CONFIG
-        with open(MARGINAL_CONFIG, 'r') as f:
+        with open(MARGINAL_CONFIG, 'r', encoding="utf-8") as f:
             priv_marginal_config = yaml.load(f, Loader=yaml.FullLoader)
         priv_split_method = {} 
 

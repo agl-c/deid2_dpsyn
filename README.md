@@ -44,6 +44,228 @@ Note that you can add parameters like when you run "python experiment.py" as bel
 
 And you can find the synthetic dataset **syndata.csv** in the container **test**, right in the directory **/DPSyn** as we declared in the Dockerfile.
 
+```
+PS C:\Users\陈安琪\Desktop\nist_comp\deid2_s2 - clean_refresh\deid2_dpsyn> docker run -it --name testio1 -v /c/test:/DPSyn/tmp dpsyn:v3 --priv_data_name testio --priv_data /DPSyn/tmp/test.csv --target_path /DPSyn/tmp/testout.csv
+------------------------> config yaml file loaded in DataLoader, config file:  ./config/data.yaml
+------------------------> parameter file loaded in DataLoader, parameter file:  ./data/parameters.json
+************* start loading private data *************
+------------------------> process and store with pkl file name:  preprocessed_priv_testio.pkl
+           ID  Date  Age     Sex   Race Residence State Death County  ... Xylazine Opiate NOS Any Opioid CardioCondition RespiratoryCondition ObesityCondition DiabetesCondition
+0     12-0187  2012   34  FEMALE  WHITE             NaN    FAIRFIELD  ...      NaN        NaN        NaN             NaN                  NaN              NaN               NaN
+1     12-0258  2012   51    MALE  WHITE             NaN    MIDDLESEX  ...      NaN        NaN        NaN             NaN                  NaN              NaN               NaN
+2     13-0146  2013   28    MALE  WHITE             NaN     HARTFORD  ...      NaN        NaN        NaN             NaN                  NaN              NaN               NaN
+3     14-0150  2014   46    MALE  WHITE             NaN   LITCHFIELD  ...      NaN        NaN        NaN             NaN                  NaN              NaN               NaN
+4     14-0183  2014   52    MALE  WHITE             NaN   NEW LONDON  ...      NaN        NaN        NaN             NaN                  NaN              NaN               NaN
+...       ...   ...  ...     ...    ...             ...          ...  ...      ...        ...        ...             ...                  ...              ...               ...
+7629  14-0128  2014   25    MALE  WHITE             NaN          NaN  ...      NaN        NaN        NaN             NaN                  NaN              NaN               NaN
+7630  20-1217  2020   62  FEMALE  WHITE              CT    FAIRFIELD  ...      NaN        NaN          Y             NaN                  NaN              NaN               NaN
+7631  20-1138  2020   50  FEMALE  WHITE              CT     HARTFORD  ...        Y        NaN          Y             NaN                  NaN              NaN               NaN
+7632  16-0640  2016   36    MALE  WHITE              CT          NaN  ...      NaN        NaN          Y             NaN                  NaN              NaN               NaN
+7633  19-0963  2019   33    MALE  WHITE              CT    NEW HAVEN  ...      NaN        NaN          Y               Y                  NaN              NaN               NaN
+
+[7634 rows x 32 columns]
+********** afer fillna ***********
+           ID  Date  Age     Sex   Race Residence State Death County  ... Xylazine Opiate NOS Any Opioid CardioCondition RespiratoryCondition ObesityCondition DiabetesCondition
+0     12-0187  2012   34  FEMALE  WHITE                    FAIRFIELD  ...                                                                                                   
+1     12-0258  2012   51    MALE  WHITE                    MIDDLESEX  ...                                                                                                   
+2     13-0146  2013   28    MALE  WHITE                     HARTFORD  ...                                                                                                   
+3     14-0150  2014   46    MALE  WHITE                   LITCHFIELD  ...                                                                                                   
+4     14-0183  2014   52    MALE  WHITE                   NEW LONDON  ...                                                                                                   
+...       ...   ...  ...     ...    ...             ...          ...  ...      ...        ...        ...             ...                  ...              ...               ...
+7629  14-0128  2014   25    MALE  WHITE                               ...                                                                                                   
+7630  20-1217  2020   62  FEMALE  WHITE              CT    FAIRFIELD  ...                              Y                                                                    
+7631  20-1138  2020   50  FEMALE  WHITE              CT     HARTFORD  ...        Y                     Y                                                                    
+7632  16-0640  2016   36    MALE  WHITE              CT               ...                              Y                                                                    
+7633  19-0963  2019   33    MALE  WHITE              CT    NEW HAVEN  ...                              Y               Y                                                    
+
+[7634 rows x 32 columns]
+------------------------> private dataset:  /DPSyn/tmp/test.csv
+binning attributes done in DataLoader
+------------------------> remove identifier column: ID
+identifier removed in DataLoader
+------------------------> start encoding remaining single attributes
+encode remain: Date
+encode remain: Sex
+encode remain: Race
+encode remain: Residence State
+encode remain: Death County
+encode remain: Location
+encode remain: Location if Other
+encode remain: Injury County
+encode remain: Injury State
+encode remain: Heroin
+encode remain: Cocaine
+encode remain: Fentanyl
+encode remain: Fentanyl Analogue
+encode remain: Oxycodone
+encode remain: Oxymorphone
+encode remain: Ethanol
+encode remain: Hydrocodone
+encode remain: Benzodiazepine
+encode remain: Methadone
+encode remain: Amphet
+encode remain: Tramad
+encode remain: Morphine (Not Heroin)
+encode remain: Hydromorphone
+encode remain: Xylazine
+encode remain: Opiate NOS
+encode remain: Any Opioid
+encode remain: CardioCondition
+encode remain: RespiratoryCondition
+encode remain: ObesityCondition
+encode remain: DiabetesCondition
+encoding remaining single attributes done in DataLoader
+************* private data loaded and preprocessed in DataLoader ************
+priv df's rows:------------------------>  7634
+2021-10-24 02:55:37.157 | INFO     | __main__:run_method:106 - working on eps=10.0, delta=3.4498908254380166e-11, and sensitivity=1
+------------------------> all two way marginals generated
+**************** help debug ************** num of records averaged from all two-way marginals: 7633.419354838709
+**************** help debug ************** num of records from marginal count before adding noise: 7633.419354838709
+------------------------> now we decide the noise type:
+considering eps: 10.0 , delta: 3.4498908254380166e-11 , sensitivity: 1 , len of marginals: 465
+------------------------> noise type: gauss
+------------------------> noise parameter: 16.386725928253217
+2021-10-24 02:55:45.646 | INFO     | method.synthesizer:anonymize:79 - marginal priv_all_two_way use eps=10.0, noise type:gauss, noise parameter=16.386725928253217, sensitivity:1
+------------------------> now we get the estimate of records' num by averaging from nosiy marginals: 7630
+2021-10-24 02:55:53.952 | DEBUG    | lib_dpsyn.consistent:consist_views:105 - dependency computed
+2021-10-24 02:55:54.551 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:55:54.570 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:55:55.144 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:55:55.161 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:55:55.739 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:55:55.757 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:55:56.320 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:55:56.335 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:55:56.931 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:55:56.946 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:55:57.544 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:55:57.561 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:55:58.102 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:55:58.117 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:55:58.713 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:55:58.728 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:55:59.341 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:55:59.358 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:55:59.990 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:00.004 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:00.603 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:00.617 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:01.218 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:01.232 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:01.808 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:01.822 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:02.438 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:02.454 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:03.044 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:03.058 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:03.664 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:03.677 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:04.252 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:04.268 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:04.843 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:04.861 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:05.407 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:05.421 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:05.996 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:06.011 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:06.587 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:06.603 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:07.173 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:07.188 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:07.764 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:07.777 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:08.413 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:08.427 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:08.989 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:09.004 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:09.593 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:09.608 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:10.217 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:10.233 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:10.819 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:10.835 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:11.422 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:11.439 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+2021-10-24 02:56:12.017 | DEBUG    | lib_dpsyn.consistent:consist_views:131 - consist finish
+2021-10-24 02:56:12.032 | DEBUG    | lib_dpsyn.consistent:consist_views:148 - non-negativity finish
+------------------------> attributes:
+['Date', 'Age', 'Sex', 'Race', 'Residence State', 'Death County', 'Location', 'Location if Other', 'Injury County', 'Injury State', 'Heroin', 'Cocaine', 'Fentanyl', 'Fentanyl Analogue', 'Oxycodone', 'Oxymorphone', 'Ethanol', 'Hydrocodone', 'Benzodiazepine', 'Methadone', 'Amphet', 'Tramad', 'Morphine (Not Heroin)', 'Hydromorphone', 'Xylazine', 'Opiate NOS', 'Any Opioid', 'CardioCondition', 'RespiratoryCondition', 'ObesityCondition', 'DiabetesCondition']
+------------------------> domains:
+[ 9  9  2  7 11  9  7 10 15  3  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+  2  2  2  2  2  2  2]
+------------------------> cluseters:
+{('ObesityCondition', 'Methadone', 'Benzodiazepine', 'Opiate NOS', 'Fentanyl Analogue', 'Fentanyl', 'Any Opioid', 'Hydromorphone', 'Tramad', 'DiabetesCondition', 'Cocaine', 'Oxycodone', 'Date', 'Sex', 'Location', 'Amphet', 'Morphine (Not Heroin)', 'Heroin', 'Hydrocodone', 'Ethanol', 'Location if Other', 'Death County', 'Injury County', 'Race', 'Oxymorphone', 'Injury State', 'Residence State', 'Xylazine', 'CardioCondition', 'Age', 'RespiratoryCondition'): [frozenset({'Date', 'Age'}), frozenset({'Date', 'Sex'}), frozenset({'Date', 'Race'}), frozenset({'Date', 'Residence State'}), frozenset({'Date', 'Death County'}), frozenset({'Date', 'Location'}), frozenset({'Date', 'Location if Other'}), frozenset({'Date', 'Injury County'}), frozenset({'Date', 'Injury State'}), frozenset({'Heroin', 'Date'}), frozenset({'Date', 'Cocaine'}), frozenset({'Date', 'Fentanyl'}), frozenset({'Date', 'Fentanyl Analogue'}), frozenset({'Date', 'Oxycodone'}), frozenset({'Date', 'Oxymorphone'}), frozenset({'Date', 'Ethanol'}), frozenset({'Date', 'Hydrocodone'}), frozenset({'Date', 'Benzodiazepine'}), frozenset({'Date', 'Methadone'}), frozenset({'Date', 'Amphet'}), frozenset({'Date', 'Tramad'}), frozenset({'Date', 'Morphine (Not Heroin)'}), frozenset({'Date', 'Hydromorphone'}), frozenset({'Date', 'Xylazine'}), frozenset({'Date', 'Opiate NOS'}), frozenset({'Date', 'Any Opioid'}), frozenset({'Date', 'CardioCondition'}), frozenset({'Date', 'RespiratoryCondition'}), frozenset({'Date', 'ObesityCondition'}), frozenset({'Date', 'DiabetesCondition'}), frozenset({'Sex', 'Age'}), frozenset({'Age', 'Race'}), frozenset({'Residence State', 'Age'}), frozenset({'Death County', 'Age'}), frozenset({'Location', 'Age'}), frozenset({'Location if Other', 'Age'}), frozenset({'Injury County', 'Age'}), frozenset({'Age', 'Injury State'}), frozenset({'Heroin', 'Age'}), frozenset({'Age', 'Cocaine'}), frozenset({'Age', 'Fentanyl'}), frozenset({'Fentanyl Analogue', 'Age'}), frozenset({'Age', 'Oxycodone'}), frozenset({'Age', 'Oxymorphone'}), frozenset({'Age', 'Ethanol'}), frozenset({'Hydrocodone', 'Age'}), frozenset({'Benzodiazepine', 'Age'}), frozenset({'Age', 'Methadone'}), frozenset({'Amphet', 'Age'}), frozenset({'Tramad', 'Age'}), frozenset({'Morphine (Not Heroin)', 'Age'}), frozenset({'Hydromorphone', 'Age'}), frozenset({'Xylazine', 'Age'}), frozenset({'Opiate NOS', 'Age'}), frozenset({'Age', 'Any Opioid'}), frozenset({'CardioCondition', 'Age'}), frozenset({'Age', 'RespiratoryCondition'}), frozenset({'ObesityCondition', 'Age'}), frozenset({'DiabetesCondition', 'Age'}), frozenset({'Sex', 'Race'}), frozenset({'Residence State', 'Sex'}), frozenset({'Sex', 'Death County'}), frozenset({'Location', 'Sex'}), frozenset({'Sex', 'Location if Other'}), frozenset({'Sex', 'Injury County'}), frozenset({'Sex', 'Injury State'}), frozenset({'Heroin', 'Sex'}), frozenset({'Sex', 'Cocaine'}), frozenset({'Sex', 'Fentanyl'}), frozenset({'Sex', 'Fentanyl Analogue'}), frozenset({'Sex', 'Oxycodone'}), frozenset({'Sex', 'Oxymorphone'}), frozenset({'Sex', 'Ethanol'}), frozenset({'Sex', 'Hydrocodone'}), frozenset({'Sex', 'Benzodiazepine'}), frozenset({'Sex', 'Methadone'}), frozenset({'Sex', 'Amphet'}), frozenset({'Sex', 'Tramad'}), frozenset({'Morphine (Not Heroin)', 'Sex'}), frozenset({'Sex', 'Hydromorphone'}), frozenset({'Sex', 'Xylazine'}), frozenset({'Sex', 'Opiate NOS'}), frozenset({'Sex', 'Any Opioid'}), frozenset({'Sex', 'CardioCondition'}), frozenset({'Sex', 'RespiratoryCondition'}), frozenset({'Sex', 'ObesityCondition'}), frozenset({'DiabetesCondition', 'Sex'}), frozenset({'Residence State', 'Race'}), frozenset({'Death County', 'Race'}), frozenset({'Location', 'Race'}), frozenset({'Location if Other', 'Race'}), frozenset({'Injury County', 'Race'}), frozenset({'Injury State', 'Race'}), frozenset({'Heroin', 'Race'}), frozenset({'Race', 'Cocaine'}), frozenset({'Fentanyl', 'Race'}), frozenset({'Fentanyl Analogue', 'Race'}), frozenset({'Race', 'Oxycodone'}), frozenset({'Race', 'Oxymorphone'}), frozenset({'Ethanol', 'Race'}), frozenset({'Hydrocodone', 'Race'}), frozenset({'Benzodiazepine', 'Race'}), frozenset({'Race', 'Methadone'}), frozenset({'Amphet', 'Race'}), frozenset({'Tramad', 'Race'}), frozenset({'Morphine (Not Heroin)', 'Race'}), frozenset({'Hydromorphone', 'Race'}), frozenset({'Xylazine', 'Race'}), frozenset({'Opiate NOS', 'Race'}), frozenset({'Race', 'Any Opioid'}), frozenset({'CardioCondition', 'Race'}), frozenset({'RespiratoryCondition', 'Race'}), frozenset({'ObesityCondition', 'Race'}), frozenset({'DiabetesCondition', 'Race'}), frozenset({'Residence State', 'Death County'}), frozenset({'Residence State', 'Location'}), frozenset({'Residence State', 'Location if Other'}), frozenset({'Residence State', 'Injury County'}), frozenset({'Residence State', 'Injury State'}), frozenset({'Heroin', 'Residence State'}), frozenset({'Residence State', 'Cocaine'}), frozenset({'Residence State', 'Fentanyl'}), frozenset({'Residence State', 'Fentanyl Analogue'}), frozenset({'Residence State', 'Oxycodone'}), frozenset({'Residence State', 'Oxymorphone'}), frozenset({'Residence State', 'Ethanol'}), frozenset({'Residence State', 'Hydrocodone'}), frozenset({'Residence State', 'Benzodiazepine'}), frozenset({'Residence State', 'Methadone'}), frozenset({'Residence State', 'Amphet'}), frozenset({'Residence State', 'Tramad'}), frozenset({'Residence State', 'Morphine (Not Heroin)'}), frozenset({'Residence State', 'Hydromorphone'}), frozenset({'Residence State', 'Xylazine'}), frozenset({'Residence State', 'Opiate NOS'}), frozenset({'Residence State', 'Any Opioid'}), frozenset({'Residence State', 'CardioCondition'}), frozenset({'Residence State', 'RespiratoryCondition'}), frozenset({'Residence State', 'ObesityCondition'}), frozenset({'Residence State', 'DiabetesCondition'}), frozenset({'Location', 'Death County'}), frozenset({'Location if Other', 'Death County'}), frozenset({'Injury County', 'Death County'}), frozenset({'Death County', 'Injury State'}), frozenset({'Heroin', 'Death County'}), frozenset({'Death County', 'Cocaine'}), frozenset({'Death County', 'Fentanyl'}), frozenset({'Fentanyl Analogue', 'Death County'}), frozenset({'Death County', 'Oxycodone'}), frozenset({'Death County', 'Oxymorphone'}), frozenset({'Death County', 'Ethanol'}), frozenset({'Death County', 'Hydrocodone'}), frozenset({'Benzodiazepine', 'Death County'}), frozenset({'Death County', 'Methadone'}), frozenset({'Amphet', 'Death County'}), frozenset({'Death County', 'Tramad'}), frozenset({'Morphine (Not Heroin)', 'Death County'}), frozenset({'Death County', 'Hydromorphone'}), frozenset({'Death County', 'Xylazine'}), frozenset({'Opiate NOS', 'Death County'}), frozenset({'Death County', 'Any Opioid'}), frozenset({'CardioCondition', 'Death County'}), frozenset({'Death County', 'RespiratoryCondition'}), frozenset({'ObesityCondition', 'Death County'}), frozenset({'DiabetesCondition', 'Death County'}), frozenset({'Location', 'Location if Other'}), frozenset({'Location', 'Injury County'}), frozenset({'Location', 'Injury State'}), frozenset({'Heroin', 'Location'}), frozenset({'Location', 'Cocaine'}), frozenset({'Location', 'Fentanyl'}), frozenset({'Location', 'Fentanyl Analogue'}), frozenset({'Location', 'Oxycodone'}), frozenset({'Location', 'Oxymorphone'}), frozenset({'Location', 'Ethanol'}), frozenset({'Location', 'Hydrocodone'}), frozenset({'Location', 'Benzodiazepine'}), frozenset({'Location', 'Methadone'}), frozenset({'Location', 'Amphet'}), frozenset({'Location', 'Tramad'}), frozenset({'Location', 'Morphine (Not Heroin)'}), frozenset({'Location', 'Hydromorphone'}), frozenset({'Location', 'Xylazine'}), frozenset({'Location', 'Opiate NOS'}), frozenset({'Location', 'Any Opioid'}), frozenset({'Location', 'CardioCondition'}), frozenset({'Location', 'RespiratoryCondition'}), frozenset({'Location', 'ObesityCondition'}), frozenset({'Location', 'DiabetesCondition'}), frozenset({'Location if Other', 'Injury County'}), frozenset({'Location if Other', 'Injury State'}), frozenset({'Heroin', 'Location if Other'}), frozenset({'Location if Other', 'Cocaine'}), frozenset({'Location if Other', 'Fentanyl'}), frozenset({'Location if Other', 'Fentanyl Analogue'}), frozenset({'Location if Other', 'Oxycodone'}), frozenset({'Location if Other', 'Oxymorphone'}), frozenset({'Location if Other', 'Ethanol'}), frozenset({'Location if Other', 'Hydrocodone'}), frozenset({'Benzodiazepine', 'Location if Other'}), frozenset({'Location if Other', 'Methadone'}), frozenset({'Amphet', 'Location if Other'}), frozenset({'Location if Other', 'Tramad'}), frozenset({'Morphine (Not Heroin)', 'Location if Other'}), frozenset({'Location if Other', 'Hydromorphone'}), frozenset({'Location if Other', 'Xylazine'}), frozenset({'Opiate NOS', 'Location if Other'}), frozenset({'Location if Other', 'Any Opioid'}), frozenset({'Location if Other', 'CardioCondition'}), frozenset({'Location if Other', 'RespiratoryCondition'}), frozenset({'Location if Other', 'ObesityCondition'}), frozenset({'DiabetesCondition', 'Location if Other'}), frozenset({'Injury County', 'Injury State'}), frozenset({'Heroin', 'Injury County'}), frozenset({'Injury County', 'Cocaine'}), frozenset({'Injury County', 'Fentanyl'}), frozenset({'Fentanyl Analogue', 'Injury County'}), frozenset({'Injury County', 'Oxycodone'}), frozenset({'Injury County', 'Oxymorphone'}), frozenset({'Injury County', 'Ethanol'}), frozenset({'Injury County', 'Hydrocodone'}), frozenset({'Benzodiazepine', 'Injury County'}), frozenset({'Injury County', 'Methadone'}), frozenset({'Amphet', 'Injury County'}), frozenset({'Injury County', 'Tramad'}), frozenset({'Morphine (Not Heroin)', 'Injury County'}), frozenset({'Injury County', 'Hydromorphone'}), frozenset({'Injury County', 'Xylazine'}), frozenset({'Opiate NOS', 'Injury County'}), frozenset({'Injury County', 'Any Opioid'}), frozenset({'CardioCondition', 'Injury County'}), frozenset({'Injury County', 'RespiratoryCondition'}), frozenset({'ObesityCondition', 'Injury County'}), frozenset({'DiabetesCondition', 'Injury County'}), frozenset({'Heroin', 'Injury State'}), frozenset({'Injury State', 'Cocaine'}), frozenset({'Fentanyl', 'Injury State'}), frozenset({'Fentanyl Analogue', 'Injury State'}), frozenset({'Injury State', 'Oxycodone'}), frozenset({'Injury State', 'Oxymorphone'}), frozenset({'Ethanol', 'Injury State'}), frozenset({'Hydrocodone', 'Injury State'}), frozenset({'Benzodiazepine', 'Injury State'}), frozenset({'Injury State', 'Methadone'}), frozenset({'Amphet', 'Injury State'}), frozenset({'Tramad', 'Injury State'}), frozenset({'Morphine (Not Heroin)', 'Injury State'}), frozenset({'Hydromorphone', 'Injury State'}), frozenset({'Xylazine', 'Injury State'}), frozenset({'Opiate NOS', 'Injury State'}), frozenset({'Injury State', 'Any Opioid'}), frozenset({'CardioCondition', 'Injury State'}), frozenset({'RespiratoryCondition', 'Injury State'}), frozenset({'ObesityCondition', 'Injury State'}), frozenset({'DiabetesCondition', 'Injury State'}), frozenset({'Heroin', 'Cocaine'}), frozenset({'Heroin', 'Fentanyl'}), frozenset({'Heroin', 'Fentanyl Analogue'}), frozenset({'Heroin', 'Oxycodone'}), frozenset({'Heroin', 'Oxymorphone'}), frozenset({'Heroin', 'Ethanol'}), frozenset({'Heroin', 'Hydrocodone'}), frozenset({'Heroin', 'Benzodiazepine'}), frozenset({'Heroin', 'Methadone'}), frozenset({'Heroin', 'Amphet'}), frozenset({'Heroin', 'Tramad'}), frozenset({'Heroin', 'Morphine (Not Heroin)'}), frozenset({'Heroin', 'Hydromorphone'}), frozenset({'Heroin', 'Xylazine'}), frozenset({'Heroin', 'Opiate NOS'}), frozenset({'Heroin', 'Any Opioid'}), frozenset({'Heroin', 'CardioCondition'}), frozenset({'Heroin', 'RespiratoryCondition'}), frozenset({'Heroin', 'ObesityCondition'}), frozenset({'Heroin', 'DiabetesCondition'}), frozenset({'Fentanyl', 'Cocaine'}), frozenset({'Fentanyl Analogue', 'Cocaine'}), frozenset({'Oxycodone', 'Cocaine'}), frozenset({'Oxymorphone', 'Cocaine'}), frozenset({'Ethanol', 'Cocaine'}), frozenset({'Hydrocodone', 'Cocaine'}), frozenset({'Benzodiazepine', 'Cocaine'}), frozenset({'Methadone', 'Cocaine'}), frozenset({'Amphet', 'Cocaine'}), frozenset({'Tramad', 'Cocaine'}), frozenset({'Morphine (Not Heroin)', 'Cocaine'}), frozenset({'Hydromorphone', 'Cocaine'}), frozenset({'Xylazine', 'Cocaine'}), frozenset({'Opiate NOS', 'Cocaine'}), frozenset({'Any Opioid', 'Cocaine'}), frozenset({'CardioCondition', 'Cocaine'}), frozenset({'RespiratoryCondition', 'Cocaine'}), frozenset({'ObesityCondition', 'Cocaine'}), frozenset({'DiabetesCondition', 'Cocaine'}), frozenset({'Fentanyl Analogue', 'Fentanyl'}), frozenset({'Fentanyl', 'Oxycodone'}), frozenset({'Fentanyl', 'Oxymorphone'}), frozenset({'Ethanol', 'Fentanyl'}), frozenset({'Hydrocodone', 'Fentanyl'}), frozenset({'Benzodiazepine', 'Fentanyl'}), frozenset({'Fentanyl', 'Methadone'}), frozenset({'Amphet', 'Fentanyl'}), frozenset({'Tramad', 'Fentanyl'}), frozenset({'Morphine (Not Heroin)', 'Fentanyl'}), frozenset({'Hydromorphone', 'Fentanyl'}), frozenset({'Xylazine', 'Fentanyl'}), frozenset({'Opiate NOS', 'Fentanyl'}), frozenset({'Fentanyl', 'Any Opioid'}), frozenset({'CardioCondition', 'Fentanyl'}), frozenset({'RespiratoryCondition', 'Fentanyl'}), frozenset({'ObesityCondition', 'Fentanyl'}), frozenset({'DiabetesCondition', 'Fentanyl'}), frozenset({'Fentanyl Analogue', 'Oxycodone'}), frozenset({'Fentanyl Analogue', 'Oxymorphone'}), frozenset({'Fentanyl Analogue', 'Ethanol'}), frozenset({'Fentanyl Analogue', 'Hydrocodone'}), frozenset({'Benzodiazepine', 'Fentanyl Analogue'}), frozenset({'Fentanyl Analogue', 'Methadone'}), frozenset({'Amphet', 'Fentanyl Analogue'}), frozenset({'Fentanyl Analogue', 'Tramad'}), frozenset({'Morphine (Not Heroin)', 'Fentanyl Analogue'}), frozenset({'Fentanyl Analogue', 'Hydromorphone'}), frozenset({'Fentanyl Analogue', 'Xylazine'}), frozenset({'Opiate NOS', 'Fentanyl Analogue'}), frozenset({'Fentanyl Analogue', 'Any Opioid'}), frozenset({'CardioCondition', 'Fentanyl Analogue'}), frozenset({'Fentanyl Analogue', 'RespiratoryCondition'}), frozenset({'ObesityCondition', 'Fentanyl Analogue'}), frozenset({'DiabetesCondition', 'Fentanyl Analogue'}), frozenset({'Oxymorphone', 'Oxycodone'}), frozenset({'Ethanol', 'Oxycodone'}), frozenset({'Hydrocodone', 'Oxycodone'}), frozenset({'Benzodiazepine', 'Oxycodone'}), frozenset({'Methadone', 'Oxycodone'}), frozenset({'Amphet', 'Oxycodone'}), frozenset({'Tramad', 'Oxycodone'}), frozenset({'Morphine (Not Heroin)', 'Oxycodone'}), frozenset({'Hydromorphone', 'Oxycodone'}), frozenset({'Xylazine', 'Oxycodone'}), frozenset({'Opiate NOS', 'Oxycodone'}), frozenset({'Any Opioid', 'Oxycodone'}), frozenset({'CardioCondition', 'Oxycodone'}), frozenset({'RespiratoryCondition', 'Oxycodone'}), frozenset({'ObesityCondition', 'Oxycodone'}), frozenset({'DiabetesCondition', 'Oxycodone'}), frozenset({'Ethanol', 'Oxymorphone'}), frozenset({'Hydrocodone', 'Oxymorphone'}), frozenset({'Benzodiazepine', 'Oxymorphone'}), frozenset({'Methadone', 'Oxymorphone'}), frozenset({'Amphet', 'Oxymorphone'}), frozenset({'Tramad', 'Oxymorphone'}), frozenset({'Morphine (Not Heroin)', 'Oxymorphone'}), frozenset({'Hydromorphone', 'Oxymorphone'}), frozenset({'Xylazine', 'Oxymorphone'}), frozenset({'Opiate NOS', 'Oxymorphone'}), frozenset({'Any Opioid', 'Oxymorphone'}), frozenset({'CardioCondition', 'Oxymorphone'}), frozenset({'RespiratoryCondition', 'Oxymorphone'}), frozenset({'ObesityCondition', 'Oxymorphone'}), frozenset({'DiabetesCondition', 'Oxymorphone'}), frozenset({'Hydrocodone', 'Ethanol'}), frozenset({'Benzodiazepine', 'Ethanol'}), frozenset({'Ethanol', 'Methadone'}), frozenset({'Amphet', 'Ethanol'}), frozenset({'Tramad', 'Ethanol'}), frozenset({'Morphine (Not Heroin)', 'Ethanol'}), frozenset({'Hydromorphone', 'Ethanol'}), frozenset({'Xylazine', 'Ethanol'}), frozenset({'Opiate NOS', 'Ethanol'}), frozenset({'Ethanol', 'Any Opioid'}), frozenset({'CardioCondition', 'Ethanol'}), frozenset({'RespiratoryCondition', 'Ethanol'}), frozenset({'ObesityCondition', 'Ethanol'}), frozenset({'DiabetesCondition', 'Ethanol'}), frozenset({'Benzodiazepine', 'Hydrocodone'}), frozenset({'Hydrocodone', 'Methadone'}), frozenset({'Amphet', 'Hydrocodone'}), frozenset({'Tramad', 'Hydrocodone'}), frozenset({'Morphine (Not Heroin)', 'Hydrocodone'}), frozenset({'Hydromorphone', 'Hydrocodone'}), frozenset({'Xylazine', 'Hydrocodone'}), frozenset({'Opiate NOS', 'Hydrocodone'}), frozenset({'Hydrocodone', 'Any Opioid'}), frozenset({'CardioCondition', 'Hydrocodone'}), frozenset({'Hydrocodone', 'RespiratoryCondition'}), frozenset({'ObesityCondition', 'Hydrocodone'}), frozenset({'DiabetesCondition', 'Hydrocodone'}), frozenset({'Benzodiazepine', 'Methadone'}), frozenset({'Benzodiazepine', 'Amphet'}), frozenset({'Benzodiazepine', 'Tramad'}), frozenset({'Morphine (Not Heroin)', 'Benzodiazepine'}), frozenset({'Benzodiazepine', 'Hydromorphone'}), frozenset({'Benzodiazepine', 'Xylazine'}), frozenset({'Benzodiazepine', 'Opiate NOS'}), frozenset({'Benzodiazepine', 'Any Opioid'}), frozenset({'Benzodiazepine', 'CardioCondition'}), frozenset({'Benzodiazepine', 'RespiratoryCondition'}), frozenset({'Benzodiazepine', 'ObesityCondition'}), frozenset({'DiabetesCondition', 'Benzodiazepine'}), frozenset({'Amphet', 'Methadone'}), frozenset({'Tramad', 'Methadone'}), frozenset({'Morphine (Not Heroin)', 'Methadone'}), frozenset({'Hydromorphone', 'Methadone'}), frozenset({'Xylazine', 'Methadone'}), frozenset({'Opiate NOS', 'Methadone'}), frozenset({'Any Opioid', 'Methadone'}), frozenset({'CardioCondition', 'Methadone'}), frozenset({'RespiratoryCondition', 'Methadone'}), frozenset({'ObesityCondition', 'Methadone'}), frozenset({'DiabetesCondition', 'Methadone'}), frozenset({'Amphet', 'Tramad'}), frozenset({'Morphine (Not Heroin)', 'Amphet'}), frozenset({'Amphet', 'Hydromorphone'}), frozenset({'Amphet', 'Xylazine'}), frozenset({'Amphet', 'Opiate NOS'}), frozenset({'Amphet', 'Any Opioid'}), frozenset({'Amphet', 'CardioCondition'}), frozenset({'Amphet', 'RespiratoryCondition'}), frozenset({'Amphet', 'ObesityCondition'}), frozenset({'DiabetesCondition', 'Amphet'}), frozenset({'Morphine (Not Heroin)', 'Tramad'}), frozenset({'Hydromorphone', 'Tramad'}), frozenset({'Xylazine', 'Tramad'}), frozenset({'Opiate NOS', 'Tramad'}), frozenset({'Tramad', 'Any Opioid'}), frozenset({'CardioCondition', 'Tramad'}), frozenset({'Tramad', 'RespiratoryCondition'}), frozenset({'ObesityCondition', 'Tramad'}), frozenset({'DiabetesCondition', 'Tramad'}), frozenset({'Morphine (Not Heroin)', 'Hydromorphone'}), frozenset({'Morphine (Not Heroin)', 'Xylazine'}), frozenset({'Morphine (Not Heroin)', 'Opiate NOS'}), frozenset({'Morphine (Not Heroin)', 'Any Opioid'}), frozenset({'Morphine (Not Heroin)', 'CardioCondition'}), frozenset({'Morphine (Not Heroin)', 'RespiratoryCondition'}), frozenset({'Morphine (Not Heroin)', 'ObesityCondition'}), frozenset({'DiabetesCondition', 'Morphine (Not Heroin)'}), frozenset({'Hydromorphone', 'Xylazine'}), frozenset({'Opiate NOS', 'Hydromorphone'}), frozenset({'Hydromorphone', 'Any Opioid'}), frozenset({'CardioCondition', 'Hydromorphone'}), frozenset({'Hydromorphone', 'RespiratoryCondition'}), frozenset({'ObesityCondition', 'Hydromorphone'}), frozenset({'DiabetesCondition', 'Hydromorphone'}), frozenset({'Opiate NOS', 'Xylazine'}), frozenset({'Xylazine', 'Any Opioid'}), frozenset({'CardioCondition', 'Xylazine'}), frozenset({'Xylazine', 'RespiratoryCondition'}), frozenset({'ObesityCondition', 'Xylazine'}), frozenset({'DiabetesCondition', 'Xylazine'}), frozenset({'Opiate NOS', 'Any Opioid'}), frozenset({'Opiate NOS', 'CardioCondition'}), frozenset({'Opiate NOS', 'RespiratoryCondition'}), frozenset({'Opiate NOS', 'ObesityCondition'}), frozenset({'DiabetesCondition', 'Opiate NOS'}), frozenset({'CardioCondition', 'Any Opioid'}), frozenset({'RespiratoryCondition', 'Any Opioid'}), frozenset({'ObesityCondition', 'Any Opioid'}), frozenset({'DiabetesCondition', 'Any Opioid'}), frozenset({'CardioCondition', 'RespiratoryCondition'}), frozenset({'CardioCondition', 'ObesityCondition'}), frozenset({'DiabetesCondition', 'CardioCondition'}), frozenset({'ObesityCondition', 'RespiratoryCondition'}), frozenset({'DiabetesCondition', 'RespiratoryCondition'}), frozenset({'DiabetesCondition', 'ObesityCondition'})]}
+********************* START SYNTHESIZING RECORDS ********************
+------------------------> num of synthesized records:
+7630
+2021-10-24 02:56:12.048 | INFO     | method.dpsyn:synthesize_records:155 - synthesizing for ('ObesityCondition', 'Methadone', 'Benzodiazepine', 'Opiate NOS', 'Fentanyl Analogue', 'Fentanyl', 'Any Opioid', 'Hydromorphone', 'Tramad', 'DiabetesCondition', 'Cocaine', 'Oxycodone', 'Date', 'Sex', 'Location', 'Amphet', 'Morphine (Not Heroin)', 'Heroin', 'Hydrocodone', 'Ethanol', 'Location if Other', 'Death County', 'Injury County', 'Race', 'Oxymorphone', 'Injury State', 'Residence State', 'Xylazine', 'CardioCondition', 'Age', 'RespiratoryCondition')
+2021-10-24 02:56:12.056 | INFO     | method.dpsyn:synthesize_records:171 - update round: 0
+2021-10-24 02:56:12.891 | INFO     | method.dpsyn:synthesize_records:171 - update round: 1
+2021-10-24 02:56:13.824 | INFO     | method.dpsyn:synthesize_records:171 - update round: 2
+2021-10-24 02:56:14.768 | INFO     | method.dpsyn:synthesize_records:171 - update round: 3
+2021-10-24 02:56:15.740 | INFO     | method.dpsyn:synthesize_records:171 - update round: 4
+2021-10-24 02:56:16.677 | INFO     | method.dpsyn:synthesize_records:171 - update round: 5
+2021-10-24 02:56:17.574 | INFO     | method.dpsyn:synthesize_records:171 - update round: 6
+2021-10-24 02:56:18.557 | INFO     | method.dpsyn:synthesize_records:171 - update round: 7
+2021-10-24 02:56:19.475 | INFO     | method.dpsyn:synthesize_records:171 - update round: 8
+2021-10-24 02:56:20.410 | INFO     | method.dpsyn:synthesize_records:171 - update round: 9
+2021-10-24 02:56:21.304 | INFO     | method.dpsyn:synthesize_records:171 - update round: 10
+2021-10-24 02:56:22.208 | INFO     | method.dpsyn:synthesize_records:171 - update round: 11
+2021-10-24 02:56:23.191 | INFO     | method.dpsyn:synthesize_records:171 - update round: 12
+2021-10-24 02:56:24.100 | INFO     | method.dpsyn:synthesize_records:171 - update round: 13
+2021-10-24 02:56:25.083 | INFO     | method.dpsyn:synthesize_records:171 - update round: 14
+2021-10-24 02:56:26.088 | INFO     | method.dpsyn:synthesize_records:171 - update round: 15
+2021-10-24 02:56:26.988 | INFO     | method.dpsyn:synthesize_records:171 - update round: 16
+2021-10-24 02:56:27.896 | INFO     | method.dpsyn:synthesize_records:171 - update round: 17
+2021-10-24 02:56:28.774 | INFO     | method.dpsyn:synthesize_records:171 - update round: 18
+2021-10-24 02:56:29.664 | INFO     | method.dpsyn:synthesize_records:171 - update round: 19
+2021-10-24 02:56:30.559 | INFO     | method.dpsyn:synthesize_records:171 - update round: 20
+2021-10-24 02:56:31.492 | INFO     | method.dpsyn:synthesize_records:171 - update round: 21
+2021-10-24 02:56:32.401 | INFO     | method.dpsyn:synthesize_records:171 - update round: 22
+2021-10-24 02:56:33.313 | INFO     | method.dpsyn:synthesize_records:171 - update round: 23
+2021-10-24 02:56:34.290 | INFO     | method.dpsyn:synthesize_records:171 - update round: 24
+2021-10-24 02:56:35.267 | INFO     | method.dpsyn:synthesize_records:171 - update round: 25
+2021-10-24 02:56:36.238 | INFO     | method.dpsyn:synthesize_records:171 - update round: 26
+2021-10-24 02:56:37.207 | INFO     | method.dpsyn:synthesize_records:171 - update round: 27
+2021-10-24 02:56:38.205 | INFO     | method.dpsyn:synthesize_records:171 - update round: 28
+2021-10-24 02:56:39.222 | INFO     | method.dpsyn:synthesize_records:171 - update round: 29
+------------------------> synthetic dataframe before postprocessing:
+      Date  Age  Sex  Race  Residence State  Death County  ...  Opiate NOS  Any Opioid  CardioCondition  RespiratoryCondition  ObesityCondition  DiabetesCondition
+0        3    4    1     6                8             7  ...           0           0                1                     1                 1                  1
+1        6    0    1     0               10             6  ...           1           1                0                     0                 0                  0
+2        5    5    0     4                3             4  ...           1           0                0                     1                 1                  1
+3        8    8    0     3                4             5  ...           1           1                1                     0                 1                  1
+4        4    3    1     2                5             7  ...           1           1                1                     0                 1                  1
+...    ...  ...  ...   ...              ...           ...  ...         ...         ...              ...                   ...               ...                ...
+7625     6    4    1     1                5             0  ...           0           0                0                     1                 0                  0
+7626     0    4    0     2                2             5  ...           1           0                0                     1                 0                  1
+7627     3    2    1     3                8             3  ...           0           1                1                     1                 0                  1
+7628     7    2    0     2                5             1  ...           1           1                0                     0                 1                  1
+7629     0    1    1     6               10             8  ...           1           1                1                     0                 1                  1
+
+[7630 rows x 31 columns]
+********************* START POSTPROCESSING ***********************
+unbinning attributes ------------------------>
+decode other attributes ------------------------>
+2021-10-24 02:56:40.341 | INFO     | __main__:run_method:162 - ------------------------>synthetic data post-processed:
+      Date  Age     Sex             Race Residence State Death County  ... Any Opioid CardioCondition RespiratoryCondition ObesityCondition DiabetesCondition epsilon
+0     2015   49    MALE            WHITE              PA      TOLLAND  ...                          Y                    Y                Y                 Y    10.0
+1     2018   13    MALE                               TX   NEW LONDON  ...          Y                                                                            10.0
+2     2017   59  FEMALE  HISPANIC, WHITE              FL    MIDDLESEX  ...                                               Y                Y                 Y    10.0
+3     2020   85  FEMALE  HISPANIC, BLACK              MA    NEW HAVEN  ...          Y               Y                                     Y                 Y    10.0
+4     2016   39    MALE            BLACK              NC      TOLLAND  ...          Y               Y                                     Y                 Y    10.0
+...    ...  ...     ...              ...             ...          ...  ...        ...             ...                  ...              ...               ...     ...
+7625  2018   49    MALE            ASIAN              NC               ...                                               Y                                       10.0
+7626  2012   49  FEMALE            BLACK              CT    NEW HAVEN  ...                                               Y                                  Y    10.0
+7627  2015   29    MALE  HISPANIC, BLACK              PA   LITCHFIELD  ...          Y               Y                    Y                                  Y    10.0
+7628  2019   29  FEMALE            BLACK              NC    FAIRFIELD  ...          Y                                                     Y                 Y    10.0
+7629  2012   19    MALE            WHITE              TX      WINDHAM  ...          Y               Y                                     Y                 Y    10.0
+
+[7630 rows x 32 columns]
+```
+
+
+
 ### Run the python file 
 
 You can directly download the repository from github and use our tool without docker support.
