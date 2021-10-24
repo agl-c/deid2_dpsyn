@@ -54,7 +54,7 @@ C:\test>ls
 Here is a run example under Win10, with the container named "test". Note that we map the directory /c/test in the Win10 PC to the directory /DPSyn/tmp in the container. Then when you manipulate the directory /DPSyn/tmp in the container, actually you are dealing with the local directory /c/test, where you can store input files and get the output synthetic dataset.
 
 ```powershell
-PS C:\test> docker run -it --name test -v /c/test:/DPSyn/tmp dpsyn:v4 --priv_data_name test --priv_data /DPSyn/tmp/test.csv --target_path /DPSyn/tmp/testout.csv --config /DPSyn/tmp/data.yaml --params /DPSyn/tmp/parameters.json --datatype /DPSyn/tmp/column_datatypes.json --marginal_config /DPSyn/tmp/eps=10.0.yaml
+PS C:\test> docker run -it --name test -v /c/test:/DPSyn/tmp chenanqi18pku/dpsyn:v3 --priv_data_name test --priv_data /DPSyn/tmp/test.csv --target_path /DPSyn/tmp/testout.csv --config /DPSyn/tmp/data.yaml --params /DPSyn/tmp/parameters.json --datatype /DPSyn/tmp/column_datatypes.json --marginal_config /DPSyn/tmp/eps=10.0.yaml
 ------------------------> config yaml file loaded in DataLoader, config file:  /DPSyn/tmp/data.yaml
 ------------------------> parameter file loaded in DataLoader, parameter file:  /DPSyn/tmp/parameters.json
 ************* start loading private data *************
