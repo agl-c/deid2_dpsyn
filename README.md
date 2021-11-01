@@ -3,11 +3,11 @@
 
 We present DPSyn, an algorithm for synthesizing microdata for data analysis while satisfying differential privacy.
 
-To facilitate your understanding, please refer to the paper [*PrivSyn: Differentially Private Data Synthesis*](https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun). And we utilized the record synthesis method proposed in that paper, which is GUM ( Gradually Update Method ) .
+To facilitate your understanding, please refer to the paper [*PrivSyn: Differentially Private Data Synthesis*](https://www.usenix.org/conference/usenixsecurity21/presentation/zhang-zhikun). And we utilized the record synthesis method proposed in that paper, which is GUM (Gradually Update Method).
 
 ### Comparison with related work
 
-There are two similar and highly-related papers (both from competitors in the competition) . They are:
+There are two similar and highly-related papers (both from competitors in the competition). They are:
 [PrivMRF](http://www.vldb.org/pvldb/vol14/p2190-cai.pdf), and
 [PGM](https://arxiv.org/pdf/1901.09136.pdf).
 
