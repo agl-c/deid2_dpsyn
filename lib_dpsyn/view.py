@@ -29,26 +29,21 @@ class View:
 
     ########################################### general functions ####################################
     def calculate_encode_num(self, domain_size_list):
-        """why we encode the categories_num? for what use?
-        how we define the encoding method in this way?
-        """
         if self.view_num_attr != 0:
             # the indexes of the attributes in the marginal
             categories_index = self.attributes_index
 
-            # encoding method 1?
+            # encoding method 
             # the array of domain_size of cared-about attributes
             categories_num = domain_size_list[categories_index]
 
-            # why we roll the array by one step
+            # roll the array by one step
             categories_num = np.roll(categories_num, 1)
-            # why we set [0]=1
+            # set [0]=1
             categories_num[0] = 1
             # we conduct cumprod to get a new array and envalue it to cum_mul 
             self.cum_mul = np.cumprod(categories_num)
 
-            # encoding method 2? (so just do for experiment?)
-            # too confusing, why do these?
             categories_num = domain_size_list[categories_index]
             categories_num = np.roll(categories_num, self.view_num_attr - 1)
             categories_num[-1] = 1
@@ -56,10 +51,6 @@ class View:
             self.encode_num = np.flip(np.cumprod(categories_num))
 
     def calculate_tuple_key(self):
-        """
-        
-        """
-
         self.tuple_key = np.zeros([self.domain_size, self.view_num_attr], dtype=np.uint32)
 
         if self.view_num_attr != 0:
@@ -69,7 +60,6 @@ class View:
                 index = self.attributes_index[i]
                 # create a new array with len=the attribute's domain size
                 categories = np.arange(self.domain_size_list[index])
-                # how to 
                 column_key = np.tile(np.repeat(categories, self.encode_num[i]), self.cum_mul[i])
 
                 self.tuple_key[:, i] = column_key

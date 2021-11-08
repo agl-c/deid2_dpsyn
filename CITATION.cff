@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: >-
+  DPSyn: An algorithm for synthesizing microdata for
+  data analysis while satisfying differential
+  privacy
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Anqi
+    family-names: Chen
+    email: caq@pku.edu.cn
+    affiliation: Peking University
+  - given-names: Zitao
+    family-names: Li
+    affiliation: Purdue University
+    email: li2490@purdue.edu
+    affiliation: Purdue University
+  - given-names: Ninghui
+    family-names: Li
+    affiliation: Purdue University
+    email: ninghui@purdue.edu
+    affiliation: Purdue University
+  - given-names: Tianhao
+    family-names: Wang
+    email: tianhao@virginia.edu
+    affiliation: University of Virginia
+    orcid: "https://orcid.org/0000-0002-9017-7947"
+url: https://github.com/agl-c/deid2_dpsyn
+version: 1.0
+date-released: 2021-10-25

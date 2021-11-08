@@ -69,11 +69,9 @@ def main():
     priv_data_name = args.priv_data_name
 
     syn_data = run_method(config, dataloader, n)
-    # if users set the records' num, we denote it in synthetic dataset's name
     if n != 0:
         print("------------------------> now we synthesize a dataset with ", n, "rows")
         syn_data.to_csv(Path(TARGET_PATH), index=False)
-    # the default synthetic dataset name when n=0 
     else:
         syn_data.to_csv(Path(TARGET_PATH), index=False)
 
@@ -94,38 +92,6 @@ def run_method(config, dataloader, n):
         logger.info(f'working on eps={eps}, delta={delta}, and sensitivity={sensitivity}')
 
         # we will use dpsyn to generate a dataset 
-        """I guess it helps by displaying the runtime logic below
-        1. DPSyn(Synthesizer)
-        it got dataloader, eps, delta, sensitivity
-        however, Synthesizer is so simple and crude(oh no it initializes the parameters in __init__)
-        2. we call synthesizer.synthesize(fixed_n=n) which is written in dpsyn.py
-        3. look at synthesize then
-            def synthesize(self, fixed_n=0) -> pd.DataFrame:
-            # def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
-                noisy_marginals = self.obtain_consistent_marginals()
-        4. it calls get_noisy_marginals() which is written in synthesizer.py
-            # noisy_marginals = self.get_noisy_marginals(priv_marginal_config, priv_split_method)
-        5. look at get_noisy_marginals()
-            # we firstly generate punctual marginals
-            priv_marginal_sets, epss = self.data.generate_marginal_by_config(self.data.private_data, priv_marginal_config)
-            # todo: consider fine-tuned noise-adding methods for one-way and two-way respectively?
-            # and now we add noises to get noisy marginals
-            noisy_marginals = self.anonymize(priv_marginal_sets, epss, priv_split_method)
-        6. look at generate_marginal_by_config() which is written in DataLoader.py
-            we need config files like 
-        e.g.3.
-            priv_all_one_way: (or priv_all_two_way)
-            total_eps: xxxxx
-        7. look at anonymize() which is written in synthesizer.py 
-            def anonymize(self, priv_marginal_sets: Dict, epss: Dict, priv_split_method: Dict) -> Marginals:
-            noisy_marginals = {}
-            for set_key, marginals in priv_marginal_sets.items():
-                eps = epss[set_key]
-            # noise_type, noise_param = advanced_composition.get_noise(eps, self.delta, self.sensitivity, len(marginals))
-                noise_type = priv_split_method[set_key]
-            (1)priv_split_method is hard_coded 
-            (2) we decide the noise type by advanced_compisition()
-        """
         synthesizer = DPSyn(dataloader, eps, delta, sensitivity)
         # tmp returns a DataFrame
         tmp = synthesizer.synthesize(fixed_n=n)

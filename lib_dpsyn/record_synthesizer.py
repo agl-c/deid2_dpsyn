@@ -203,7 +203,7 @@ class RecordSynthesizer:
         current_num = 0.0
         iteration = 0
 
-        # interesting again, how we design beta?
+        # design beta by binary search
         while abs(num_add_total - current_num) >= 1.0:
             beta = (upper_bound + lower_bound) / 2.0
             current_num = np.sum(

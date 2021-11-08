@@ -82,12 +82,11 @@ class Synthesizer(object):
 
     def get_noisy_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
         """instructed by priv_marginal_config, it generate noisy marginals
-        generally, priv_marginal_config only includes one/two way and eps,
+        generally, priv_marginal_config only includes 
         e.g.
         priv_all_two_way: 
           total_eps: 990
         
-        btw, currently we don't set priv_split method in hard code
       
         """
         # generate_marginal_by_config return Tuple[Dict,Dict]     

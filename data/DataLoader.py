@@ -42,10 +42,6 @@ class DataLoader:
         self.pub_ref = False
 
     def load_data(self, pub_only=False):
-
-        # TODO: I guess pub_only serves for sampling methods
-        # load public data and get grouping mapping and filter values
-        # CONFIG_DATA means data.yaml, which include some paths and value bins
         from experiment import PRIV_DATA, CONFIG_DATA, PARAMS, PRIV_DATA_NAME, DATA_TYPE
         with open(CONFIG_DATA, 'r', encoding="utf-8") as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
@@ -130,7 +126,6 @@ class DataLoader:
             # actually, the following 2 rows are based on agreed convention and serve not hard use
             # range(n) return [0,..,n-1]
             self.encode_mapping[attr] = {(bins[i], bins[i + 1]): i for i in range(len(bins) - 1)}
-            # actually, the decode_maping is naive? just record the index array should suffice? I doubt...
             self.decode_mapping[attr] = [i for i in range(len(bins) - 1)]
         print("binning attributes done in DataLoader")
         return data
@@ -147,18 +142,12 @@ class DataLoader:
 
             # map tuples to new values in new columns
             encoding = {v: i for i, v in enumerate(grouping['combinations'])}
-            # this row is verbous, data[new_attr] = data[attributes].apply(tuple, axis=1)
             # here we map them to codes again like we map intervals to interval indexes
             data[new_attr] = data[new_attr].map(encoding)
 
             self.encode_mapping[new_attr] = encoding
             # look at this, here decode_mapping is a dict which maps index to real tuple
             self.decode_mapping[new_attr] = grouping['combinations']
-
-            # todo: do we still need filter?
-            # EMP top 20 filter
-            # if "filter" in grouping:
-            #     data = data[~data[new_attr].isin(self.filter_values[new_attr])]
 
             # drop those already included in new_attr
             data = data.drop(attributes, axis=1)
@@ -189,7 +178,6 @@ class DataLoader:
             data = data.drop(determined_attr, axis=1)
             # desert the determined attributes and print the info
             print("remove", determined_attr)
-        # desert the identifiers, but wait(why it seems to have appeared otherwhere?)
         # data = data.drop(self.config[identifier], axis=1) 
         # note that here rely on specific data setting claiming about determined attributes
         return data
@@ -206,9 +194,8 @@ class DataLoader:
                 continue
             print("encode remain:", attr)
             assert attr in schema and 'values' in schema[attr]
-            # below line serves for syhthesizing a dataset when fixing PUMA,YEAR 
-            # data[].unique() returns an array which includes all the unique values in the column
 
+            # data[].unique() returns an array which includes all the unique values in the column
             mapping = schema[attr]['values']
             encoding = {v: i for i, v in enumerate(mapping)}
             # we encode the remaining single attributes' original values to the categorical indexes
@@ -220,7 +207,6 @@ class DataLoader:
 
     def generate_one_way_marginal(self, records: pd.DataFrame, index_attribute: list):
         """ generate marginal for one attribute
-        (I guess the recommended arg should be in type of str)
 
         we first assign a new column 'n' and assign them as 1 for each record in orignal DataFrame
         note that aggfunc means aggrigation function 
@@ -295,9 +281,7 @@ class DataLoader:
         e.g.
         priv_all_two_way: 
           total_eps: 990
-        e.g.
-        priv_all_one_way: 
-          total_eps: xxxxx
+
 
         """
         marginal_sets = {}
@@ -312,8 +296,7 @@ class DataLoader:
                 # merge the returned marginal dictionary
                 marginals.update(self.generate_all_two_way_marginals(records))
             else:
-                # interestingly, the case 'else' only serves for privatizing for PUMA,YEAR attributes
-                # i.e., return marginal for PUMA, YEAR, no use in general case
+                # return marginal for PUMA, YEAR, no use in general case
                 attrs = marginal_dict['attributes']
                 if len(attrs) == 1:
                     marginals[frozenset(attrs)] = self.generate_one_way_marginal(records, attrs[0])
@@ -347,6 +330,3 @@ class DataLoader:
 if __name__ == "__main__":
     loader = DataLoader()
     loader.load_data()
-    # loader.load_data('../config/data.yaml', './pkl/preprocessed_ground_truth.pkl', './pkl/preprocessed_private.pkl')
-    # loader.generate_all_pub_marginals('./pub_marginals.pkl')
-    # print(loader.generate_marginal_by_yaml(loader.public_data, '../config/marginals_2.yaml'))

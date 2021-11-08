@@ -139,7 +139,6 @@ class DPSyn(Synthesizer):
         print(self.synthesized_df)
         return self.synthesized_df
 
-    #  we have a graph where nodes represent attributes and edges represent marginals,
     #  it helps in terms of running time and accuracy if we do it cluster by cluster
     def synthesize_records(self, attrs: Attrs, domains: Domains, clusters: Clusters, num_synthesize_records: int):
         print("------------------------> num of synthesized records: ")
