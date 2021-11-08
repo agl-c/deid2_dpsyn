@@ -1,5 +1,3 @@
-import copy
-import multiprocessing as mp
 from typing import List, Tuple, Dict, KeysView
 
 import numpy as np
@@ -22,7 +20,7 @@ class DPSyn(Synthesizer):
     """
     synthesized_df = None
 
-    # the magic value is set empirically and users may change in command lines
+    # the magic value is set manually and users may change in command lines
     update_iterations = 30
 
     attrs_view_dict = {}
@@ -39,7 +37,6 @@ class DPSyn(Synthesizer):
     Clusters = Dict[Tuple[str], List[Tuple[str]]]
     d = None
 
-
     def obtain_consistent_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
         """marginals are specified by a dict from attribute tuples to frequency (pandas) tables
         first obtain noisy marginals and make sure they are consistent
@@ -49,7 +46,7 @@ class DPSyn(Synthesizer):
         # generate_all_pub_marginals() generates all the one and two way marginals of the public set which is implemented in DataLoader.py
         if self.data.pub_ref:
             pub_marginals = self.data.generate_all_pub_marginals()
-      
+
         # get_noisy_marginals() is in synthesizer.py
         # which first calls generate_..._by_config(), and computes on priv_data to return marginal_sets, epss
         # (note that 'marginal_key' could be 'priv_all_one_way' or 'priv_all_two_way')
@@ -62,19 +59,17 @@ class DPSyn(Synthesizer):
         # since calculated on noisy marginals
         # we use mean function to estimate the number of synthesized records
         num_synthesize_records = np.mean([np.sum(x.values) for _, x in noisy_marginals.items()]).round().astype(np.int)
-        print("------------------------> now we get the estimate of records' num by averaging from nosiy marginals:", num_synthesize_records)
-        
-        
-        
+        print("------------------------> now we get the estimate of records' num by averaging from nosiy marginals:",
+              num_synthesize_records)
+
         # the list of all attributes' name(str)  except the identifier attribute
         self.attr_list = self.data.obtain_attrs()
         # domain_list is an array recording the count of each attribute's candidate values
         self.domain_list = np.array([len(self.data.encode_schema[att]) for att in self.attr_list])
-        
+
         # map the attribute str to its index in attr_list, for possible use
         # use enumerate to return Tuple(index, element) 
         self.attr_index_map = {att: att_i for att_i, att in enumerate(self.attr_list)}
-
 
         # views are wrappers of marginals with additional functions for consistency
         # if there exist public dataset to refer to
@@ -82,7 +77,7 @@ class DPSyn(Synthesizer):
             pub_onehot_view_dict, pub_attr_view_dict = self.construct_views(pub_marginals)
         # Step 2: create some data structures
         noisy_onehot_view_dict, noisy_attr_view_dict = self.construct_views(noisy_marginals)
-    
+
         # all_views is one-hot to view dict, views_dict is attribute to view dict
         # they have different format to satisfy the needs of consistenter and synthesiser
         # to fit in code when we do not have public things to utilize    
@@ -108,11 +103,10 @@ class DPSyn(Synthesizer):
 
         return noisy_marginals, num_synthesize_records
 
-
     # in experiment.py, tmp = synthesizer.synthesize(fixed_n=n)
     # in below function, we call synthesize_records()
     # it further utilize the lib function in record_synthesizer.py
-  
+
     def synthesize(self, fixed_n=0) -> pd.DataFrame:
         """synthesize a DataFrame in fixed_n size if denoted n!=0
          
@@ -120,10 +114,10 @@ class DPSyn(Synthesizer):
         from experiment import MARGINAL_CONFIG
         with open(MARGINAL_CONFIG, 'r', encoding="utf-8") as f:
             priv_marginal_config = yaml.load(f, Loader=yaml.FullLoader)
-        priv_split_method = {} 
+        priv_split_method = {}
 
         noisy_marginals, num_records = self.obtain_consistent_marginals(priv_marginal_config, priv_split_method)
-        
+
         if fixed_n != 0:
             num_records = fixed_n
         # TODO: just based on the marginals to synthesize records
@@ -144,7 +138,6 @@ class DPSyn(Synthesizer):
         print("------------------------> synthetic dataframe before postprocessing: ")
         print(self.synthesized_df)
         return self.synthesized_df
-
 
     #  we have a graph where nodes represent attributes and edges represent marginals,
     #  it helps in terms of running time and accuracy if we do it cluster by cluster
@@ -183,7 +176,6 @@ class DPSyn(Synthesizer):
             else:
                 self.synthesized_df.loc[:, cluster_attrs] = synthesizer.df.loc[:, cluster_attrs]
 
-
     @staticmethod
     def calculate_l1_errors(records, target_marginals, attrs_view_dict):
         l1_T_Ms = []
@@ -206,7 +198,8 @@ class DPSyn(Synthesizer):
         return np.mean(l1_T_Ms), np.mean(l1_T_Ss), np.mean(l1_M_Ss)
 
     @staticmethod
-    def normalize_views(pub_onehot_view_dict: Dict, pub_attr_view_dict, noisy_view_dict, attr_index_map, num_synthesize_records) -> Tuple[Dict, Dict]:
+    def normalize_views(pub_onehot_view_dict: Dict, pub_attr_view_dict, noisy_view_dict, attr_index_map,
+                        num_synthesize_records) -> Tuple[Dict, Dict]:
         pub_weight = 0.00
         noisy_weight = 1 - pub_weight
 
@@ -233,7 +226,6 @@ class DPSyn(Synthesizer):
                 singleton_views[cur_attrs] = view
         return singleton_views
 
-
     def construct_views(self, marginals: Marginals) -> Tuple[Dict, Dict]:
         """construct views for each marginal item,
         return 2 dictionaries, onehot2view and attr2view
@@ -247,7 +239,7 @@ class DPSyn(Synthesizer):
             # return value is an array marked 
             view_onehot = DPSyn.one_hot(marginal_att, self.attr_index_map)
 
-            # View() is in lib_dpsyn\view.py 
+            # View() is in lib_dpsyn/view.py
             # domain_list is an array recording the count of each attribute's candidate values
             view = View(view_onehot, self.domain_list)
 
@@ -263,7 +255,6 @@ class DPSyn(Synthesizer):
                 raise Exception('no match')
 
         return onehot_view_dict, attr_view_dict
-
 
     def log_result(self, result):
         self.d.append(result)
@@ -295,4 +286,3 @@ class DPSyn(Synthesizer):
         for attr in cur_att:
             cur_view_key[attr_index_map[attr]] = 1
         return cur_view_key
-

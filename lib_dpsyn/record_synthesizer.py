@@ -1,9 +1,8 @@
-from loguru import logger
-from numpy import linalg as LA
 import copy
-
 import numpy as np
 import pandas as pd
+from loguru import logger
+from numpy import linalg as LA
 
 
 class RecordSynthesizer:
@@ -34,9 +33,7 @@ class RecordSynthesizer:
         self.domains = domains
         self.num_records = num_records
 
-# TODO: later take a look at values related to alpha beta magic values 
     def update_alpha(self, iteration):
-        # interstingly, how to design this? any intuition design or just case by case?
         self.alpha = 1.0 * 0.84 ** (iteration // 20)
 
     def update_order(self, iteration, views, iterate_keys):
@@ -90,11 +87,14 @@ class RecordSynthesizer:
         alpha = self.alpha
 
         # deal with under cells (synthesize_marginal < actual_marginal) where synthesize_marginal != 0
-        self.under_cell_indices = np.where((self.synthesize_marginal < self.actual_marginal) & (self.synthesize_marginal != 0))[0]
+        self.under_cell_indices = \
+        np.where((self.synthesize_marginal < self.actual_marginal) & (self.synthesize_marginal != 0))[0]
 
-        under_rate = (self.actual_marginal[self.under_cell_indices] - self.synthesize_marginal[self.under_cell_indices]) / self.synthesize_marginal[self.under_cell_indices]
+        under_rate = (self.actual_marginal[self.under_cell_indices] - self.synthesize_marginal[
+            self.under_cell_indices]) / self.synthesize_marginal[self.under_cell_indices]
         ratio_add = np.minimum(under_rate, np.full(self.under_cell_indices.shape[0], alpha))
-        self.add_amount = self._rounding(ratio_add * self.synthesize_marginal[self.under_cell_indices] * self.num_records)
+        self.add_amount = self._rounding(
+            ratio_add * self.synthesize_marginal[self.under_cell_indices] * self.num_records)
 
         # deal with the case synthesize_marginal == 0 and actual_marginal != 0
         self.zero_cell_indices = np.where((self.synthesize_marginal == 0) & (self.actual_marginal != 0))[0]
@@ -105,9 +105,11 @@ class RecordSynthesizer:
         num_add_total = np.sum(self.add_amount) + np.sum(self.add_amount_zero)
 
         beta = self.find_optimal_beta(num_add_total, self.over_cell_indices)
-        over_rate = (self.synthesize_marginal[self.over_cell_indices] - self.actual_marginal[self.over_cell_indices]) / self.synthesize_marginal[self.over_cell_indices]
+        over_rate = (self.synthesize_marginal[self.over_cell_indices] - self.actual_marginal[self.over_cell_indices]) / \
+                    self.synthesize_marginal[self.over_cell_indices]
         ratio_reduce = np.minimum(over_rate, np.full(self.over_cell_indices.shape[0], beta))
-        self.reduce_amount = self._rounding(ratio_reduce * self.synthesize_marginal[self.over_cell_indices] * self.num_records).astype(int)
+        self.reduce_amount = self._rounding(
+            ratio_reduce * self.synthesize_marginal[self.over_cell_indices] * self.num_records).astype(int)
 
         # logger.debug("alpha: %s | beta: %s" % (alpha, beta))
         # logger.debug("num_boost: %s | num_reduce: %s" % (num_add_total, np.sum(self.reduce_amount)))
@@ -129,7 +131,8 @@ class RecordSynthesizer:
         throw_pointer = 0
 
         for i, cell_index in enumerate(valid_cell_over_indices):
-            match_records_indices = self.encode_records_sort_index[valid_data_over_index_left[i]: valid_data_over_index_right[i]]
+            match_records_indices = self.encode_records_sort_index[
+                                    valid_data_over_index_left[i]: valid_data_over_index_right[i]]
             throw_indices = np.random.choice(match_records_indices, valid_cell_num_reduce[i], replace=False)
 
             self.records_throw_indices[throw_pointer: throw_pointer + throw_indices.size] = throw_indices
@@ -161,48 +164,53 @@ class RecordSynthesizer:
         valid_cell_under_indices = self.under_cell_indices[valid_indices]
         valid_data_under_index_left = np.searchsorted(self.encode_records, valid_cell_under_indices, side="left")
         valid_data_under_index_right = np.searchsorted(self.encode_records, valid_cell_under_indices, side="right")
-        
+
         for valid_index, cell_index in enumerate(valid_cell_under_indices):
-            match_records_indices = self.encode_records_sort_index[valid_data_under_index_left[valid_index]: valid_data_under_index_right[valid_index]]
+            match_records_indices = self.encode_records_sort_index[
+                                    valid_data_under_index_left[valid_index]: valid_data_under_index_right[valid_index]]
 
             np.random.shuffle(match_records_indices)
-            
+
             if self.records_throw_indices.shape[0] >= (num_complete[valid_index] + num_partial[valid_index]):
                 # complete update code
                 if num_complete[valid_index] != 0:
                     self.records[self.records_throw_indices[: num_complete[valid_index]]] = self.records[
                         match_records_indices[: num_complete[valid_index]]]
-                
+
                 # partial update code
                 if num_partial[valid_index] != 0:
                     self.records[np.ix_(
-                        self.records_throw_indices[num_complete[valid_index]: (num_complete[valid_index] + num_partial[valid_index])],
+                        self.records_throw_indices[
+                        num_complete[valid_index]: (num_complete[valid_index] + num_partial[valid_index])],
                         view.attributes_index)] = view.tuple_key[cell_index]
-                
+
                 # update records_throw_indices
-                self.records_throw_indices = self.records_throw_indices[num_complete[valid_index] + num_partial[valid_index]:]
-            
+                self.records_throw_indices = self.records_throw_indices[
+                                             num_complete[valid_index] + num_partial[valid_index]:]
+
             else:
                 # todo: simply apply complete operation here, do not know whether it is make sense
-                self.records[self.records_throw_indices] = self.records[match_records_indices[: self.records_throw_indices.size]]
+                self.records[self.records_throw_indices] = self.records[
+                    match_records_indices[: self.records_throw_indices.size]]
 
     def find_optimal_beta(self, num_add_total, cell_over_indices):
         actual_marginal_under = self.actual_marginal[cell_over_indices]
         synthesize_marginal_under = self.synthesize_marginal[cell_over_indices]
-        
+
         lower_bound = 0.0
         upper_bound = 1.0
         beta = 0.0
         current_num = 0.0
         iteration = 0
-        
+
         # interesting again, how we design beta?
         while abs(num_add_total - current_num) >= 1.0:
             beta = (upper_bound + lower_bound) / 2.0
             current_num = np.sum(
                 np.minimum((synthesize_marginal_under - actual_marginal_under) / synthesize_marginal_under,
-                np.full(cell_over_indices.shape[0], beta)) * synthesize_marginal_under * self.records.shape[0])
-            
+                           np.full(cell_over_indices.shape[0], beta)) * synthesize_marginal_under * self.records.shape[
+                    0])
+
             if current_num < num_add_total:
                 lower_bound = beta
             elif current_num > num_add_total:
@@ -214,7 +222,7 @@ class RecordSynthesizer:
             if iteration > 50:
                 # logger.warning("cannot find the optimal beta")
                 break
-        
+
         return beta
 
     def track_error(self, view, key_i):

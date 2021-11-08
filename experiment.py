@@ -2,51 +2,39 @@
 # the above errcodes correspond to unused wildcard import, wildcard import, wrong-import-order
 # In fact, we can run pylint in cmd and set options like: pylint --disable=Cxxxx,Wxxxx yyyy.py zzzz.py
 import argparse
-import copy
-
 from pathlib import Path
-from loguru import logger
-import numpy as np
 
+import numpy as np
+from loguru import logger
 
 parser = argparse.ArgumentParser()
 
-# original dataset file 
 parser.add_argument("--priv_data", type=str, default="./data/accidential_drug_deaths.csv",
                     help="specify the path of original data file in csv format")
 
-# priv_data_name for use of naming mile-stone files
-parser.add_argument("--priv_data_name", type=str, 
-help="users must specify it to help mid-way naming and avoid possible mistakings")
+parser.add_argument("--priv_data_name", type=str,
+                    help="users must specify it to help mid-way naming and avoid possible mistakes")
 
-# config file which include identifier and binning settings 
 parser.add_argument("--config", type=str, default="./config/data.yaml",
                     help="specify the path of config file in yaml format")
 
-# the default number of records is set as 100
-parser.add_argument("--n", type=int, default=0, 
+parser.add_argument("--n", type=int, default=0,
                     help="specify the number of records to generate")
 
-# params file which include schema of the original dataset
 parser.add_argument("--params", type=str, default="./data/parameters.json",
                     help="specify the path of parameters file in json format")
 
-# datatype file which include the data types of the columns
 parser.add_argument("--datatype", type=str, default="./data/column_datatypes.json",
                     help="specify the path of datatype file in json format")
 
-# marginal_config which specify marginal usage method
 parser.add_argument("--marginal_config", type=str, default="./config/eps=10.0.yaml",
-help="specify the path of marginal config file in yaml format")
+                    help="specify the path of marginal config file in yaml format")
 
-# hyper parameter, the num of update iterations
 parser.add_argument("--update_iterations", type=int, default=30,
-                   help="specify the num of update iterations")
+                    help="specify the num of update iterations")
 
-# target path of synthetic dataset
 parser.add_argument("--target_path", type=str, default="out.csv",
-help="specify the target path of the synthetic dataset")
-
+                    help="specify the target path of the synthetic dataset")
 
 args = parser.parse_args()
 PRIV_DATA = args.priv_data
@@ -79,10 +67,10 @@ def main():
     n = args.n
     priv_data = args.priv_data
     priv_data_name = args.priv_data_name
-   
+
     syn_data = run_method(config, dataloader, n)
     # if users set the records' num, we denote it in synthetic dataset's name
-    if n!=0:
+    if n != 0:
         print("------------------------> now we synthesize a dataset with ", n, "rows")
         syn_data.to_csv(Path(TARGET_PATH), index=False)
     # the default synthetic dataset name when n=0 
@@ -137,13 +125,11 @@ def run_method(config, dataloader, n):
                 noise_type = priv_split_method[set_key]
             (1)priv_split_method is hard_coded 
             (2) we decide the noise type by advanced_compisition()
-
-
         """
         synthesizer = DPSyn(dataloader, eps, delta, sensitivity)
         # tmp returns a DataFrame
         tmp = synthesizer.synthesize(fixed_n=n)
-        
+
         # we add in the synthesized dataframe a new column which is 'epsilon'
         # so when do comparison, you should remove this column for consistence
         tmp['epsilon'] = eps
@@ -153,7 +139,6 @@ def run_method(config, dataloader, n):
             syn_data = tmp
         else:
             syn_data = syn_data.append(tmp, ignore_index=True)
-
 
     # post-processing generated data, map records with grouped/binned attribute back to original attributes
     print("********************* START POSTPROCESSING ***********************")
@@ -165,5 +150,5 @@ def run_method(config, dataloader, n):
     return syn_data
 
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     main()

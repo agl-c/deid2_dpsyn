@@ -1,7 +1,7 @@
+import json
 import numpy as np
 import pandas as pd
 import yaml
-import json 
 
 
 class RecordPostprocessor:
@@ -96,7 +96,7 @@ class RecordPostprocessor:
         
         """
         from experiment import DATA_TYPE
-        with open(DATA_TYPE,'r') as f:
+        with open(DATA_TYPE, 'r') as f:
             content = json.load(f)
         COLS = content['dtype']
         for col, data_type in COLS.items():

@@ -1,12 +1,14 @@
 import copy
+import numpy as np
 from loguru import logger
 
-import numpy as np
 from lib_dpsyn.view import View
-"""this file serves for make sure the noisy marginals are consistent, 
-i.e., with the same count, submit to the dependency relationship, non-negative counts
 
 """
+this file serves for make sure the noisy marginals are consistent, 
+i.e., with the same count, submit to the dependency relationship, non-negative counts
+"""
+
 
 class Consistenter:
     class SubsetWithDependency:
@@ -105,7 +107,6 @@ class Consistenter:
         logger.debug("dependency computed")
 
         # ripple steps needs several iterations
-        # for i in range(self.iterations):
         non_negativity = True
         iterations = 0
 

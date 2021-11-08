@@ -95,5 +95,3 @@ def get_noise(eps, delta, sensitivity, num_composition):
         return 'lap', 1 / lap_param
     else:
         return 'gauss', gauss_param
-
-

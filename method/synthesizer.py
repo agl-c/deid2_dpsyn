@@ -1,4 +1,5 @@
 import abc
+from typing import Dict, Tuple
 
 import numpy as np
 import pandas as pd
@@ -6,14 +7,12 @@ from loguru import logger
 
 from data.DataLoader import DataLoader
 from utils import advanced_composition
-from typing import Dict, Tuple
 
 
 class Synthesizer(object):
     """the class include functions to synthesize noisy marginals
+
     note that some functions just own a draft which yet to be used in practice
-    
-    
     """
     # every class can inherit the base class object;
     # abc means Abstract Base Class
@@ -39,22 +38,23 @@ class Synthesizer(object):
 
     def anonymize(self, priv_marginal_sets: Dict, epss: Dict, priv_split_method: Dict) -> Marginals:
         """the function serves for adding noises
+
         priv_marginal_sets: Dict[set_key,marginals] where set_key is an key for eps and noise_type
         priv_split_method serves for mapping 'set_key' to 'noise_type' which can be hard coded but currently unused
-
         """
         noisy_marginals = {}
         # as for now, set_key only havs one value, i.e. "priv_all_two_way"
         for set_key, marginals in priv_marginal_sets.items():
             # for debug about num
             tmp_num = np.mean([np.sum(marginal.values) for marginal_att, marginal in marginals.items()])
-            print("**************** help debug ************** num of records from marginal count before adding noise:", tmp_num)
+            print("**************** help debug ************** num of records from marginal count before adding noise:",
+                  tmp_num)
 
             eps = epss[set_key]
             print("------------------------> now we decide the noise type: ")
             print("considering eps:", eps, ", delta:", self.delta, ", sensitivity:", self.sensitivity,
-            ", len of marginals:", len(marginals))
-            
+                  ", len of marginals:", len(marginals))
+
             noise_type, noise_param = advanced_composition.get_noise(eps, self.delta, self.sensitivity, len(marginals))
             print("------------------------> noise type:", noise_type)
             print("------------------------> noise parameter:", noise_param)
@@ -64,21 +64,21 @@ class Synthesizer(object):
 
             # the advanced_composition is a python module which provides related noise parameters
             # for instance, as to laplace noises, it computes the reciprocal of laplace scale
-            
+
             if noise_type == 'lap':
                 noise_param = 1 / advanced_composition.lap_comp(eps, self.delta, self.sensitivity, len(marginals))
                 for marginal_att, marginal in marginals.items():
                     marginal += np.random.laplace(scale=noise_param, size=marginal.shape)
                     noisy_marginals[marginal_att] = marginal
-            else:   
+            else:
                 noise_param = advanced_composition.gauss_zcdp(eps, self.delta, self.sensitivity, len(marginals))
                 for marginal_att, marginal in marginals.items():
-                    noise = np.random.normal(scale=noise_param, size=marginal.shape) 
+                    noise = np.random.normal(scale=noise_param, size=marginal.shape)
                     marginal += noise
-                    noisy_marginals[marginal_att] = marginal 
-            logger.info(f"marginal {set_key} use eps={eps}, noise type:{noise_type}, noise parameter={noise_param}, sensitivity:{self.sensitivity}")
+                    noisy_marginals[marginal_att] = marginal
+            logger.info(
+                f"marginal {set_key} use eps={eps}, noise type:{noise_type}, noise parameter={noise_param}, sensitivity:{self.sensitivity}")
         return noisy_marginals
-
 
     def get_noisy_marginals(self, priv_marginal_config, priv_split_method) -> Marginals:
         """instructed by priv_marginal_config, it generate noisy marginals
@@ -96,9 +96,7 @@ class Synthesizer(object):
         # return marginal_sets, epss
         # we firstly generate punctual marginals
         priv_marginal_sets, epss = self.data.generate_marginal_by_config(self.data.private_data, priv_marginal_config)
-        # todo: consider fine-tuned noise-adding methods for one-way and two-way respectively
         # and now we add noises to get noisy marginals
         noisy_marginals = self.anonymize(priv_marginal_sets, epss, priv_split_method)
-        # we delete the original marginals 
         del priv_marginal_sets
         return noisy_marginals

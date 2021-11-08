@@ -1,18 +1,17 @@
 import json
-import os
-import pickle
-from typing import Tuple, Dict
-
 import numpy as np
+import os
 import pandas as pd
+import pickle
 import yaml
+from typing import Tuple, Dict
 
 from config.path import PICKLE_DIRECTORY
 
 
-
 class DataLoader:
-    """Load data, bin some attributes, group some attributes,
+    """
+    Load data, bin some attributes, group some attributes,
     during which encode the attributes' values to categorical indexes,
     encode the remained single attributes likewise,
     remove the identifier attribute,
@@ -21,6 +20,7 @@ class DataLoader:
     several marginal generation funtions are also included in the class for use.
     
     """
+
     def __init__(self):
         self.public_data = None
         self.private_data = None
@@ -42,7 +42,7 @@ class DataLoader:
         self.pub_ref = False
 
     def load_data(self, pub_only=False):
-    
+
         # TODO: I guess pub_only serves for sampling methods
         # load public data and get grouping mapping and filter values
         # CONFIG_DATA means data.yaml, which include some paths and value bins
@@ -52,9 +52,8 @@ class DataLoader:
         self.config = config
         print("------------------------> config yaml file loaded in DataLoader, config file: ", CONFIG_DATA)
 
-     
         # which include parameters for several runs and data schema
-        with open(PARAMS,'r', encoding="utf-8") as f:
+        with open(PARAMS, 'r', encoding="utf-8") as f:
             parameter_spec = json.load(f)
             self.general_schema = parameter_spec['schema']
         print("------------------------> parameter file loaded in DataLoader, parameter file: ", PARAMS)
@@ -69,41 +68,38 @@ class DataLoader:
             [self.private_data, self.encode_mapping] = pickle.load(open(priv_pickle_path, 'rb'))
             for attr, encode_mapping in self.encode_mapping.items():
                 self.decode_mapping[attr] = sorted(encode_mapping, key=encode_mapping.get)
-        
+
         elif not pub_only:
             print("************* start loading private data *************")
-            print("------------------------> process and store with pkl file name: ", f"preprocessed_priv_{PRIV_DATA_NAME}.pkl")
+            print("------------------------> process and store with pkl file name: ",
+                  f"preprocessed_priv_{PRIV_DATA_NAME}.pkl")
             from experiment import DATA_TYPE
 
-            with open(DATA_TYPE,'r', encoding="utf-8") as f:
+            with open(DATA_TYPE, 'r', encoding="utf-8") as f:
                 content = json.load(f)
             COLS = content['dtype']
 
             self.private_data = pd.read_csv(PRIV_DATA, dtype=COLS)
             print(self.private_data)
 
-            self.private_data.fillna('',inplace=True)
-            print("********** afer fillna ***********")
+            self.private_data.fillna('', inplace=True)
+            print("********** after fillna ***********")
             print(self.private_data)
             print("------------------------> private dataset: ", PRIV_DATA)
             self.private_data = self.binning_attributes(config['numerical_binning'], self.private_data)
-            # self.private_data = self.grouping_attributes(config['grouping_attributes'], self.private_data)
             self.private_data = self.remove_identifier(self.private_data)
-            # self.private_data = self.remove_determined_attributes(config['determined_attributes'], self.private_data)
             self.private_data = self.encode_remain(self.general_schema, config, self.private_data, is_private=True)
             pickle.dump([self.private_data, self.encode_mapping], open(priv_pickle_path, 'wb'))
 
         for attr, encode_mapping in self.encode_mapping.items():
-        # note that here schema means all the valid values of encoded ones
+            # note that here schema means all the valid values of encoded ones
             self.encode_schema[attr] = sorted(encode_mapping.values())
         print("************* private data loaded and preprocessed in DataLoader ************")
         print("priv df's rows:------------------------> ", self.private_data.shape[0])
 
-
     def obtain_attrs(self):
-        """return the list of all attributes' name  except the identifier attribute
-        
-        """
+        """  return the list of all attributes' name  except the identifier attribute """
+
         if not self.all_attrs:
 
             all_attrs = list(self.private_data.columns)
@@ -116,12 +112,11 @@ class DataLoader:
         return self.all_attrs
 
     def binning_attributes(self, binning_info, data):
-        """Numerical attributes can be binned,
+        """
+        Numerical attributes can be binned,
         As data.yaml only claims the min, max, step value for an attribute,
         we write this function to materially bin the detailed values for each attribute.
         You can change details according to your specific needs.
-
-
         """
         for attr, spec_list in binning_info.items():
             # fit with the binning settings in format of [s,t,step]        
@@ -129,9 +124,9 @@ class DataLoader:
             [s, t, step] = spec_list
             # generate the bins
             # use np.arrange(s,t,step) to generate 1-dim array
-            bins = np.r_[-np.inf, np.arange(s, t, step), np.inf]    
+            bins = np.r_[-np.inf, np.arange(s, t, step), np.inf]
             # translate attribute original value to intervals and further translate to interval codes 
-            data[attr] = pd.cut(data[attr], bins).cat.codes    
+            data[attr] = pd.cut(data[attr], bins).cat.codes
             # actually, the following 2 rows are based on agreed convention and serve not hard use
             # range(n) return [0,..,n-1]
             self.encode_mapping[attr] = {(bins[i], bins[i + 1]): i for i in range(len(bins) - 1)}
@@ -141,9 +136,7 @@ class DataLoader:
         return data
 
     def grouping_attributes(self, grouping_info, data):
-        """Some attributes can be grouped  under settings in grouping_info
-
-        """
+        """Some attributes can be grouped  under settings in grouping_info"""
         print("************* start grouping some attributes **************")
         for grouping in grouping_info:
             attributes = grouping['attributes']
@@ -157,7 +150,7 @@ class DataLoader:
             # this row is verbous, data[new_attr] = data[attributes].apply(tuple, axis=1)
             # here we map them to codes again like we map intervals to interval indexes
             data[new_attr] = data[new_attr].map(encoding)
-           
+
             self.encode_mapping[new_attr] = encoding
             # look at this, here decode_mapping is a dict which maps index to real tuple
             self.decode_mapping[new_attr] = grouping['combinations']
@@ -174,18 +167,16 @@ class DataLoader:
         # display after grouping
         print("columns after grouping:", data.columns)
         print("grouping attributes done in DataLoader")
-    
+
         return data
 
     def remove_identifier(self, data):
-        """remove the identifier attribute column
-        
-        """
+        """remove the identifier attribute column"""
         data = data.drop(self.config['identifier'], axis=1)
         print("------------------------> remove identifier column:", self.config['identifier'])
         print("identifier removed in DataLoader")
         return data
-    
+
     # we declare the function as @staticmethod so that you can use it without instantiating an object
     # however, maybe determined_attributes are not so easy to be detected with a general dataset, so we mute the part
     @staticmethod
@@ -196,7 +187,7 @@ class DataLoader:
         """
         for determined_attr in determined_info.keys():
             data = data.drop(determined_attr, axis=1)
-        # desert the determined attributes and print the info
+            # desert the determined attributes and print the info
             print("remove", determined_attr)
         # desert the identifiers, but wait(why it seems to have appeared otherwhere?)
         # data = data.drop(self.config[identifier], axis=1) 
@@ -204,13 +195,13 @@ class DataLoader:
         return data
 
     # encode the remaining single attributes to save storage
-    #　i.e., all the attributes are encoded to save now
+    # 　i.e., all the attributes are encoded to save now
     def encode_remain(self, schema, config, data, is_private=False):
-       
+
         # encoded_attr = list(config['numerical_binning'].keys()) + [grouping['grouped_name'] for grouping in config['grouping_attributes']]
-        encoded_attr = list(config['numerical_binning'].keys()) 
+        encoded_attr = list(config['numerical_binning'].keys())
         print("------------------------> start encoding remaining single attributes")
-        for attr in data.columns:    
+        for attr in data.columns:
             if attr in [self.config['identifier']] or attr in encoded_attr:
                 continue
             print("encode remain:", attr)
@@ -226,7 +217,7 @@ class DataLoader:
             self.decode_mapping[attr] = mapping
         print("encoding remaining single attributes done in DataLoader")
         return data
-   
+
     def generate_one_way_marginal(self, records: pd.DataFrame, index_attribute: list):
         """ generate marginal for one attribute
         (I guess the recommended arg should be in type of str)
@@ -257,7 +248,7 @@ class DataLoader:
         indices = sorted([i for i in self.encode_mapping[index_attribute].values()])
         columns = sorted([i for i in self.encode_mapping[column_attribute].values()])
         marginal = marginal.reindex(index=indices, columns=columns).fillna(0).astype(np.int32)
-       
+
         # print("*********** generating a two-way marginal *********** ")
         # print("*********** i ******* ", indices)
         # print("*********** j ******* ", columns)
@@ -266,7 +257,6 @@ class DataLoader:
 
         return marginal
 
-    
     def generate_all_one_way_marginals(self, records: pd.DataFrame):
         """generate all the one-way marginals,
         which simply calls generate_one_way_marginal in every cycle round
@@ -278,7 +268,7 @@ class DataLoader:
             marginals[frozenset([attr])] = self.generate_one_way_marginal(records, attr)
         print("------------------------> all one way marginals generated")
         return marginals
-    
+
     def generate_all_two_way_marginals(self, records: pd.DataFrame):
         """generate all the two-way marginals,
         which simply builds a loop and calls generate_two_way_marginal in every cycle round
@@ -289,14 +279,13 @@ class DataLoader:
         for i, attr in enumerate(all_attrs):
             for j in range(i + 1, len(all_attrs)):
                 marginals[frozenset([attr, all_attrs[j]])] = self.generate_two_way_marginal(records, attr, all_attrs[j])
-        
+
         print("------------------------> all two way marginals generated")
         # debug
         tmp_num = np.mean([np.sum(marginal.values) for marginal_att, marginal in marginals.items()])
         print("**************** help debug ************** num of records averaged from all two-way marginals:", tmp_num)
 
         return marginals
-    
 
     def generate_marginal_by_config(self, records: pd.DataFrame, config: dict) -> Tuple[Dict, Dict]:
         """config means those marginals_xxxxx.yaml where define generation details
@@ -315,7 +304,7 @@ class DataLoader:
         epss = {}
         for marginal_key, marginal_dict in config.items():
             marginals = {}
-        
+
             if marginal_key == 'priv_all_one_way':
                 # merge the returned marginal dictionary
                 marginals.update(self.generate_all_one_way_marginals(records))
@@ -335,7 +324,6 @@ class DataLoader:
             epss[marginal_key] = marginal_dict['total_eps']
             marginal_sets[marginal_key] = marginals
         return marginal_sets, epss
-
 
     def get_marginal_grouping_info(self, cur_attrs):
         """return a dictionary which map attr to a list of attr:
